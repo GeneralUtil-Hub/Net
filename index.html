@@ -1,748 +1,196 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMate Pro | Real-Time Collaboration</title>
-    <!-- Puter.js - Handling Auth, Storage, and Real-Time PubSub -->
-    <script src="https://js.puter.com/v2/"></script>
-    
-    <!-- MathJax Configuration -->
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady();
-                }
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Solaris Collaborative Whiteboard</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        :root[data-theme="dark"] { 
-            --bg: #0b0f1a; 
-            --card: #161b2c; 
-            --text: #f8fafc; 
-            --accent: #3b82f6; 
-            --border: #2d364d; 
-            --sidebar: #060912; 
-            --success: #10b981;
-            --danger: #ef4444;
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f0f0; }
+        
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar */
-        #sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 100; flex-shrink: 0; }
-        .user-block { display: flex; align-items: center; gap: 12px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-top: auto; border: 1px solid var(--border); }
-        .pfp-wrap { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { background: var(--accent); color: white; }
-        .nav-icon { width: 18px; height: 18px; fill: currentColor; }
 
-        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
-        .view.active { display: flex; flex-direction: column; }
-
-        /* Whiteboard */
-        #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
-        #wb-canvas { position: absolute; top: 0; left: 0; background: transparent; }
-        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 8px 16px; border-radius: 50px; display: flex; gap: 8px; border: 1px solid var(--border); z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.5); align-items: center; }
-        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; }
-        .tool-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        .tool-btn.active { background: var(--accent); color: white; }
-        
-        .color-picker-wrap { display: flex; align-items: center; gap: 5px; padding: 0 5px; border-left: 1px solid var(--border); margin-left: 5px; }
-        .color-input { width: 24px; height: 24px; border: none; border-radius: 4px; padding: 0; background: none; cursor: pointer; }
-
-        .room-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .room-status { font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; white-space: nowrap; }
-        .presence-list { display: flex; gap: 5px; border-left: 1px solid var(--border); padding-left: 10px; }
-        .presence-user { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: white; font-weight: 800; cursor: pointer; border: 2px solid var(--bg); transition: 0.2s; }
-        .presence-user:hover { transform: translateY(-3px); box-shadow: 0 4px 10px var(--accent); }
-
-        /* Flashcards & Math Styling */
-        .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
-        .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: transform 0.2s, border-color 0.2s; padding: 60px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .flashcard:hover { border-color: var(--accent); transform: translateY(-4px); }
-        .card-content { font-size: 1.8rem; line-height: 1.6; width: 100%; overflow-wrap: break-word; }
-        
-        .card-content .mjx-container, .deck-card-text .mjx-container { 
-            font-size: 1.1em !important; 
-            margin: 10px 0 !important;
-            padding: 5px 10px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-            color: var(--accent) !important;
+        .panel {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+
+        #room-info { font-weight: bold; color: #333; font-size: 0.9rem; }
+        canvas { cursor: crosshair; background: white; touch-action: none; }
         
-        .card-meta { position: absolute; top: 25px; left: 30px; font-size: 0.75rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 1.5px; opacity: 0.8; }
-        .magic-bar { margin-top: auto; width: 100%; background: var(--card); padding: 12px; border-radius: 20px; border: 1px solid var(--border); display: flex; gap: 12px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .magic-bar input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 0 10px; }
-        .stat-badge { font-size: 0.75rem; background: var(--border); padding: 6px 14px; border-radius: 20px; color: #94a3b8; font-weight: 700; margin-bottom: 20px; }
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-        /* Deck Manager View */
-        .deck-list { display: flex; flex-direction: column; gap: 12px; padding: 20px 0; }
-        .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: 0.2s; }
-        .deck-card:hover { border-color: var(--accent); }
-        .deck-card-text { font-size: 1rem; line-height: 1.5; color: var(--text); }
-        .deck-card-actions { display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end; }
-        .action-btn { border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
-        .action-btn:hover { opacity: 0.8; transform: translateY(-1px); }
-        .edit-btn { background: var(--accent); color: white; }
-        .delete-btn { background: var(--danger); color: white; }
+        button:hover { background: #0056b3; }
+        #clearBtn { background: #dc3545; }
+        #clearBtn:hover { background: #a71d2a; }
 
-        /* Hub Sections */
-        .hub-section { background: var(--card); padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; }
-        .id-display { font-family: monospace; background: var(--bg); padding: 12px; border-radius: 12px; font-size: 0.9rem; border: 1px dashed var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .copy-btn { background: var(--accent); border: none; color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+        /* Setup Screen */
+        #setup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
 
-        #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 16px 24px; border-radius: 16px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-weight: 600; animation: slideIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes slideIn { from { transform: translateY(100px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-<div id="notif-toast"></div>
-
-<nav id="sidebar">
-    <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 40px; color: var(--accent); display: flex; align-items: center; gap: 10px;">
-        <div style="width: 32px; height: 32px; background: var(--accent); border-radius: 8px;"></div> 
-        STUDYMATE
-    </div>
-    
-    <div class="nav-item active" id="nav-study" onclick="setView('study')">
-        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3"/></svg> Study Session
-    </div>
-    <div class="nav-item" id="nav-deck" onclick="setView('deck')">
-        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 16H5V5h14v14M7 10h10v2H7v-2m0 4h10v2H7v-2m0-8h10v2H7V6z"/></svg> Deck Manager
-    </div>
-    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">
-        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Whiteboard
-    </div>
-    <div class="nav-item" id="nav-social" onclick="setView('social')">
-        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Friends Hub
-    </div>
-    
-    <div class="user-block">
-        <div id="my-pfp" class="pfp-wrap"></div>
-        <div style="overflow:hidden;">
-            <div id="user-name" style="font-size:0.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: white;">User</div>
-            <div style="font-size: 0.65rem; color: #64748b;">Puter User</div>
-        </div>
-    </div>
-</nav>
-
-<main>
-    <!-- Study View -->
-    <div id="view-study" class="view active">
-        <div class="study-grid">
-            <div id="deck-stats" class="stat-badge">0 CARDS IN SESSION</div>
-            <div class="flashcard" id="card-box" onclick="flip()">
-                <div class="card-meta" id="card-side-label">QUESTION</div>
-                <div id="card-content" class="card-content">Welcome! Generate cards to begin.</div>
-            </div>
-            
-            <!-- SRS Buttons -->
-            <div id="srs-btns" style="display:none; gap:12px; width:100%; margin-top:25px;">
-                <button onclick="rate('hard')" style="flex:1; background:var(--danger); border:none; padding:18px; border-radius:18px; color:white; font-weight:800; cursor:pointer;">HARD</button>
-                <button onclick="rate('mid')" style="flex:1; background:#f59e0b; border:none; padding:18px; border-radius:18px; color:white; font-weight:800; cursor:pointer;">MID</button>
-                <button onclick="rate('easy')" style="flex:1; background:var(--success); border:none; padding:18px; border-radius:18px; color:white; font-weight:800; cursor:pointer;">EASY</button>
-            </div>
-
-            <div class="magic-bar">
-                <input type="text" id="ai-in" placeholder="Topic for AI (or Q | A for manual)..." onkeypress="if(event.key==='Enter')handleCreation()">
-                <button onclick="handleCreation()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:12px; font-weight:700; cursor:pointer;">Generate</button>
-            </div>
+    <div id="setup-overlay">
+        <div class="modal">
+            <h2>Join or Create a Room</h2>
+            <p>Enter a room name to start drawing with friends.</p>
+            <input type="text" id="roomInput" placeholder="e.g. MySecretRoom"><br>
+            <button onclick="joinRoom()">Enter Board</button>
         </div>
     </div>
 
-    <!-- Deck Manager View -->
-    <div id="view-deck" class="view">
-        <div style="padding:40px; width:100%; max-width:800px; margin:0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-weight: 800; font-size: 2rem; margin: 0;">Deck Manager</h2>
-                <button onclick="publishMyDeck()" style="background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer;">
-                    PUBLISH DECK
-                </button>
-            </div>
-            <div id="deck-manager-stats" class="stat-badge" style="margin-bottom: 30px;">0 TOTAL CARDS</div>
-            <div id="deck-list-container" class="deck-list"></div>
+    <div id="ui-layer" style="display: none;">
+        <div class="panel">
+            <span id="room-info">Room: </span>
+            <input type="color" id="colorPicker" value="#000000">
+            <button id="clearBtn">Clear Board</button>
+        </div>
+        <div class="panel">
+            <small>Share this URL with friends to draw together!</small>
         </div>
     </div>
 
-    <!-- Whiteboard View -->
-    <div id="view-whiteboard" class="view">
-        <div class="room-bar">
-            <span class="room-status" id="room-display">LOCAL SESSION</span>
-            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; font-size:0.8rem; width:100px;">
-            <button onclick="joinWhiteboardRoom()" style="background:var(--accent); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">JOIN</button>
-            <button onclick="createWhiteboardRoom()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">HOST</button>
-            <button id="share-btn" onclick="copyInviteLink()" style="display:none; background:rgba(255,255,255,0.1); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">SHARE LINK</button>
-            <div class="presence-list" id="presence-list"></div>
-        </div>
-        <div id="wb-box">
-            <canvas id="wb-canvas"></canvas>
-            <div class="wb-tools">
-                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Pointer (Select/Move/Delete)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
-                </button>
-                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Draw">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg>
-                </button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Eraser">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg>
-                </button>
-                <button class="tool-btn" id="text-btn" onclick="setMode('text')" title="Insert Text">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
-                </button>
-                <button class="tool-btn" id="drag-btn" onclick="setMode('drag')" title="Move Canvas">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
-                </button>
-                <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;"></div>
-                <input type="file" id="wb-img" hidden onchange="addImgToWb(this)">
-                <button class="tool-btn" onclick="document.getElementById('wb-img').click()" title="Add Image">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                </button>
-                <button class="tool-btn" onclick="clearWb()" style="color: var(--danger);" title="Clear All">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-                <div class="color-picker-wrap">
-                    <input type="color" id="wb-color" class="color-input" value="#1e293b" onchange="updateColor(this.value)">
-                </div>
-            </div>
-        </div>
-    </div>
+    <canvas id="whiteboard"></canvas>
 
-    <!-- Social View -->
-    <div id="view-social" class="view">
-        <div style="padding:40px; width:100%; max-width:600px; margin:0 auto;">
-            <h2 style="font-weight: 800; font-size: 2rem; margin-bottom: 30px;">Friends Hub</h2>
-            <div class="hub-section">
-                <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 5px;">YOUR DISCOVERY ID</div>
-                <div class="id-display">
-                    <span id="my-puter-id">Fetching...</span>
-                    <button class="copy-btn" onclick="copyMyId()">COPY</button>
-                </div>
-            </div>
-            <div class="hub-section">
-                <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 15px;">ADD A FRIEND</div>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="friend-id-input" placeholder="Paste Puter ID..." style="flex:1; padding:12px 18px; border-radius:12px; background:var(--bg); color:white; border:1px solid var(--border); outline:none;">
-                    <button onclick="addFriend()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:12px; font-weight:bold; cursor:pointer;">Add</button>
-                </div>
-            </div>
-            <div style="font-weight: 700; font-size: 1rem; margin: 30px 0 15px;">Your Friends</div>
-            <div id="friends-list-ui"></div>
-        </div>
-    </div>
-</main>
+    <script>
+        const setupOverlay = document.getElementById('setup-overlay');
+        const uiLayer = document.getElementById('ui-layer');
+        const roomInput = document.getElementById('roomInput');
+        const roomInfo = document.getElementById('room-info');
+        const canvas = document.getElementById('whiteboard');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const clearBtn = document.getElementById('clearBtn');
 
-<script>
-    let deck = [], friends = [], flipped = false;
-    let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
-    let currentUser = null;
-    let wbColor = '#1e293b';
-    let wbLayers = []; 
-    let selectedObject = null;
-    let isResizing = false;
-    let currentPath = null;
-    let activeRoomId = null;
+        let ably, channel, roomName;
+        let drawing = false;
+        let color = '#000000';
 
-    // Presence tracking
-    let participants = {}; 
-    let lastBroadcast = 0;
-
-    const memCanvas = document.createElement('canvas');
-    const memCtx = memCanvas.getContext('2d');
-    const canvas = document.getElementById('wb-canvas'), ctx = canvas.getContext('2d');
-
-    window.onload = async () => {
-        try {
-            if (!puter.auth.isSignedIn()) await puter.auth.signIn();
-            currentUser = await puter.auth.getUser();
-            document.getElementById('user-name').innerText = currentUser.username || "User";
-            
-            const puterId = currentUser.uuid || currentUser.id || "Unavailable";
-            document.getElementById('my-puter-id').innerText = puterId;
-            
-            const p = await puter.kv.get('sm_pfp_nexus');
-            document.getElementById('my-pfp').innerHTML = p || `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#3b82f6"/></svg>`;
-
-            const d = await puter.kv.get('sm_deck_v9');
-            if(d) deck = JSON.parse(d);
-
-            const f = await puter.kv.get('sm_friends_v9');
-            if(f) friends = JSON.parse(f);
-            
-            resizeWb();
-
-            const layersStore = await puter.kv.get('sm_wb_layers_v10');
-            if(layersStore) {
-                const rawLayers = JSON.parse(layersStore);
-                wbLayers = await Promise.all(rawLayers.map(async layer => {
-                    if(layer.type === 'image') {
-                        const img = new Image(); img.src = layer.src;
-                        await new Promise(r => img.onload = r);
-                        return { ...layer, img };
-                    }
-                    return layer;
-                }));
+        // Check if URL already has a room (e.g., index.html#RoomName)
+        window.onload = () => {
+            if(window.location.hash) {
+                roomInput.value = window.location.hash.substring(1);
+                joinRoom();
             }
+        };
 
-            redrawEverything();
-            initWb();
-            refresh();
-            renderFriends();
-            setupKeyboard();
+        function joinRoom() {
+            roomName = roomInput.value.trim().toLowerCase();
+            if (!roomName) return alert("Please enter a room name");
 
-            // Presence Cleanup Loop
-            setInterval(() => {
-                const now = Date.now();
-                let changed = false;
-                for(let id in participants){
-                    if(now - participants[id].lastSeen > 8000){
-                        delete participants[id];
-                        changed = true;
-                    }
-                }
-                if(changed) updatePresenceUI();
-            }, 5000);
+            window.location.hash = roomName;
+            setupOverlay.style.display = 'none';
+            uiLayer.style.display = 'flex';
+            roomInfo.innerText = "Room: " + roomName;
 
-            // AUTO JOIN VIA LINK
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.has('room')){
-                document.getElementById('room-input').value = urlParams.get('room');
-                joinWhiteboardRoom();
-                setView('whiteboard');
-            }
-
-        } catch (error) { console.error("Init error:", error); }
-    };
-
-    function setupKeyboard() {
-        window.addEventListener('keydown', (e) => {
-            if ((e.key === 'Delete' || e.key === 'Backspace') && mode === 'pointer' && selectedObject) {
-                if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-                const idx = wbLayers.indexOf(selectedObject);
-                if (idx > -1) {
-                    wbLayers.splice(idx, 1);
-                    selectedObject = null;
-                    redrawEverything();
-                    saveWb();
-                    showToast("Deleted");
-                }
-            }
-        });
-    }
-
-    function resizeWb() { 
-        const size = 4000;
-        canvas.width = size; canvas.height = size; 
-        memCanvas.width = size; memCanvas.height = size;
-    }
-
-    function drawGrid() {
-        ctx.save();
-        ctx.fillStyle = "#cbd5e1";
-        for (let x=20; x<canvas.width; x+=40) {
-            for (let y=20; y<canvas.height; y+=40) {
-                ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
-            }
+            initAbly();
         }
-        ctx.restore();
-    }
 
-    function redrawEverything() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid();
-        ctx.drawImage(memCanvas, 0, 0);
-        wbLayers.forEach(layer => {
-            if(layer.type === 'image') {
-                ctx.drawImage(layer.img, layer.x, layer.y, layer.w, layer.h);
-                if(layer === selectedObject) drawSelectionUI(layer);
-            } else if(layer.type === 'path') {
-                drawPath(ctx, layer);
-            } else if(layer.type === 'text') {
-                drawText(ctx, layer);
-                if(layer === selectedObject) drawSelectionUI(layer);
-            }
-        });
+        function initAbly() {
+            // REPLACE THIS KEY
+            ably = new Ably.Realtime('xTLjRw.7-yVUg:GK9phICjvxzGuZ6twIpLPJVh1Ek92fL20YVT9RTJnfE');
+            // The channel name is specific to the room entered
+            channel = ably.channels.get('room-' + roomName);
 
-        // Draw Remote Cursors
-        for(let id in participants) {
-            const p = participants[id];
-            ctx.save();
-            ctx.fillStyle = "#3b82f6";
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
-            ctx.fill();
-            ctx.font = "bold 12px Inter";
-            ctx.fillText(p.name, p.x + 10, p.y + 5);
-            ctx.restore();
-        }
-    }
-
-    function drawPath(targetCtx, path) {
-        if(!path.points || path.points.length < 2) return;
-        targetCtx.save();
-        targetCtx.beginPath();
-        targetCtx.strokeStyle = path.color;
-        targetCtx.lineWidth = path.width;
-        targetCtx.lineCap = "round";
-        targetCtx.lineJoin = "round";
-        targetCtx.moveTo(path.points[0].x, path.points[0].y);
-        for(let i = 1; i < path.points.length; i++) targetCtx.lineTo(path.points[i].x, path.points[i].y);
-        targetCtx.stroke();
-        targetCtx.restore();
-    }
-
-    function drawText(targetCtx, layer) {
-        targetCtx.save();
-        targetCtx.font = `${layer.fontSize}px Inter, sans-serif`;
-        targetCtx.fillStyle = layer.color;
-        targetCtx.textBaseline = 'top';
-        targetCtx.fillText(layer.content, layer.x, layer.y);
-        const metrics = targetCtx.measureText(layer.content);
-        layer.w = metrics.width; layer.h = layer.fontSize;
-        targetCtx.restore();
-    }
-
-    function drawSelectionUI(obj) {
-        ctx.strokeStyle = '#3b82f6';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(obj.x - 2, obj.y - 2, obj.w + 4, obj.h + 4);
-        ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(obj.x + obj.w - 5, obj.y + obj.h - 5, 10, 10);
-    }
-    
-    function initWb() {
-        const getP = (e) => {
-            const r = canvas.getBoundingClientRect();
-            return { x: e.clientX - r.left, y: e.clientY - r.top };
-        };
-
-        canvas.onmousedown = (e) => {
-            isMousedown = true; 
-            const p = getP(e);
-            [lastX, lastY] = [e.clientX, e.clientY];
-
-            if(mode === 'pointer') {
-                selectedObject = null;
-                isResizing = false;
-                for(let i = wbLayers.length - 1; i >= 0; i--) {
-                    const obj = wbLayers[i];
-                    if(obj.type === 'path') continue; 
-                    if(p.x > obj.x + obj.w - 10 && p.x < obj.x + obj.w + 10 && p.y > obj.y + obj.h - 10 && p.y < obj.y + obj.h + 10) {
-                        selectedObject = obj; isResizing = true; break;
-                    }
-                    if(p.x > obj.x && p.x < obj.x + obj.w && p.y > obj.y && p.y < obj.y + obj.h) {
-                        selectedObject = obj; break;
-                    }
-                }
-                redrawEverything();
-            } else if(mode === 'draw' || mode === 'eraser') { 
-                currentPath = { type: 'path', points: [p], color: mode === 'eraser' ? '#ffffff' : wbColor, width: mode === 'eraser' ? 30 : 3 };
-            } else if(mode === 'text') {
-                const content = prompt("Text:");
-                if(content) {
-                    wbLayers.push({ type: 'text', content, x: p.x, y: p.y, color: wbColor, fontSize: 24, w: 0, h: 0 });
-                    redrawEverything(); saveWb();
-                }
-                isMousedown = false;
-            }
-        };
-
-        canvas.onmousemove = (e) => {
-            const p = getP(e);
-            
-            // Broadcast cursor
-            if(activeRoomId && Date.now() - lastBroadcast > 100) {
-                puter.pubsub.publish(activeRoomId, JSON.stringify({ 
-                    type: 'cursor', 
-                    userId: currentUser.id, 
-                    name: currentUser.username, 
-                    x: p.x, 
-                    y: p.y,
-                    viewX: offsetX,
-                    viewY: offsetY
-                }));
-                lastBroadcast = Date.now();
-            }
-
-            if(!isMousedown) {
-                if(mode === 'pointer' && selectedObject) {
-                    if(p.x > selectedObject.x + selectedObject.w - 10 && p.x < selectedObject.x + selectedObject.w + 10 && p.y > selectedObject.y + selectedObject.h - 10 && p.y < selectedObject.y + selectedObject.h + 10) {
-                        canvas.style.cursor = 'nwse-resize';
-                    } else canvas.style.cursor = 'default';
-                }
-                return;
-            };
-
-            if(mode === 'drag') {
-                offsetX += e.clientX - lastX; offsetY += e.clientY - lastY;
-                [lastX, lastY] = [e.clientX, e.clientY];
-                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-            } else if(mode === 'pointer' && selectedObject) {
-                const dx = e.clientX - lastX; const dy = e.clientY - lastY;
-                if(isResizing) {
-                    if(selectedObject.type === 'text') selectedObject.fontSize = Math.max(10, selectedObject.fontSize + dy/2);
-                    else { selectedObject.w += dx; selectedObject.h += dy; }
-                } else { selectedObject.x += dx; selectedObject.y += dy; }
-                [lastX, lastY] = [e.clientX, e.clientY];
-                redrawEverything();
-            } else if((mode === 'draw' || mode === 'eraser') && currentPath) {
-                currentPath.points.push(p);
-                ctx.save(); ctx.beginPath(); ctx.strokeStyle = currentPath.color; ctx.lineWidth = currentPath.width; ctx.lineCap = "round";
-                const start = currentPath.points[currentPath.points.length-2];
-                ctx.moveTo(start.x, start.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.restore();
-            }
-        };
-
-        canvas.onmouseup = async () => { 
-            if(isMousedown && currentPath) { wbLayers.push(currentPath); currentPath = null; redrawEverything(); }
-            isMousedown = false; await saveWb();
-        };
-    }
-
-    async function saveWb() {
-        const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
-        try {
-            await puter.kv.set('sm_wb_layers_v10', JSON.stringify(meta));
-            if(activeRoomId) {
-                puter.pubsub.publish(activeRoomId, JSON.stringify({ type: 'update', layers: meta }));
-            }
-        } catch (e) { console.warn("KV sync limit."); }
-    }
-
-    // --- Simple Collaboration Engine ---
-    window.joinWhiteboardRoom = async () => {
-        const id = document.getElementById('room-input').value.trim().toUpperCase();
-        if (!id) return showToast("Enter a room name!");
-        
-        activeRoomId = id;
-        document.getElementById('room-display').innerText = `ROOM: ${id}`;
-        document.getElementById('share-btn').style.display = 'block';
-        
-        puter.pubsub.subscribe(id, (msg) => {
-            try {
-                const data = JSON.parse(msg);
-                if (data.type === 'request_sync') {
-                    puter.pubsub.publish(activeRoomId, JSON.stringify({ 
-                        type: 'full_sync', 
-                        layers: wbLayers.map(l => { const {img, ...rest} = l; return rest; }) 
-                    }));
-                } else if (data.type === 'full_sync' || data.type === 'update') {
-                    applyRemoteLayers(data.layers);
-                } else if (data.type === 'cursor') {
-                    participants[data.userId] = { 
-                        name: data.name, x: data.x, y: data.y, viewX: data.viewX, viewY: data.viewY, lastSeen: Date.now() 
-                    };
-                    updatePresenceUI(); redrawEverything();
-                }
-            } catch (e) {}
-        });
-
-        puter.pubsub.publish(id, JSON.stringify({ type: 'request_sync', userId: currentUser.id }));
-        showToast(`Connected to Room ${id}`);
-    };
-
-    window.createWhiteboardRoom = () => {
-        const id = Math.random().toString(36).substring(2, 6).toUpperCase();
-        document.getElementById('room-input').value = id;
-        window.joinWhiteboardRoom();
-    };
-
-    window.copyInviteLink = () => {
-        const url = window.location.origin + window.location.pathname + '?room=' + activeRoomId;
-        // fallback for clipboards
-        const el = document.createElement('textarea');
-        el.value = url; document.body.appendChild(el); el.select();
-        document.execCommand('copy'); document.body.removeChild(el);
-        showToast("Invite link copied to clipboard!");
-    };
-
-    function updatePresenceUI() {
-        const container = document.getElementById('presence-list');
-        let html = '';
-        for(let id in participants) {
-            const p = participants[id];
-            const initials = p.name.substring(0,1).toUpperCase();
-            html += `<div class="presence-user" onclick="jumpToParticipant('${id}')" title="Teleport to ${p.name}">${initials}</div>`;
-        }
-        container.innerHTML = html;
-    }
-
-    window.jumpToParticipant = (id) => {
-        const p = participants[id];
-        if(!p) return;
-        offsetX = p.viewX;
-        offsetY = p.viewY;
-        canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        showToast(`Jumped to ${p.name}`);
-        redrawEverything();
-    };
-
-    async function applyRemoteLayers(rawLayers) {
-        if (rawLayers.length === wbLayers.length) return;
-        wbLayers = await Promise.all(rawLayers.map(async layer => {
-            if(layer.type === 'image') {
-                const img = new Image(); img.src = layer.src;
-                await new Promise(r => img.onload = r);
-                return { ...layer, img };
-            }
-            return layer;
-        }));
-        redrawEverything();
-    }
-
-    window.clearWb = () => { if(confirm("Clear All?")) { wbLayers = []; redrawEverything(); saveWb(); } };
-    window.setMode = (m) => {
-        mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById(m + '-btn'); if(btn) btn.classList.add('active');
-        canvas.style.cursor = m === 'drag' ? 'grab' : (m === 'pointer' ? 'default' : (m === 'text' ? 'text' : 'crosshair'));
-        if(m !== 'pointer') selectedObject = null; redrawEverything();
-    };
-    window.updateColor = (c) => { wbColor = c; };
-    window.addImgToWb = (input) => {
-        if (!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            let img = new Image();
-            img.onload = () => { 
-                const centerX = Math.abs(offsetX) + (window.innerWidth / 2) - 150;
-                const centerY = Math.abs(offsetY) + (window.innerHeight / 2) - 150;
-                wbLayers.push({ type: 'image', img: img, src: e.target.result, x: centerX, y: centerY, w: 300, h: 300 });
-                redrawEverything(); saveWb(); 
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    };
-
-    // --- Flashcards & UI ---
-    window.copyMyId = () => { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID copied!")); };
-    window.addFriend = async () => {
-        const id = document.getElementById('friend-id-input').value.trim();
-        if(!id || id === (currentUser.uuid || currentUser.id)) return showToast("Invalid ID");
-        if(!friends.includes(id)) {
-            friends.push(id); await puter.kv.set('sm_friends_v9', JSON.stringify(friends));
-            document.getElementById('friend-id-input').value = ""; renderFriends(); showToast("Friend added!");
-        }
-    };
-    function renderFriends() {
-        const ui = document.getElementById('friends-list-ui');
-        if(friends.length === 0) { ui.innerHTML = `<div style="text-align:center; padding:20px; opacity:0.5;">No friends.</div>`; return; }
-        ui.innerHTML = friends.map(f => `
-            <div style="background:var(--card); padding:18px; border-radius:16px; border:1px solid var(--border); display:flex; justify-content:space-between; margin-top:10px; align-items:center;">
-                <div><div style="font-weight:700; font-size:0.9rem;">Friend</div><div style="font-size:0.65rem; color:#64748b;">${f}</div></div>
-                <button onclick="viewFriendDeck('${f}')" style="background:rgba(59, 130, 246, 0.1); color:var(--accent); border:none; padding:8px 16px; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.75rem;">VIEW DECK</button>
-            </div>
-        `).join('');
-    }
-    window.publishMyDeck = async () => {
-        showToast("Publishing...");
-        try { 
-            const myId = currentUser.uuid || currentUser.id;
-            await puter.kv.set(`pub_deck_${myId}`, JSON.stringify(deck), true); 
-            showToast("Published!"); 
-        } catch (e) { showToast("Error."); }
-    };
-    window.viewFriendDeck = async (id) => {
-        showToast("Fetching...");
-        try {
-            const d = await puter.kv.get(`pub_deck_${id}`, id);
-            if(d) { deck = JSON.parse(d); showToast("Deck loaded!"); refresh(); setView('study'); }
-            else alert("User hasn't published their deck.");
-        } catch (e) { alert("Fetch failed."); }
-    };
-
-    window.handleCreation = () => {
-        const input = document.getElementById('ai-in').value;
-        if(!input) return;
-        if(input.includes('|')) {
-            const [q, a] = input.split('|'); deck.push({ front: q.trim(), back: a.trim(), due: Date.now() });
-            saveDeck(); document.getElementById('ai-in').value = ""; showToast("Added!"); refresh();
-        } else runAI(input);
-    };
-    async function runAI(topic) {
-        showToast("AI thinking...");
-        try {
-            const r = await puter.ai.chat(`3 flashcards for ${topic}. Format: Question | Answer. One per line. Use $ for math expressions.`);
-            r.message.content.split('\n').forEach(l => { 
-                if(l.includes('|')){ const [q,a] = l.split('|'); deck.push({front: q.trim(), back: a.trim(), due: Date.now()}); }
+            // Sync drawing from others
+            channel.subscribe('draw', (msg) => {
+                draw(msg.data.x, msg.data.y, true, msg.data.color);
             });
-            await saveDeck(); document.getElementById('ai-in').value = ""; refresh();
-        } catch (e) { showToast("AI failed."); }
-    }
-    async function saveDeck() { try { await puter.kv.set('sm_deck_v9', JSON.stringify(deck)); renderDeck(); } catch (e) {} }
-    
-    function refresh() {
-        const cardBox = document.getElementById('card-content'); const label = document.getElementById('card-side-label'); const stats = document.getElementById('deck-stats');
-        stats.innerText = `${deck.length} CARDS IN SESSION`;
-        if(deck.length > 0) {
-            const current = deck[0]; cardBox.innerHTML = flipped ? current.back : current.front;
-            label.innerText = flipped ? "THE ANSWER" : "THE QUESTION";
-        } else { cardBox.innerHTML = `Welcome! Generate cards to begin.`; label.innerText = "EMPTY"; }
-        if(window.MathJax) MathJax.typesetPromise();
-    }
-    window.renderDeck = () => {
-        const container = document.getElementById('deck-list-container');
-        document.getElementById('deck-manager-stats').innerText = `${deck.length} TOTAL CARDS`;
-        if (deck.length === 0) { container.innerHTML = `Empty.`; return; }
-        container.innerHTML = deck.map((card, index) => `
-            <div class="deck-card">
-                <div><div style="font-size:0.7rem; font-weight:800; color:var(--accent);">QUESTION</div><div class="deck-card-text">${card.front}</div></div>
-                <div style="border-top:1px solid var(--border); padding-top:10px;"><div style="font-size:0.7rem; font-weight:800; color:var(--success);">ANSWER</div><div class="deck-card-text">${card.back}</div></div>
-                <div class="deck-card-actions">
-                    <button class="action-btn edit-btn" onclick="editCard(${index})">Edit</button>
-                    <button class="action-btn delete-btn" onclick="deleteCard(${index})">Delete</button>
-                </div>
-            </div>
-        `).join('');
-        if (window.MathJax) MathJax.typesetPromise();
-    };
-    window.editCard = (index) => {
-        const q = prompt("Q:", deck[index].front); if (!q) return;
-        const a = prompt("A:", deck[index].back); if (!a) return;
-        deck[index].front = q.trim(); deck[index].back = a.trim(); saveDeck(); refresh();
-    };
-    window.deleteCard = (index) => { if (confirm("Delete?")) { deck.splice(index, 1); saveDeck(); refresh(); } };
-    window.flip = () => { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); };
-    window.rate = async (difficulty) => {
-        if(deck.length === 0) return;
-        const card = deck.shift();
-        if(difficulty === 'hard') deck.splice(1, 0, card); 
-        else if(difficulty === 'mid') deck.splice(Math.max(1, Math.floor(deck.length/2)), 0, card);
-        else deck.push(card);
-        flipped = false; document.getElementById('srs-btns').style.display = 'none';
-        await saveDeck(); refresh();
-    };
 
-    window.setView = (v) => { 
-        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-        document.getElementById(`view-${v}`).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        document.getElementById('nav-'+v).classList.add('active');
-        if(v === 'whiteboard') redrawEverything(); if(v === 'deck') window.renderDeck();
-    };
+            channel.subscribe('stop', () => ctx.beginPath());
+            
+            channel.subscribe('clear', () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+        }
 
-    function showToast(msg) {
-        const toast = document.getElementById('notif-toast');
-        toast.innerText = msg; toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 3000);
-    }
-</script>
+        // Drawing Logic
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function draw(x, y, isRemote = false, remoteColor) {
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = isRemote ? remoteColor : color;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+            if(channel) channel.publish('stop', {});
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!drawing || !channel) return;
+            draw(e.clientX, e.clientY);
+            channel.publish('draw', { x: e.clientX, y: e.clientY, color });
+        });
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            channel.publish('clear', {});
+        });
+
+        colorPicker.addEventListener('change', (e) => color = e.target.value);
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.putImageData(temp, 0, 0);
+        });
+    </script>
 </body>
 </html>
