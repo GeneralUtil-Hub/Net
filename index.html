@@ -3,194 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solaris Collaborative Whiteboard</title>
+    <title>Solaris Collaborative Board</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <script src="https://cdn.ably.com/lib/spaces.min-0.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f0f0; }
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #f8f9fa; }
+        #ui-layer { position: absolute; top: 15px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+        .panel { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
+        canvas { cursor: none; background: white; touch-action: none; display: block; }
         
-        /* UI Overlay */
-        #ui-layer {
+        /* Cursor Styling */
+        .remote-cursor {
+            position: absolute;
+            pointer-events: none;
+            width: 12px;
+            height: 12px;
+            background: black;
+            border-radius: 50%;
+            z-index: 50;
+            transition: transform 0.1s linear;
+        }
+        .cursor-label {
             position: absolute;
             top: 15px;
-            left: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .panel {
-            background: white;
-            padding: 12px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #room-info { font-weight: bold; color: #333; font-size: 0.9rem; }
-        canvas { cursor: crosshair; background: white; touch-action: none; }
-        
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            background: #007bff;
+            left: 10px;
+            padding: 2px 8px;
+            background: rgba(0,0,0,0.7);
             color: white;
-            cursor: pointer;
-            transition: 0.2s;
+            font-size: 10px;
+            border-radius: 4px;
+            white-space: nowrap;
         }
 
-        button:hover { background: #0056b3; }
-        #clearBtn { background: #dc3545; }
-        #clearBtn:hover { background: #a71d2a; }
-
-        /* Setup Screen */
-        #setup-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            width: 200px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
+        /* Overlay */
+        #setup-overlay { position: fixed; inset: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; z-index: 200; color: white; }
+        .modal { background: #2a2a2a; padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #444; }
+        input { padding: 12px; width: 220px; border: none; border-radius: 8px; margin: 10px 0; font-size: 1rem; }
+        button { padding: 12px 24px; border: none; border-radius: 8px; background: #007bff; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="setup-overlay">
         <div class="modal">
-            <h2>Join or Create a Room</h2>
-            <p>Enter a room name to start drawing with friends.</p>
-            <input type="text" id="roomInput" placeholder="e.g. MySecretRoom"><br>
-            <button onclick="joinRoom()">Enter Board</button>
+            <h1>Solaris Board</h1>
+            <input type="text" id="nameInput" placeholder="Your Name"><br>
+            <input type="text" id="roomInput" placeholder="Room Name (e.g. game-dev)"><br>
+            <button onclick="joinRoom()">Join Session</button>
         </div>
     </div>
 
     <div id="ui-layer" style="display: none;">
         <div class="panel">
-            <span id="room-info">Room: </span>
+            <b id="roomLabel"></b>
             <input type="color" id="colorPicker" value="#000000">
-            <button id="clearBtn">Clear Board</button>
-        </div>
-        <div class="panel">
-            <small>Share this URL with friends to draw together!</small>
+            <button id="clearBtn" style="background:#dc3545">Clear</button>
         </div>
     </div>
 
+    <div id="cursor-container"></div>
     <canvas id="whiteboard"></canvas>
 
     <script>
-        const setupOverlay = document.getElementById('setup-overlay');
-        const uiLayer = document.getElementById('ui-layer');
-        const roomInput = document.getElementById('roomInput');
-        const roomInfo = document.getElementById('room-info');
         const canvas = document.getElementById('whiteboard');
         const ctx = canvas.getContext('2d');
-        const colorPicker = document.getElementById('colorPicker');
-        const clearBtn = document.getElementById('clearBtn');
-
-        let ably, channel, roomName;
+        const cursorContainer = document.getElementById('cursor-container');
+        
+        let ably, spaces, space, mySpaceMember, channel;
         let drawing = false;
-        let color = '#000000';
+        let myColor = '#000000';
+        let userLastPos = {}; // KEY FIX: Store last position for EVERY user
 
-        // Check if URL already has a room (e.g., index.html#RoomName)
-        window.onload = () => {
-            if(window.location.hash) {
-                roomInput.value = window.location.hash.substring(1);
-                joinRoom();
-            }
-        };
-
-        function joinRoom() {
-            roomName = roomInput.value.trim().toLowerCase();
-            if (!roomName) return alert("Please enter a room name");
-
-            window.location.hash = roomName;
-            setupOverlay.style.display = 'none';
-            uiLayer.style.display = 'flex';
-            roomInfo.innerText = "Room: " + roomName;
-
-            initAbly();
-        }
-
-        function initAbly() {
-            // REPLACE THIS KEY
-            ably = new Ably.Realtime('xTLjRw.7-yVUg:GK9phICjvxzGuZ6twIpLPJVh1Ek92fL20YVT9RTJnfE');
-            // The channel name is specific to the room entered
-            channel = ably.channels.get('room-' + roomName);
-
-            // Sync drawing from others
-            channel.subscribe('draw', (msg) => {
-                draw(msg.data.x, msg.data.y, true, msg.data.color);
-            });
-
-            channel.subscribe('stop', () => ctx.beginPath());
-            
-            channel.subscribe('clear', () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            });
-        }
-
-        // Drawing Logic
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        function draw(x, y, isRemote = false, remoteColor) {
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = isRemote ? remoteColor : color;
+        async function joinRoom() {
+            const name = document.getElementById('nameInput').value || 'Guest';
+            const room = document.getElementById('roomInput').value.trim().toLowerCase() || 'main';
+            if(!room) return;
 
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
+            document.getElementById('setup-overlay').style.display = 'none';
+            document.getElementById('ui-layer').style.display = 'flex';
+            document.getElementById('roomLabel').innerText = "Room: " + room;
+
+            // 1. Setup Ably & Spaces
+            ably = new Ably.Realtime('xTLjRw.7-yVUg:GK9phICjvxzGuZ6twIpLPJVh1Ek92fL20YVT9RTJnfE'); // <-- REPLACE THIS
+            spaces = new Spaces(ably);
+            space = await spaces.get(room);
+            channel = ably.channels.get('draw-' + room);
+
+            // 2. Enter Space (Presence)
+            mySpaceMember = await space.enter({ name: name, color: myColor });
+
+            // 3. Listen for Cursors
+            space.cursors.subscribe('update', (cursorUpdate) => {
+                if (cursorUpdate.clientId === ably.auth.clientId) return;
+                updateRemoteCursor(cursorUpdate);
+            });
+
+            // 4. Listen for Drawing
+            channel.subscribe('draw', (msg) => {
+                const { x, y, color, userId, type } = msg.data;
+                if (userId === ably.auth.clientId) return;
+
+                if (type === 'start') {
+                    userLastPos[userId] = { x, y };
+                } else if (type === 'move') {
+                    drawSegment(userLastPos[userId].x, userLastPos[userId].y, x, y, color);
+                    userLastPos[userId] = { x, y };
+                } else {
+                    delete userLastPos[userId];
+                }
+            });
+
+            channel.subscribe('clear', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
         }
 
-        canvas.addEventListener('mousedown', () => drawing = true);
-        canvas.addEventListener('mouseup', () => {
-            drawing = false;
+        // DRAWING LOGIC
+        function drawSegment(x1, y1, x2, y2, color) {
             ctx.beginPath();
-            if(channel) channel.publish('stop', {});
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            const x = e.clientX;
+            const y = e.clientY;
+            userLastPos['me'] = { x, y };
+            channel.publish('draw', { x, y, color: myColor, userId: ably.auth.clientId, type: 'start' });
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            if (!drawing || !channel) return;
-            draw(e.clientX, e.clientY);
-            channel.publish('draw', { x: e.clientX, y: e.clientY, color });
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            // Update Space Cursor position
+            if(space) space.cursors.set({ position: { x, y } });
+
+            if (!drawing) return;
+
+            drawSegment(userLastPos['me'].x, userLastPos['me'].y, x, y, myColor);
+            channel.publish('draw', { x, y, color: myColor, userId: ably.auth.clientId, type: 'move' });
+            userLastPos['me'] = { x, y };
         });
 
-        clearBtn.addEventListener('click', () => {
+        window.addEventListener('mouseup', () => {
+            if(!drawing) return;
+            drawing = false;
+            channel.publish('draw', { type: 'end', userId: ably.auth.clientId });
+        });
+
+        // CURSOR UI LOGIC
+        function updateRemoteCursor(update) {
+            let cursorEl = document.getElementById(`cursor-${update.clientId}`);
+            if (!cursorEl) {
+                cursorEl = document.createElement('div');
+                cursorEl.id = `cursor-${update.clientId}`;
+                cursorEl.className = 'remote-cursor';
+                cursorEl.innerHTML = `<div class="cursor-label">${update.data.name || 'User'}</div>`;
+                cursorContainer.appendChild(cursorEl);
+            }
+            cursorEl.style.transform = `translate(${update.position.x}px, ${update.position.y}px)`;
+        }
+
+        document.getElementById('clearBtn').onclick = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             channel.publish('clear', {});
-        });
+        };
 
-        colorPicker.addEventListener('change', (e) => color = e.target.value);
-
-        // Handle window resizing
-        window.addEventListener('resize', () => {
-            const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.putImageData(temp, 0, 0);
-        });
+        document.getElementById('colorPicker').onchange = (e) => {
+            myColor = e.target.value;
+            if(space) space.enter({ color: myColor });
+        };
     </script>
 </body>
 </html>
