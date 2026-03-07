@@ -67,8 +67,11 @@
         .color-picker-wrap { display: flex; align-items: center; gap: 5px; padding: 0 5px; border-left: 1px solid var(--border); margin-left: 5px; }
         .color-input { width: 24px; height: 24px; border: none; border-radius: 4px; padding: 0; background: none; cursor: pointer; }
 
-        .room-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 6px 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .room-status { font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
+        .room-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .room-status { font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; white-space: nowrap; }
+        .presence-list { display: flex; gap: 5px; border-left: 1px solid var(--border); padding-left: 10px; }
+        .presence-user { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: white; font-weight: 800; cursor: pointer; border: 2px solid var(--bg); }
+        .presence-user:hover { transform: scale(1.1); }
 
         /* Flashcards & Math Styling */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
@@ -176,10 +179,11 @@
 
     <div id="view-whiteboard" class="view">
         <div class="room-bar">
-            <span class="room-status" id="room-display">LOCAL SESSION</span>
-            <input type="text" id="room-input" placeholder="Join Room Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; font-size:0.8rem; width:140px;">
+            <span class="room-status" id="room-display">OFFLINE</span>
+            <input type="text" id="room-input" placeholder="Room Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; font-size:0.8rem; width:100px;">
             <button onclick="joinWhiteboardRoom()" style="background:var(--accent); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">JOIN</button>
             <button onclick="createWhiteboardRoom()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">HOST</button>
+            <div class="presence-list" id="presence-list"></div>
         </div>
         <div id="wb-box">
             <canvas id="wb-canvas"></canvas>
@@ -248,6 +252,10 @@
     let currentPath = null;
     let activeRoomId = null;
 
+    // Presence and Cursor tracking
+    let participants = {}; // {userId: {name, x, y, viewportX, viewportY, lastSeen}}
+    let lastBroadcast = 0;
+
     const memCanvas = document.createElement('canvas');
     const memCtx = memCanvas.getContext('2d');
     const canvas = document.getElementById('wb-canvas'), ctx = canvas.getContext('2d');
@@ -290,6 +298,20 @@
             refresh();
             renderFriends();
             setupKeyboard();
+
+            // Presence Cleanup Loop
+            setInterval(() => {
+                const now = Date.now();
+                let changed = false;
+                for(let id in participants){
+                    if(now - participants[id].lastSeen > 10000){ // 10s timeout
+                        delete participants[id];
+                        changed = true;
+                    }
+                }
+                if(changed) updatePresenceUI();
+            }, 5000);
+
         } catch (error) { console.error("Init error:", error); }
     };
 
@@ -341,6 +363,17 @@
                 if(layer === selectedObject) drawSelectionUI(layer);
             }
         });
+
+        // Draw Remote Cursors
+        for(let id in participants) {
+            const p = participants[id];
+            ctx.fillStyle = "#3b82f6";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+            ctx.fill();
+            ctx.font = "bold 10px Inter";
+            ctx.fillText(p.name, p.x + 10, p.y + 5);
+        }
     }
 
     function drawPath(targetCtx, path) {
@@ -415,6 +448,21 @@
 
         canvas.onmousemove = (e) => {
             const p = getP(e);
+            
+            // Real-time cursor broadcasting
+            if(activeRoomId && Date.now() - lastBroadcast > 100) {
+                puter.pubsub.publish(activeRoomId, JSON.stringify({ 
+                    type: 'cursor', 
+                    userId: currentUser.id, 
+                    name: currentUser.username, 
+                    x: p.x, 
+                    y: p.y,
+                    viewX: offsetX,
+                    viewY: offsetY
+                }));
+                lastBroadcast = Date.now();
+            }
+
             if(!isMousedown) {
                 if(mode === 'pointer' && selectedObject) {
                     if(p.x > selectedObject.x + selectedObject.w - 10 && p.x < selectedObject.x + selectedObject.w + 10 && p.y > selectedObject.y + selectedObject.h - 10 && p.y < selectedObject.y + selectedObject.h + 10) {
@@ -455,29 +503,18 @@
         try {
             await puter.kv.set('sm_wb_layers_v10', JSON.stringify(meta));
             if(activeRoomId) {
-                // Using Puter's Real-time PubSub to broadcast updates
                 puter.pubsub.publish(activeRoomId, JSON.stringify({ type: 'update', layers: meta }));
             }
         } catch (e) { console.warn("KV sync limit."); }
     }
 
-    // --- Puter PubSub Collaboration Room Logic ---
+    // --- Collaboration ---
     window.createWhiteboardRoom = async () => {
-        const roomId = "ROOM_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const roomId = "RM_" + Math.random().toString(36).substring(2, 6).toUpperCase();
         activeRoomId = roomId;
-        document.getElementById('room-display').innerText = `HOSTING: ${roomId}`;
+        document.getElementById('room-display').innerText = `ROOM: ${roomId}`;
         
-        // Listen for peer join requests
-        puter.pubsub.subscribe(roomId, async (msg) => {
-            const data = JSON.parse(msg);
-            if (data.type === 'request_sync') {
-                // Send current state to new joiner
-                puter.pubsub.publish(roomId, JSON.stringify({ type: 'full_sync', layers: wbLayers.map(l => { const {img, ...rest} = l; return rest; }) }));
-            } else if (data.type === 'update') {
-                await applyRemoteLayers(data.layers);
-            }
-        });
-
+        puter.pubsub.subscribe(roomId, handleIncomingMsg);
         showToast(`Room ${roomId} created!`);
     };
 
@@ -487,22 +524,54 @@
         activeRoomId = id;
         document.getElementById('room-display').innerText = `ROOM: ${id}`;
         
-        puter.pubsub.subscribe(id, async (msg) => {
-            const data = JSON.parse(msg);
-            if (data.type === 'full_sync' || data.type === 'update') {
-                await applyRemoteLayers(data.layers);
-            }
-        });
-
-        // Ask host for current state
-        puter.pubsub.publish(id, JSON.stringify({ type: 'request_sync' }));
+        puter.pubsub.subscribe(id, handleIncomingMsg);
+        puter.pubsub.publish(id, JSON.stringify({ type: 'request_sync', name: currentUser.username }));
         showToast(`Joined Room ${id}!`);
     };
 
+    function handleIncomingMsg(msg) {
+        const data = JSON.parse(msg);
+        if (data.type === 'request_sync') {
+            puter.pubsub.publish(activeRoomId, JSON.stringify({ type: 'full_sync', layers: wbLayers.map(l => { const {img, ...rest} = l; return rest; }) }));
+        } else if (data.type === 'full_sync' || data.type === 'update') {
+            applyRemoteLayers(data.layers);
+        } else if (data.type === 'cursor') {
+            participants[data.userId] = { 
+                name: data.name, 
+                x: data.x, 
+                y: data.y, 
+                viewX: data.viewX, 
+                viewY: data.viewY, 
+                lastSeen: Date.now() 
+            };
+            updatePresenceUI();
+            redrawEverything();
+        }
+    }
+
+    function updatePresenceUI() {
+        const container = document.getElementById('presence-list');
+        let html = '';
+        for(let id in participants) {
+            const p = participants[id];
+            const initials = p.name.substring(0,2).toUpperCase();
+            html += `<div class="presence-user" onclick="jumpToParticipant('${id}')" title="Teleport to ${p.name}">${initials}</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    window.jumpToParticipant = (id) => {
+        const p = participants[id];
+        if(!p) return;
+        offsetX = p.viewX;
+        offsetY = p.viewY;
+        canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        showToast(`Teleported to ${p.name}`);
+        redrawEverything();
+    };
+
     async function applyRemoteLayers(rawLayers) {
-        // Optimization: only redraw if count/state changed
         if (rawLayers.length === wbLayers.length) return;
-        
         wbLayers = await Promise.all(rawLayers.map(async layer => {
             if(layer.type === 'image') {
                 const img = new Image(); img.src = layer.src;
@@ -561,7 +630,6 @@
         showToast("Publishing...");
         try { 
             const myId = currentUser.uuid || currentUser.id;
-            // Public KV prefix
             await puter.kv.set(`pub_deck_${myId}`, JSON.stringify(deck), true); 
             showToast("Published!"); 
         }
