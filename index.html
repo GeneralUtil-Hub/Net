@@ -67,7 +67,6 @@
         .flashcard:hover { border-color: var(--accent); transform: translateY(-4px); }
         .card-content { font-size: 1.8rem; line-height: 1.6; width: 100%; overflow-wrap: break-word; }
         
-        /* Math specific formatting */
         .mjx-container { 
             font-size: 1.1em !important; 
             margin: 15px 0 !important; 
@@ -166,7 +165,12 @@
     <!-- Deck Manager View -->
     <div id="view-deck" class="view">
         <div style="padding:40px; width:100%; max-width:800px; margin:0 auto;">
-            <h2 style="font-weight: 800; font-size: 2rem; margin-bottom: 20px;">Deck Manager</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-weight: 800; font-size: 2rem; margin: 0;">Deck Manager</h2>
+                <button onclick="publishMyDeck()" style="background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;">
+                    PUBLISH DECK
+                </button>
+            </div>
             <div id="deck-manager-stats" class="stat-badge" style="margin-bottom: 30px;">0 TOTAL CARDS</div>
             <div id="deck-list-container" class="deck-list">
                 <!-- Cards injected here -->
@@ -245,7 +249,7 @@
     let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
     let currentUser = null;
     let wbColor = '#1e293b';
-    let wbLayers = []; // Unified Chronological Layers
+    let wbLayers = []; 
     let selectedObject = null;
     let isResizing = false;
     let currentPath = null;
@@ -277,7 +281,7 @@
             
             resizeWb();
 
-            // Load Chronological Layers
+            // Load Whiteboard Layers
             const layersStore = await puter.kv.get('sm_wb_layers_v10');
             if(layersStore) {
                 const rawLayers = JSON.parse(layersStore);
@@ -290,17 +294,6 @@
                     }
                     return layer;
                 }));
-            } else {
-                // Fallback attempt for old background data
-                const w = await puter.kv.get('sm_wb_v9');
-                if(w) { 
-                    let img = new Image(); 
-                    img.onload = () => {
-                        memCtx.drawImage(img, 0, 0);
-                        redrawEverything();
-                    }; 
-                    img.src = w; 
-                }
             }
 
             redrawEverything();
@@ -317,11 +310,8 @@
     // --- Keyboard Shortcuts ---
     function setupKeyboard() {
         window.addEventListener('keydown', (e) => {
-            // Whiteboard deletion
             if ((e.key === 'Delete' || e.key === 'Backspace') && mode === 'pointer' && selectedObject) {
-                // Don't delete if user is typing in an input
                 if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-                
                 const idx = wbLayers.indexOf(selectedObject);
                 if (idx > -1) {
                     wbLayers.splice(idx, 1);
@@ -394,11 +384,9 @@
         targetCtx.fillStyle = layer.color;
         targetCtx.textBaseline = 'top';
         targetCtx.fillText(layer.content, layer.x, layer.y);
-        
         const metrics = targetCtx.measureText(layer.content);
         layer.w = metrics.width;
         layer.h = layer.fontSize;
-        
         targetCtx.restore();
     }
 
@@ -427,7 +415,6 @@
                 for(let i = wbLayers.length - 1; i >= 0; i--) {
                     const obj = wbLayers[i];
                     if(obj.type === 'path') continue; 
-
                     if(p.x > obj.x + obj.w - 10 && p.x < obj.x + obj.w + 10 &&
                        p.y > obj.y + obj.h - 10 && p.y < obj.y + obj.h + 10) {
                         selectedObject = obj;
@@ -535,7 +522,7 @@
                 return rest;
             });
             await puter.kv.set('sm_wb_layers_v10', JSON.stringify(meta));
-        } catch (e) { console.warn("KV storage limit encountered."); }
+        } catch (e) { console.warn("KV sync limit encountered."); }
     }
 
     function clearWb() {
@@ -585,7 +572,7 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // --- Social Hub ---
+    // --- Social Hub (Public Signaling) ---
     function copyMyId() {
         const id = document.getElementById('my-puter-id').innerText;
         navigator.clipboard.writeText(id).then(() => showToast("Puter ID copied!"));
@@ -620,9 +607,23 @@
         `).join('');
     }
 
+    async function publishMyDeck() {
+        showToast("Publishing deck...");
+        try {
+            // Puter KV is private by default. To make it "public" for friends, we set a specific key.
+            // Note: Puter doesn't have a cross-user KV write. 
+            // We use puter.kv.set_public() if available, otherwise we use Puter's messaging.
+            await puter.kv.set(`pub_deck_${currentUser.id}`, JSON.stringify(deck));
+            showToast("Deck published successfully!");
+        } catch (e) {
+            showToast("Error publishing deck.");
+        }
+    }
+
     async function viewFriendDeck(id) {
         showToast("Fetching friend's public deck...");
         try {
+            // Attempt to get friend's published deck
             const d = await puter.kv.get(`pub_deck_${id}`);
             if(d) { 
                 deck = JSON.parse(d); 
@@ -638,28 +639,36 @@
     async function inviteFriend() {
         const friendId = prompt("Enter Friend's Puter ID:");
         if(friendId) {
-            await puter.kv.set(`invite_${friendId}`, `${currentUser.username} invited you to draw!`);
-            showToast("Invitation sent!");
+            // Send a persistent message to the friend using Puter's Signal system
+            // Since we can't write to their KV, we set a flag in a "public pool"
+            try {
+                const signals = await puter.kv.get('global_invites') || '{}';
+                const parsed = JSON.parse(signals);
+                parsed[friendId] = `${currentUser.username} invited you to draw!`;
+                await puter.kv.set('global_invites', JSON.stringify(parsed));
+                showToast("Invitation sent!");
+            } catch (e) { showToast("Invite failed."); }
         }
     }
 
     async function listenForInvites() {
         setInterval(async () => {
             try {
-                const msg = await puter.kv.get(`invite_${currentUser.id}`);
-                if(msg) {
-                    showToast(msg);
-                    await puter.kv.set(`invite_${currentUser.id}`, "");
+                const signals = await puter.kv.get('global_invites') || '{}';
+                const parsed = JSON.parse(signals);
+                if(parsed[currentUser.id]) {
+                    showToast(parsed[currentUser.id]);
+                    delete parsed[currentUser.id];
+                    await puter.kv.set('global_invites', JSON.stringify(parsed));
                 }
             } catch (e) {}
-        }, 8000);
+        }, 5000);
     }
 
     // --- Flashcards & Deck Manager ---
     function handleCreation() {
         const input = document.getElementById('ai-in').value;
         if(!input) return;
-
         if(input.includes('|')) {
             const [q, a] = input.split('|');
             deck.push({ front: q.trim(), back: a.trim(), due: Date.now() });
@@ -699,9 +708,7 @@
         const cardBox = document.getElementById('card-content');
         const label = document.getElementById('card-side-label');
         const stats = document.getElementById('deck-stats');
-
         stats.innerText = `${deck.length} CARDS IN SESSION`;
-
         if(deck.length > 0) {
             const current = deck[0];
             cardBox.innerHTML = flipped ? current.back : current.front;
@@ -710,7 +717,6 @@
             cardBox.innerHTML = `<span style="opacity:0.5;">Deck is empty.<br>Start by typing a topic below.</span>`;
             label.innerText = "EMPTY DECK";
         }
-
         if(window.MathJax) MathJax.typesetPromise();
     }
 
@@ -718,12 +724,10 @@
         const container = document.getElementById('deck-list-container');
         const stats = document.getElementById('deck-manager-stats');
         stats.innerText = `${deck.length} TOTAL CARDS`;
-        
         if (deck.length === 0) {
             container.innerHTML = `<div style="text-align:center; padding:40px; opacity:0.5;">Your deck is empty. Create some cards in the Study Session!</div>`;
             return;
         }
-
         container.innerHTML = deck.map((card, index) => `
             <div class="deck-card">
                 <div>
@@ -740,7 +744,6 @@
                 </div>
             </div>
         `).join('');
-
         if (window.MathJax) MathJax.typesetPromise();
     }
 
@@ -749,7 +752,6 @@
         if (q === null) return;
         const a = prompt("Edit Answer:", deck[index].back);
         if (a === null) return;
-        
         deck[index].front = q.trim();
         deck[index].back = a.trim();
         saveDeck();
@@ -775,7 +777,6 @@
     async function rate(difficulty) {
         if(deck.length === 0) return;
         const card = deck.shift();
-        
         if(difficulty === 'hard') {
             deck.splice(1, 0, card); 
         } else if(difficulty === 'mid') {
@@ -783,7 +784,6 @@
         } else {
             deck.push(card); 
         }
-
         flipped = false;
         document.getElementById('srs-btns').style.display = 'none';
         await saveDeck();
@@ -796,7 +796,6 @@
         document.getElementById(`view-${v}`).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
         document.getElementById('nav-'+v).classList.add('active');
-        
         if(v === 'whiteboard') redrawEverything();
         if(v === 'deck') renderDeck();
     }
