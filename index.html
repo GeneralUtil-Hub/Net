@@ -3,32 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMate Pro | The Complete Fix</title>
+    <title>StudyMate Pro | Real-Time Fix</title>
+    <!-- Puter & Polyfills -->
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <!-- MathJax Configuration - Optimized for Readability -->
+    
+    <!-- MathJax Configuration -->
     <script>
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                macros: {
-                    RR: '{\\mathbb{R}}',
-                    bold: ['{\\bf #1}', 1]
-                }
+                processEscapes: true
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            },
-            chtml: {
-                matchFontHeight: true,
-                displayAlign: 'center',
-                displayIndent: '0em'
             }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Firebase SDKs for Collaboration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase state
+        window.fbState = { db: null, auth: null, user: null, unsubscribe: null };
+
+        const initFirebase = async () => {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            window.fbState.auth = getAuth(app);
+            window.fbState.db = getFirestore(app);
+            
+            onAuthStateChanged(window.fbState.auth, (user) => {
+                window.fbState.user = user;
+            });
+
+            await signInAnonymously(window.fbState.auth);
+        };
+        initFirebase();
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root[data-theme="dark"] { 
@@ -43,23 +61,19 @@
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar */
         #sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 100; flex-shrink: 0; }
         .user-block { display: flex; align-items: center; gap: 12px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-top: auto; border: 1px solid var(--border); }
         .pfp-wrap { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         
-        /* Navigation */
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
         .nav-item.active { background: var(--accent); color: white; }
         .nav-icon { width: 18px; height: 18px; fill: currentColor; }
 
-        /* Main View */
         main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
         .view.active { display: flex; flex-direction: column; }
 
-        /* Whiteboard */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; background: transparent; }
         .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 8px 16px; border-radius: 50px; display: flex; gap: 8px; border: 1px solid var(--border); z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.5); align-items: center; }
@@ -73,13 +87,11 @@
         .room-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 6px 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .room-status { font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
 
-        /* Flashcards & Math Styling */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
         .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: transform 0.2s, border-color 0.2s; padding: 60px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .flashcard:hover { border-color: var(--accent); transform: translateY(-4px); }
         .card-content { font-size: 1.8rem; line-height: 1.6; width: 100%; overflow-wrap: break-word; }
         
-        /* Math formatting fix */
         .card-content .mjx-container { 
             font-size: 1.2em !important; 
             margin: 20px 0 !important;
@@ -94,7 +106,6 @@
         .magic-bar input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 0 10px; }
         .stat-badge { font-size: 0.75rem; background: var(--border); padding: 6px 14px; border-radius: 20px; color: #94a3b8; font-weight: 700; margin-bottom: 20px; }
 
-        /* Deck Manager View */
         .deck-list { display: flex; flex-direction: column; gap: 12px; padding: 20px 0; }
         .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: 0.2s; }
         .deck-card:hover { border-color: var(--accent); }
@@ -104,12 +115,10 @@
         .edit-btn { background: var(--accent); color: white; }
         .delete-btn { background: var(--danger); color: white; }
 
-        /* Hub Sections */
         .hub-section { background: var(--card); padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; }
         .id-display { font-family: monospace; background: var(--bg); padding: 12px; border-radius: 12px; font-size: 0.9rem; border: 1px dashed var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
         .copy-btn { background: var(--accent); border: none; color: white; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
 
-        /* Notifications */
         #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 16px 24px; border-radius: 16px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-weight: 600; animation: slideIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
         @keyframes slideIn { from { transform: translateY(100px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
     </style>
@@ -147,7 +156,6 @@
 </nav>
 
 <main>
-    <!-- Study View -->
     <div id="view-study" class="view active">
         <div class="study-grid">
             <div id="deck-stats" class="stat-badge">0 CARDS IN SESSION</div>
@@ -169,7 +177,6 @@
         </div>
     </div>
 
-    <!-- Deck Manager View -->
     <div id="view-deck" class="view">
         <div style="padding:40px; width:100%; max-width:800px; margin:0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -183,11 +190,10 @@
         </div>
     </div>
 
-    <!-- Whiteboard View -->
     <div id="view-whiteboard" class="view">
         <div class="room-bar">
             <span class="room-status" id="room-display">LOCAL SESSION</span>
-            <input type="text" id="room-input" placeholder="Join Friend ID..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; font-size:0.8rem; width:160px;">
+            <input type="text" id="room-input" placeholder="Join Room ID..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; font-size:0.8rem; width:160px;">
             <button onclick="joinWhiteboardRoom()" style="background:var(--accent); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">JOIN</button>
             <button onclick="createWhiteboardRoom()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">HOST</button>
         </div>
@@ -224,7 +230,6 @@
         </div>
     </div>
 
-    <!-- Social View -->
     <div id="view-social" class="view">
         <div style="padding:40px; width:100%; max-width:600px; margin:0 auto;">
             <h2 style="font-weight: 800; font-size: 2rem; margin-bottom: 30px;">Friends Hub</h2>
@@ -248,7 +253,14 @@
     </div>
 </main>
 
-<script>
+<script type="module">
+    // Import Firestore logic from window for scope
+    const getDb = () => window.fbState.db;
+    const getAuth = () => window.fbState.auth;
+    const getAppId = () => typeof __app_id !== 'undefined' ? __app_id : 'studymate-pro-v1';
+
+    import { doc, setDoc, onSnapshot, getDoc, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
     let deck = [], friends = [], flipped = false;
     let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
     let currentUser = null;
@@ -257,7 +269,7 @@
     let selectedObject = null;
     let isResizing = false;
     let currentPath = null;
-    let remoteHostId = null;
+    let activeRoomId = null;
 
     const memCanvas = document.createElement('canvas');
     const memCtx = memCanvas.getContext('2d');
@@ -283,6 +295,7 @@
             
             resizeWb();
 
+            // Local fallback load
             const layersStore = await puter.kv.get('sm_wb_layers_v10');
             if(layersStore) {
                 const rawLayers = JSON.parse(layersStore);
@@ -300,7 +313,6 @@
             initWb();
             refresh();
             renderFriends();
-            listenForCollab();
             setupKeyboard();
         } catch (error) { console.error("Init error:", error); }
     };
@@ -321,7 +333,6 @@
         });
     }
 
-    // --- Whiteboard Engine ---
     function resizeWb() { 
         const size = 4000;
         canvas.width = size; canvas.height = size; 
@@ -464,84 +475,92 @@
     }
 
     async function saveWb() {
+        const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
         try {
-            const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
-            // Save locally
             await puter.kv.set('sm_wb_layers_v10', JSON.stringify(meta));
-            // If hosting, save to public slot for others to see
-            if(!remoteHostId) {
-                await puter.kv.set('shared_whiteboard', JSON.stringify({ layers: meta, updated: Date.now() }), true);
-            }
-        } catch (e) { console.warn("KV sync limit."); }
+        } catch (e) {}
+
+        if (activeRoomId && window.fbState.db) {
+            try {
+                const roomRef = doc(window.fbState.db, 'artifacts', getAppId(), 'public', 'data', 'rooms', activeRoomId);
+                await setDoc(roomRef, { layers: JSON.stringify(meta), updated: Date.now() });
+            } catch (e) { console.error("Firebase sync error", e); }
+        }
     }
 
-    // --- Collaboration Room Logic ---
-    async function createWhiteboardRoom() {
-        remoteHostId = null;
-        const myId = currentUser.uuid || currentUser.id;
-        document.getElementById('room-display').innerText = `HOSTING ID: ${myId.substring(0,8)}...`;
+    // --- Firebase Room Collaboration ---
+    window.createWhiteboardRoom = async () => {
+        if (!window.fbState.user) return showToast("Waiting for auth...");
+        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        activeRoomId = roomId;
+        document.getElementById('room-display').innerText = `HOSTING: ${roomId}`;
+        
         await saveWb();
-        showToast("Hosting board publicly. Share your Discovery ID.");
-    }
+        startRoomListener(roomId);
+        showToast(`Room ${roomId} created!`);
+    };
 
-    async function joinWhiteboardRoom() {
-        const friendId = document.getElementById('room-input').value.trim();
-        if(!friendId) return;
-        showToast("Joining...");
-        try {
-            // Attempt to get friend's public board
-            const data = await puter.kv.get('shared_whiteboard', friendId);
-            if(data) {
-                remoteHostId = friendId;
-                document.getElementById('room-display').innerText = `JOINED: ${friendId.substring(0,8)}...`;
-                const parsed = JSON.parse(data);
-                wbLayers = await Promise.all(parsed.layers.map(async layer => {
-                    if(layer.type === 'image') {
-                        const img = new Image(); img.src = layer.src;
-                        await new Promise(r => img.onload = r);
-                        return { ...layer, img };
-                    }
-                    return layer;
-                }));
-                redrawEverything();
-                showToast("Connected!");
-            } else alert("Friend is not hosting a room.");
-        } catch (e) { alert("Could not find room. Check ID."); }
-    }
+    window.joinWhiteboardRoom = async () => {
+        const id = document.getElementById('room-input').value.trim().toUpperCase();
+        if (!id) return;
+        if (!window.fbState.user) return showToast("Waiting for auth...");
+        
+        const roomRef = doc(window.fbState.db, 'artifacts', getAppId(), 'public', 'data', 'rooms', id);
+        const snap = await getDoc(roomRef);
+        
+        if (snap.exists()) {
+            activeRoomId = id;
+            document.getElementById('room-display').innerText = `ROOM: ${id}`;
+            const data = snap.data();
+            await applyRemoteLayers(data.layers);
+            startRoomListener(id);
+            showToast("Joined Room!");
+        } else {
+            showToast("Room not found.");
+        }
+    };
 
-    async function listenForCollab() {
-        setInterval(async () => {
-            if(remoteHostId) {
-                try {
-                    const data = await puter.kv.get('shared_whiteboard', remoteHostId);
-                    if(data) {
-                        const parsed = JSON.parse(data);
-                        if(parsed.layers.length !== wbLayers.length) {
-                            wbLayers = await Promise.all(parsed.layers.map(async layer => {
-                                if(layer.type === 'image') {
-                                    const img = new Image(); img.src = layer.src;
-                                    await new Promise(r => img.onload = r);
-                                    return { ...layer, img };
-                                }
-                                return layer;
-                            }));
-                            redrawEverything();
-                        }
-                    }
-                } catch (e) {}
+    function startRoomListener(id) {
+        if (window.fbState.unsubscribe) window.fbState.unsubscribe();
+        const roomRef = doc(window.fbState.db, 'artifacts', getAppId(), 'public', 'data', 'rooms', id);
+        
+        window.fbState.unsubscribe = onSnapshot(roomRef, async (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                // Avoid feedback loop: only sync if remote is newer
+                if (data.updated > (Date.now() - 500)) { 
+                    await applyRemoteLayers(data.layers);
+                }
             }
-        }, 4000);
+        }, (error) => console.error("Snapshot error:", error));
     }
 
-    function clearWb() { if(confirm("Clear?")) { wbLayers = []; redrawEverything(); saveWb(); } }
-    function setMode(m) {
+    async function applyRemoteLayers(layersJson) {
+        const rawLayers = JSON.parse(layersJson);
+        // Basic optimization: don't redraw if count is same
+        if (rawLayers.length === wbLayers.length) return;
+
+        wbLayers = await Promise.all(rawLayers.map(async layer => {
+            if(layer.type === 'image') {
+                const img = new Image(); img.src = layer.src;
+                await new Promise(r => img.onload = r);
+                return { ...layer, img };
+            }
+            return layer;
+        }));
+        redrawEverything();
+    }
+
+    // --- The Rest of your logic ---
+    window.clearWb = () => { if(confirm("Clear?")) { wbLayers = []; redrawEverything(); saveWb(); } };
+    window.setMode = (m) => {
         mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
         const btn = document.getElementById(m + '-btn'); if(btn) btn.classList.add('active');
         canvas.style.cursor = m === 'drag' ? 'grab' : (m === 'pointer' ? 'default' : (m === 'text' ? 'text' : 'crosshair'));
         if(m !== 'pointer') selectedObject = null; redrawEverything();
-    }
-    function updateColor(c) { wbColor = c; }
-    async function addImgToWb(input) {
+    };
+    window.updateColor = (c) => { wbColor = c; };
+    window.addImgToWb = (input) => {
         if (!input.files[0]) return;
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -555,18 +574,17 @@
             img.src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
-    }
+    };
 
-    // --- Social Hub ---
-    function copyMyId() { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID copied!")); }
-    async function addFriend() {
+    window.copyMyId = () => { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID copied!")); };
+    window.addFriend = async () => {
         const id = document.getElementById('friend-id-input').value.trim();
         if(!id || id === (currentUser.uuid || currentUser.id)) return showToast("Invalid ID");
         if(!friends.includes(id)) {
             friends.push(id); await puter.kv.set('sm_friends_v9', JSON.stringify(friends));
             document.getElementById('friend-id-input').value = ""; renderFriends(); showToast("Friend added!");
         }
-    }
+    };
     function renderFriends() {
         const ui = document.getElementById('friends-list-ui');
         if(friends.length === 0) { ui.innerHTML = `<div style="text-align:center; padding:20px; opacity:0.5;">No friends.</div>`; return; }
@@ -577,33 +595,32 @@
             </div>
         `).join('');
     }
-    async function publishMyDeck() {
+    window.publishMyDeck = async () => {
         showToast("Publishing...");
         try { await puter.kv.set(`pub_deck_${currentUser.uuid || currentUser.id}`, JSON.stringify(deck), true); showToast("Published!"); }
         catch (e) { showToast("Error."); }
-    }
-    async function viewFriendDeck(id) {
+    };
+    window.viewFriendDeck = async (id) => {
         showToast("Fetching...");
         try {
             const d = await puter.kv.get(`pub_deck_${id}`, id);
             if(d) { deck = JSON.parse(d); showToast("Deck loaded!"); refresh(); setView('study'); }
             else alert("User has not published their deck.");
         } catch (e) { alert("Fetch failed."); }
-    }
+    };
 
-    // --- Flashcards ---
-    function handleCreation() {
+    window.handleCreation = () => {
         const input = document.getElementById('ai-in').value;
         if(!input) return;
         if(input.includes('|')) {
             const [q, a] = input.split('|'); deck.push({ front: q.trim(), back: a.trim(), due: Date.now() });
             saveDeck(); document.getElementById('ai-in').value = ""; showToast("Added!"); refresh();
         } else runAI(input);
-    }
+    };
     async function runAI(topic) {
         showToast("AI thinking...");
         try {
-            const r = await puter.ai.chat(`3 flashcards for ${topic}. Format: Question | Answer. One per line. Use $ for math.`);
+            const r = await puter.ai.chat(`3 flashcards for ${topic}. Format: Question | Answer. One per line. Use $ for math expressions.`);
             r.message.content.split('\n').forEach(l => { 
                 if(l.includes('|')){ const [q,a] = l.split('|'); deck.push({front: q.trim(), back: a.trim(), due: Date.now()}); }
             });
@@ -611,6 +628,7 @@
         } catch (e) { showToast("AI failed."); }
     }
     async function saveDeck() { try { await puter.kv.set('sm_deck_v9', JSON.stringify(deck)); renderDeck(); } catch (e) {} }
+    
     function refresh() {
         const cardBox = document.getElementById('card-content'); const label = document.getElementById('card-side-label'); const stats = document.getElementById('deck-stats');
         stats.innerText = `${deck.length} CARDS IN SESSION`;
@@ -620,7 +638,7 @@
         } else { cardBox.innerHTML = `Empty Deck.`; label.innerText = "EMPTY"; }
         if(window.MathJax) MathJax.typesetPromise();
     }
-    function renderDeck() {
+    window.renderDeck = () => {
         const container = document.getElementById('deck-list-container');
         document.getElementById('deck-manager-stats').innerText = `${deck.length} TOTAL CARDS`;
         if (deck.length === 0) { container.innerHTML = `Empty.`; return; }
@@ -628,19 +646,22 @@
             <div class="deck-card">
                 <div><div style="font-size:0.7rem; font-weight:800; color:var(--accent);">QUESTION</div><div class="deck-card-text">${card.front}</div></div>
                 <div style="border-top:1px solid var(--border); padding-top:10px;"><div style="font-size:0.7rem; font-weight:800; color:var(--success);">ANSWER</div><div class="deck-card-text">${card.back}</div></div>
-                <div class="deck-card-actions"><button class="action-btn edit-btn" onclick="editCard(${index})">Edit</button><button class="action-btn delete-btn" onclick="deleteCard(${index})">Delete</button></div>
+                <div class="deck-card-actions">
+                    <button class="action-btn edit-btn" onclick="editCard(${index})">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteCard(${index})">Delete</button>
+                </div>
             </div>
         `).join('');
         if (window.MathJax) MathJax.typesetPromise();
-    }
-    function editCard(index) {
+    };
+    window.editCard = (index) => {
         const q = prompt("Q:", deck[index].front); if (!q) return;
         const a = prompt("A:", deck[index].back); if (!a) return;
         deck[index].front = q.trim(); deck[index].back = a.trim(); saveDeck(); refresh();
-    }
-    function deleteCard(index) { if (confirm("Delete?")) { deck.splice(index, 1); saveDeck(); refresh(); } }
-    function flip() { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); }
-    async function rate(difficulty) {
+    };
+    window.deleteCard = (index) => { if (confirm("Delete?")) { deck.splice(index, 1); saveDeck(); refresh(); } };
+    window.flip = () => { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); };
+    window.rate = async (difficulty) => {
         if(deck.length === 0) return;
         const card = deck.shift();
         if(difficulty === 'hard') deck.splice(1, 0, card); 
@@ -648,15 +669,15 @@
         else deck.push(card);
         flipped = false; document.getElementById('srs-btns').style.display = 'none';
         await saveDeck(); refresh();
-    }
+    };
 
-    function setView(v) { 
+    window.setView = (v) => { 
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
         document.getElementById('nav-'+v).classList.add('active');
-        if(v === 'whiteboard') redrawEverything(); if(v === 'deck') renderDeck();
-    }
+        if(v === 'whiteboard') redrawEverything(); if(v === 'deck') window.renderDeck();
+    };
 
     function showToast(msg) {
         const toast = document.getElementById('notif-toast');
