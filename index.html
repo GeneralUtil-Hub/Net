@@ -39,7 +39,8 @@
         .pomo-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: center; }
         #pomo-time { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
         .pomo-controls { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
-        .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; }
+        .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .pomo-adj:hover { background: rgba(255,255,255,0.1); }
         .pomo-btn { background: var(--accent); border: none; color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 800; }
 
         main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
@@ -65,36 +66,39 @@
         /* Whiteboard */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; }
-        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; }
-        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
+        .color-picker-wrap { border-left: 1px solid var(--border); padding-left: 12px; display: flex; align-items: center; }
+        .color-input { width: 24px; height: 24px; border: none; border-radius: 50%; padding: 0; cursor: pointer; background: none; }
 
         /* Flashcards */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
-        .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: 0.3s; padding: 60px; position: relative; }
+        .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: 0.3s; padding: 60px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .flashcard:hover { border-color: var(--accent); transform: translateY(-5px); }
         .card-content { font-size: 1.8rem; line-height: 1.5; }
-        .voice-wrap { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px; align-items: center; }
+        .card-meta { position: absolute; top: 25px; left: 30px; font-size: 0.75rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 2px; }
+        .voice-wrap { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; align-items: center; }
         
-        /* New Custom Voice Select */
-        .voice-select-custom {
-            background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid var(--border);
-            padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700;
+        .voice-select-premium {
+            background: var(--sidebar); color: #94a3b8; border: 1px solid var(--border);
+            padding: 8px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700;
             outline: none; cursor: pointer; transition: 0.2s;
         }
-        .voice-select-custom:hover { border-color: var(--accent); color: white; }
+        .voice-select-premium:hover { border-color: var(--accent); color: white; }
 
-        .speak-btn { background: var(--accent); border: none; color: white; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .speak-btn { background: var(--accent); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .speak-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
 
         /* Equation Lab */
-        .eq-display { font-size: 3rem; font-weight: 800; color: var(--accent); margin-bottom: 40px; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .eq-display { font-size: 2.8rem; font-weight: 800; color: var(--accent); margin-bottom: 40px; height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 24px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; }
         .eq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
         .eq-btn { 
-            background: var(--card); border: 1px solid var(--border); padding: 25px; 
-            border-radius: 20px; color: white; cursor: pointer; font-size: 1rem; 
-            font-weight: 600; transition: 0.2s; text-align: center;
+            background: var(--card); border: 1px solid var(--border); padding: 30px; 
+            border-radius: 20px; color: white; cursor: pointer; font-size: 1.1rem; 
+            font-weight: 600; transition: 0.2s; text-align: center; display: flex; align-items: center; justify-content: center;
         }
-        .eq-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.02); }
+        .eq-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.02); transform: translateY(-3px); }
         .eq-btn.correct { background: var(--success); border-color: var(--success); }
         .eq-btn.wrong { background: var(--danger); border-color: var(--danger); }
 
@@ -102,10 +106,11 @@
         .deck-list { display: flex; flex-direction: column; gap: 15px; padding: 20px 0; }
         .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .deck-card:hover { border-color: var(--accent); }
-        .deck-card-text { font-size: 1.1rem; font-weight: 600; color: var(--text); flex: 1; }
-        .action-btn { border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.75rem; margin-left: 10px; }
+        .deck-card-text { font-size: 1.1rem; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }
+        .action-btn { border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.75rem; margin-left: 10px; transition: 0.2s; }
         .edit-btn { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
         .delete-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .action-btn:hover { filter: brightness(1.2); }
 
         #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 16px 24px; border-radius: 16px; display: none; z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -116,25 +121,25 @@
 <div id="notif-toast"></div>
 
 <nav id="sidebar">
-    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent);">STUDYMATE PRO</div>
+    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent); letter-spacing: 1px;">STUDYMATE PRO</div>
     
     <div class="pomo-box">
         <div id="pomo-time">25:00</div>
         <div class="pomo-controls">
-            <button class="pomo-adj" onclick="adjTimer(-300)">-5</button>
-            <button class="pomo-adj" onclick="adjTimer(-60)">-1</button>
-            <button class="pomo-adj" onclick="adjTimer(60)">+1</button>
-            <button class="pomo-adj" onclick="adjTimer(300)">+5</button>
+            <button class="pomo-adj" onclick="adjTimer(-300)" title="-5m">-</button>
+            <button class="pomo-adj" onclick="adjTimer(-60)" title="-1m">‹</button>
+            <button class="pomo-adj" onclick="adjTimer(60)" title="+1m">›</button>
+            <button class="pomo-adj" onclick="adjTimer(300)" title="+5m">+</button>
         </div>
         <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START SESSION</button>
     </div>
 
-    <div class="nav-item active" onclick="setView('study')">Study Session</div>
-    <div class="nav-item" onclick="setView('math')">Equation Lab</div>
-    <div class="nav-item" onclick="setView('deck')">Deck Manager</div>
-    <div class="nav-item" onclick="setView('whiteboard')">Whiteboard</div>
-    <div class="nav-item" onclick="setView('analytics')">Analytics</div>
-    <div class="nav-item" onclick="setView('social')">Friends Hub</div>
+    <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
+    <div class="nav-item" id="nav-math" onclick="setView('math')">Equation Lab</div>
+    <div class="nav-item" id="nav-deck" onclick="setView('deck')">Deck Manager</div>
+    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
+    <div class="nav-item" id="nav-analytics" onclick="setView('analytics')">Analytics</div>
+    <div class="nav-item" id="nav-social" onclick="setView('social')">Friends Hub</div>
     
     <div class="user-block" style="margin-top: auto;">
         <div id="my-pfp" class="pfp-wrap"></div>
@@ -154,20 +159,21 @@
                     </div>
                     <div class="options-list" id="cat-options"></div>
                 </div>
-                <div id="deck-stats" style="font-size:0.7rem; font-weight:800; color:var(--accent);">0 CARDS REMAINING</div>
+                <div id="deck-stats" style="font-size:0.7rem; font-weight:800; color:var(--accent); letter-spacing:1px;">0 CARDS REMAINING</div>
             </div>
 
             <div class="flashcard" id="card-box" onclick="flip()">
                 <div class="card-meta" id="card-side-label">QUESTION</div>
                 <div id="card-content" class="card-content">Type a topic to start or drop a text file.</div>
                 <div class="voice-wrap">
-                    <select id="voice-select" class="voice-select-custom" onclick="event.stopPropagation()">
+                    <select id="voice-select" class="voice-select-premium" onclick="event.stopPropagation()">
                         <option value="Kore">Kore (Human)</option>
-                        <option value="Zephyr (Human)">Zephyr</option>
-                        <option value="Leda (Human)">Leda</option>
+                        <option value="Zephyr">Zephyr (Deep)</option>
+                        <option value="Leda">Leda (Soft)</option>
+                        <option value="Charon">Charon (Calm)</option>
                     </select>
                     <button class="speak-btn" onclick="event.stopPropagation(); speakAI()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                     </button>
                 </div>
             </div>
@@ -187,23 +193,24 @@
         </div>
     </div>
 
-    <!-- Equation Lab (New Section) -->
+    <!-- Equation Lab -->
     <div id="view-math" class="view">
         <div class="study-grid">
-            <h2 style="font-weight: 800; margin-top: 0;">Equation Lab</h2>
-            <p style="opacity: 0.6; font-size: 0.8rem; margin-bottom: 30px;">Memorize the formula before it vanishes.</p>
+            <h2 style="font-weight: 800; margin-top: 0; color: var(--accent);">Equation Lab</h2>
+            <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 30px; text-align: center;">Memorize the equation perfectly before choosing the correct match.</p>
             
             <div id="math-session-ui" style="width: 100%; display: none;">
                 <div class="eq-display" id="flashed-eq">...</div>
                 <div class="eq-options" id="math-options" style="display: none;">
-                    <!-- Options -->
+                    <!-- Options injected here -->
                 </div>
             </div>
 
             <div id="math-init-ui" style="width: 100%; max-width: 500px;">
-                <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid var(--border);">
-                    <input type="text" id="math-topic-in" placeholder="Enter topic (e.g. Physics, Calculus)..." style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); padding:15px; border-radius:12px; color:white; outline:none; margin-bottom:15px;">
-                    <button onclick="runMathAI()" style="width:100%; background:var(--accent); color:white; border:none; padding:15px; border-radius:12px; font-weight:800; cursor:pointer;">Start Memorizing</button>
+                <div style="background:var(--card); padding:30px; border-radius:24px; border:1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">TOPIC FOR CHALLENGE</div>
+                    <input type="text" id="math-topic-in" placeholder="e.g. Physics Formulas, Derivatives..." style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); padding:18px; border-radius:14px; color:white; outline:none; margin-bottom:20px; font-size: 1rem;">
+                    <button onclick="runMathAI()" style="width:100%; background:var(--accent); color:white; border:none; padding:18px; border-radius:14px; font-weight:800; cursor:pointer; font-size: 1rem; transition: 0.2s;">Start Memorizing</button>
                 </div>
             </div>
         </div>
@@ -300,20 +307,27 @@
         } catch (e) { console.error(e); }
     };
 
-    // --- Equation Lab (Feature Update) ---
+    // --- Equation Lab (Redesigned Mechanic) ---
     async function runMathAI() {
         const topic = document.getElementById('math-topic-in').value;
         if(!topic) return showToast("Enter a topic!");
-        showToast("Generating math challenges...");
+        showToast("Generating visual challenges...");
         
         try {
-            const r = await puter.ai.chat(`Generate 5 unique equations for: ${topic}. Format per line: Equation (LaTeX) | Correct Description | Wrong Option 1 | Wrong Option 2 | Wrong Option 3. Use $ for math.`);
+            const r = await puter.ai.chat(`Generate 5 important equations for: ${topic}. For each equation, provide the correct LaTeX and 3 similar-looking but slightly incorrect LaTeX versions. Format per line: Correct LaTeX | Distractor 1 | Distractor 2 | Distractor 3. Use $ for math.`);
             const lines = r.message.content.split('\n');
             mathEquations = [];
             lines.forEach(l => {
                 if(l.includes('|')) {
                     const p = l.split('|').map(s => s.trim());
-                    if(p.length >= 5) mathEquations.push({ eq: p[0], correct: p[1], options: [p[1], p[2], p[3], p[4]].sort(() => Math.random() - 0.5) });
+                    if(p.length >= 4) {
+                        const correct = p[0];
+                        mathEquations.push({ 
+                            eq: correct, 
+                            correct: correct, 
+                            options: [p[0], p[1], p[2], p[3]].sort(() => Math.random() - 0.5) 
+                        });
+                    }
                 }
             });
             
@@ -329,7 +343,7 @@
         if(mathEquations.length === 0) {
             document.getElementById('math-init-ui').style.display = 'block';
             document.getElementById('math-session-ui').style.display = 'none';
-            return showToast("Lab Complete!");
+            return showToast("Lab Mastered!");
         }
 
         const current = mathEquations[0];
@@ -342,23 +356,24 @@
         
         if(window.MathJax) MathJax.typesetPromise();
 
+        // Reveal options after 2.5 seconds
         setTimeout(() => {
             display.style.display = 'none';
             optionsUI.style.display = 'grid';
-            optionsUI.innerHTML = current.options.map(opt => `<button class="eq-btn" onclick="checkMathAnswer('${opt}')">${opt}</button>`).join('');
+            optionsUI.innerHTML = current.options.map(opt => `<button class="eq-btn" onclick="checkMathAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('');
             if(window.MathJax) MathJax.typesetPromise();
-        }, 2500); // 2.5s flash
+        }, 2500);
     }
 
     function checkMathAnswer(ans) {
         const current = mathEquations[0];
         if(ans === current.correct) {
-            showToast("Correct!");
+            showToast("Perfect Match!");
             mathEquations.shift();
             startMathQuestion();
         } else {
-            showToast("Incorrect! Question recycled.");
-            mathEquations.push(mathEquations.shift()); // Send to back
+            showToast("Visual mismatch! Recycled.");
+            mathEquations.push(mathEquations.shift()); // Send to back of the queue
             startMathQuestion();
         }
     }
@@ -368,7 +383,7 @@
         if(deck.length === 0) return;
         const text = flipped ? deck[0].back : deck[0].front;
         const voice = document.getElementById('voice-select').value;
-        showToast("Generating human voice...");
+        showToast("Synthesizing human speech...");
         
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
         const payload = { 
@@ -419,12 +434,15 @@
             pomoActive = true; document.getElementById('pomo-start').innerText = "STOP SESSION";
             pomoInt = setInterval(() => {
                 pomoTime--; updatePomoUI();
-                if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; alert("Break time!"); }
+                if(pomoTime <= 0) { 
+                    clearInterval(pomoInt); pomoActive = false; 
+                    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3').play();
+                }
             }, 1000);
         }
     }
 
-    // --- Whiteboard (Delta-Based Rendering) ---
+    // --- Whiteboard Engine (Smart Deletion) ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
     function redrawBoard() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -439,7 +457,7 @@
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
             }
-            if(l === selectedObject) { ctx.save(); ctx.strokeStyle=l.type==='path'?'rgba(59,130,246,0.5)':'#3b82f6'; ctx.strokeRect(l.x-2,l.y-2,(l.w||100)+4,(l.h||24)+4); ctx.restore(); }
+            if(l === selectedObject) { ctx.save(); ctx.strokeStyle='#3b82f6'; ctx.setLineDash([5, 5]); ctx.strokeRect(l.x-2,l.y-2,(l.w||100)+4,(l.h||24)+4); ctx.restore(); }
         });
     }
 
@@ -449,7 +467,7 @@
             isMousedown = true; const p = getP(e); [lastX, lastY] = [p.x, p.y];
             if(mode === 'pointer') {
                 selectedObject = [...wbLayers].reverse().find(l => p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
-                if(selectedObject) { // Z-index logic: move to front
+                if(selectedObject) { 
                     wbLayers = wbLayers.filter(o => o !== selectedObject);
                     wbLayers.push(selectedObject);
                 }
@@ -469,16 +487,16 @@
             } else if(mode === 'pointer' && selectedObject && isMousedown) {
                 selectedObject.x += (p.x - lastX); selectedObject.y += (p.y - lastY);
                 redrawBoard();
-                [lastX, lastY] = [p.x, p.y];
+                [lastX, lastY] = [e.clientX, e.clientY];
             } else if(mode === 'draw' && isMousedown) {
                 const layer = wbLayers[wbLayers.length-1];
                 layer.points.push(p);
                 ctx.beginPath(); ctx.strokeStyle=wbColor; ctx.lineWidth=3; ctx.lineCap="round";
                 ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
                 if(channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y, color: wbColor });
-                [lastX, lastY] = [p.x, p.y];
+                [lastX, lastY] = [e.clientX, e.clientY];
             } else if(mode === 'eraser' && isMousedown) {
-                const radius = 25;
+                const radius = 30;
                 const prevCount = wbLayers.length;
                 wbLayers = wbLayers.filter(l => {
                     if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < radius);
@@ -500,13 +518,13 @@
     function setupKeyboard() {
         window.onkeydown = (e) => {
             if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject) {
+                if(document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
                 wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb();
             }
         };
     }
 
     // --- Ably ---
-    function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
     function joinAbly() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
         if(!id || ABLY_KEY.includes("INSERT")) return;
@@ -515,7 +533,7 @@
             if(msg.clientId === currentUser.id) return;
             const { type, x, y, color } = msg.data;
             if(type === 'start') { wbLayers.push({ type: 'path', color, points: [{x, y}] }); }
-            else if(type === 'move') { wbLayers[wbLayers.length-1].points.push({x, y}); redrawBoard(); }
+            else if(type === 'move') { if(wbLayers.length) wbLayers[wbLayers.length-1].points.push({x, y}); redrawBoard(); }
         });
         channel.subscribe('sync', (msg) => { if(msg.clientId !== currentUser.id) applyRemote(msg.data.layers); });
         showToast("Connected: " + id);
@@ -532,14 +550,14 @@
         }));
         redrawBoard();
     }
+    function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
 
     // --- UI/Flashcards ---
     function setView(v) {
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        const nav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(v));
-        if(nav) nav.classList.add('active');
+        const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active');
         if(v === 'deck') renderDeck();
         if(v === 'analytics') updateAnalytics();
     }
@@ -555,7 +573,7 @@
         if(filtered.length > 0) {
             document.getElementById('card-content').innerHTML = filtered[0].front;
             document.getElementById('card-side-label').innerText = "QUESTION";
-        } else document.getElementById('card-content').innerText = "Empty subject.";
+        } else document.getElementById('card-content').innerText = "Subject empty.";
         if(window.MathJax) MathJax.typesetPromise();
     }
     function flip() { 
@@ -585,7 +603,7 @@
         } else runAI(val);
     }
     async function runAI(topic) {
-        showToast("AI extraction...");
+        showToast("AI generating concepts...");
         const r = await puter.ai.chat(`Generate 5 concepts for: ${topic}. Format: Subject | Question | Answer. One per line. Use $ for math.`);
         r.message.content.split('\n').forEach(l => {
             if(l.includes('|')) {
@@ -602,18 +620,16 @@
                 <div class="deck-info">
                     <div class="deck-label">${c.category}</div>
                     <div class="deck-card-text">${c.front}</div>
-                    <div class="deck-card-text" style="color:var(--success); font-size:0.9rem; border-top: 1px solid var(--border); padding-top:10px; margin-top:10px;">${c.back}</div>
+                    <div class="deck-card-text" style="color:var(--success); font-size:1rem; border-top: 1px solid var(--border); padding-top:10px; margin-top:10px;">${c.back}</div>
                 </div>
-                <div>
-                    <button class="action-btn delete-btn" onclick="deleteCard(${i})">Delete</button>
-                </div>
+                <div><button class="action-btn delete-btn" onclick="deleteCard(${i})">Delete</button></div>
             </div>
         `).join('');
         if(window.MathJax) MathJax.typesetPromise();
     }
     function deleteCard(i) { deck.splice(i,1); saveDeck(); }
     function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = m==='drag'?'grab':'crosshair'; }
+    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); if(document.getElementById(m+'-btn')) document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = m==='drag'?'grab':'crosshair'; }
 </script>
 </body>
 </html>
