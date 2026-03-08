@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMate Pro | Premium Suite</title>
+    <title>StudyMate Pro | Premium suite</title>
     
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
@@ -30,7 +30,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root[data-theme="dark"] { 
+        :root { 
             --bg: #0b0f1a; --card: #161b2c; --text: #f8fafc; --accent: #3b82f6; 
             --border: #2d364d; --sidebar: #060912; --success: #10b981; --danger: #ef4444;
             --warning: #f59e0b;
@@ -46,7 +46,7 @@
         #pomo-time { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
         .pomo-controls { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
         .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; }
-        .pomo-btn { background: var(--accent); border: none; color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 800; }
+        .pomo-btn { background: var(--accent); border: none; color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 800; width: 100%; }
 
         main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
@@ -54,11 +54,12 @@
 
         /* Custom Dropdown */
         .custom-select { position: relative; width: 200px; user-select: none; }
-        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-        .options-list { position: absolute; top: 110%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .select-trigger:hover { border-color: var(--accent); }
+        .options-list { position: absolute; top: 115%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
         .options-list.active { display: block; }
-        .option-item { padding: 10px 14px; font-size: 0.8rem; cursor: pointer; }
-        .option-item:hover { background: rgba(255,255,255,0.05); }
+        .option-item { padding: 12px 14px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .option-item:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
 
         /* Whiteboard */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
@@ -67,34 +68,56 @@
         .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
 
-        /* AI Assistant UI */
-        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 20px; position: relative; }
-        .lesson-step { margin-bottom: 12px; opacity: 0.4; transition: 0.3s; padding: 15px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; }
-        .lesson-step:hover { background: rgba(255,255,255,0.03); opacity: 0.7; }
-        .lesson-step.active { opacity: 1; background: rgba(59, 130, 246, 0.08); border-color: var(--accent); transform: scale(1.02); }
+        /* Flashcards Premium GUI */
+        .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .flashcard-outer { perspective: 1500px; width: 100%; height: 420px; cursor: pointer; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .flashcard-inner.flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 40px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px; background: linear-gradient(145deg, var(--card), #1a2235); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .flashcard-back { transform: rotateY(180deg); }
+        .card-label { position: absolute; top: 35px; left: 45px; font-size: 0.7rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 3px; }
+        .card-content { font-size: 2rem; line-height: 1.4; font-weight: 600; width: 100%; }
+
+        .answer-checker-box { width: 100%; margin-top: 30px; display: flex; gap: 12px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; }
+        .ans-input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1.1rem; padding: 5px 15px; }
+        .ans-btn { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+
+        .srs-wrap { display: none; width: 100%; gap: 12px; margin-top: 30px; }
+        .srs-btn { flex: 1; padding: 20px; border-radius: 20px; color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .srs-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        /* AI Assistant */
+        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .lesson-step { margin-bottom: 12px; opacity: 0.4; transition: 0.3s; padding: 18px; border-radius: 16px; border: 1px solid transparent; cursor: pointer; }
+        .lesson-step.active { opacity: 1; background: rgba(59, 130, 246, 0.08); border-color: var(--accent); }
         .lesson-progress { position: absolute; top: 0; left: 0; height: 4px; background: var(--accent); transition: width 0.3s; width: 0%; }
         .visual-stage { background: #000; border-radius: 16px; height: 280px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); }
         
-        .quiz-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-top: 30px; display: none; }
-        .quiz-option { background: var(--sidebar); border: 1px solid var(--border); padding: 12px; border-radius: 10px; margin-top: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-        .quiz-option:hover { border-color: var(--accent); }
-        .quiz-option.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
-        .quiz-option.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+        .quiz-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-top: 30px; display: none; animation: slideIn 0.5s ease-out; }
+        .quiz-option { background: var(--sidebar); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-top: 10px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+        .quiz-option:hover { border-color: var(--accent); background: rgba(255,255,255,0.03); }
 
         /* Archive UI */
-        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; position: relative; transition: 0.2s; cursor: pointer; }
-        .archive-item:hover { border-color: var(--accent); }
-        .archive-preview { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .del-circle { width: 24px; height: 24px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; position: absolute; top: 10px; right: 10px; z-index: 10; }
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; position: relative; transition: 0.3s; cursor: pointer; }
+        .archive-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .archive-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #000; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; overflow: hidden; }
+        .del-circle { width: 26px; height: 26px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; position: absolute; top: 15px; right: 15px; z-index: 10; font-weight: bold; }
+
+        /* Settings View */
+        .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 25px; }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .settings-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .set-btn { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .set-btn:hover { background: var(--accent); border-color: var(--accent); }
 
         /* Viewer Modal */
-        #viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; }
+        #viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; backdrop-filter: blur(10px); }
         #viewer-content { max-width: 95%; max-height: 95%; position: relative; text-align: center; }
-        #viewer-content img { max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        #viewer-close { position: absolute; top: -40px; right: 0; color: white; cursor: pointer; font-weight: 800; }
+        #viewer-content img { max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid var(--border); }
+        #viewer-close { position: absolute; top: -50px; right: 0; color: white; cursor: pointer; font-weight: 800; font-size: 1rem; }
 
-        #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 16px 24px; border-radius: 16px; display: none; z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease-out; }
+        #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 18px 28px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.4); pointer-events: none; }
         @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
@@ -105,14 +128,14 @@
 <!-- Archive Viewer -->
 <div id="viewer-overlay" onclick="closeViewer()">
     <div id="viewer-content" onclick="event.stopPropagation()">
-        <span id="viewer-close" onclick="closeViewer()">CLOSE VIEWER ×</span>
+        <span id="viewer-close" onclick="closeViewer()">CLOSE PREVIEW ×</span>
         <div id="viewer-target"></div>
-        <button id="viewer-export" style="margin-top: 20px; background: var(--accent); color:white; border:none; padding:10px 25px; border-radius:12px; font-weight:800; cursor:pointer;">DOWNLOAD FILE</button>
+        <button id="viewer-export" style="margin-top: 25px; background: var(--accent); color:white; border:none; padding:14px 40px; border-radius:16px; font-weight:800; cursor:pointer;">EXPORT AS PNG</button>
     </div>
 </div>
 
 <nav id="sidebar">
-    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent); text-align: center; letter-spacing: 1px;">STUDYMATE PRO</div>
+    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent); text-align: center; letter-spacing: 2px;">STUDYMATE</div>
     
     <div class="pomo-box">
         <div id="pomo-time">25:00</div>
@@ -120,7 +143,7 @@
             <button class="pomo-adj" onclick="adjTimer(-60)">-1</button>
             <button class="pomo-adj" onclick="adjTimer(60)">+1</button>
         </div>
-        <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START SESSION</button>
+        <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START</button>
     </div>
 
     <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
@@ -128,6 +151,7 @@
     <div class="nav-item" id="nav-deck" onclick="setView('deck')">Deck Manager</div>
     <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
     <div class="nav-item" id="nav-archive" onclick="setView('archive')">Archive Hub</div>
+    <div class="nav-item" id="nav-settings" onclick="setView('settings')" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
     
     <div class="user-block" style="margin-top: auto;">
         <div id="my-pfp" class="pfp-wrap"></div>
@@ -139,30 +163,43 @@
     <!-- Study View -->
     <div id="view-study" class="view active">
         <div class="study-grid">
-            <div style="display:flex; justify-content: space-between; width: 100%; margin-bottom: 20px;">
+            <div style="display:flex; justify-content: space-between; width: 100%; margin-bottom: 25px;">
                 <div class="custom-select">
                     <div class="select-trigger" onclick="toggleCatDropdown()">
                         <span id="cat-label">All Subjects</span> ▾
                     </div>
                     <div class="options-list" id="cat-options"></div>
                 </div>
-                <div id="deck-stats" style="font-size:0.7rem; font-weight:800; color:var(--accent);">0 CARDS REMAINING</div>
+                <div id="deck-stats" style="font-size:0.75rem; font-weight:800; color:var(--accent); letter-spacing: 1px;">0 CARDS REMAINING</div>
             </div>
 
-            <div class="flashcard" id="card-box" onclick="flip()">
-                <div class="card-meta" id="card-side-label">QUESTION</div>
-                <div id="card-content" class="card-content">Type a topic to generate cards.</div>
+            <div class="flashcard-outer" onclick="flip()">
+                <div class="flashcard-inner" id="card-inner">
+                    <div class="flashcard-front">
+                        <div class="card-label">QUESTION</div>
+                        <div id="card-front-content" class="card-content">Type a topic below to generate your first premium deck.</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="card-label">ANSWER</div>
+                        <div id="card-back-content" class="card-content">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="answer-checker-box" id="ans-box">
+                <input type="text" id="user-input-ans" class="ans-input" placeholder="Type your answer to verify..." onkeypress="if(event.key==='Enter')checkAnswer()" onclick="event.stopPropagation()">
+                <button class="ans-btn" onclick="event.stopPropagation(); checkAnswer()">CHECK</button>
             </div>
             
-            <div id="srs-btns" style="display:none; gap:10px; width:100%; margin-top:20px;">
-                <button onclick="rate('hard')" style="flex:1; background:var(--danger); border:none; padding:15px; border-radius:12px; color:white; font-weight:800; cursor:pointer;">HARD</button>
-                <button onclick="rate('mid')" style="flex:1; background:var(--warning); border:none; padding:15px; border-radius:12px; color:white; font-weight:800; cursor:pointer;">MID</button>
-                <button onclick="rate('easy')" style="flex:1; background:var(--success); border:none; padding:15px; border-radius:12px; color:white; font-weight:800; cursor:pointer;">EASY</button>
+            <div class="srs-wrap" id="srs-btns">
+                <button onclick="rate('hard')" class="srs-btn" style="background:var(--danger)">HARD</button>
+                <button onclick="rate('mid')" class="srs-btn" style="background:var(--warning)">MID</button>
+                <button onclick="rate('easy')" class="srs-btn" style="background:var(--success)">EASY</button>
             </div>
 
-            <div style="margin-top: auto; width: 100%; display:flex; gap:10px; background:var(--card); padding:10px; border-radius:18px; border:1px solid var(--border);">
-                <input type="text" id="ai-in" placeholder="Topic for AI or Subject | Question | Answer..." style="flex:1; background:none; border:none; color:white; outline:none;">
-                <button onclick="handleGen()" style="background:var(--accent); color:white; border:none; padding:8px 20px; border-radius:10px; font-weight:800; cursor:pointer;">GENERATE</button>
+            <div style="margin-top: auto; width: 100%; display:flex; gap:10px; background:var(--card); padding:12px; border-radius:22px; border:1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                <input type="text" id="ai-in" placeholder="Ask AI: 'Atomic Physics' or 'Subject | Q | A'..." style="flex:1; background:none; border:none; color:white; outline:none; font-size: 1rem; padding: 0 10px;">
+                <button onclick="handleGen()" style="background:var(--accent); color:white; border:none; padding:10px 24px; border-radius:14px; font-weight:800; cursor:pointer;">GENERATE</button>
             </div>
         </div>
     </div>
@@ -171,11 +208,11 @@
     <div id="view-assistant" class="view">
         <div style="padding:40px; max-width:900px; margin:0 auto; width:100%;">
             <div id="assistant-intro" style="text-align: center; margin-bottom: 40px;">
-                <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 10px;">AI Teaching Assistant</h2>
-                <p style="opacity: 0.6; margin-bottom: 25px;">Interact with human-led lessons and mastery quizzes.</p>
-                <div style="display:flex; gap:12px; background: var(--card); padding: 10px; border-radius: 20px; border: 1px solid var(--border);">
-                    <input type="text" id="assistant-topic" placeholder="e.g. Explain Schrodinger's Cat with equations" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 10px;">
-                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 30px; border-radius:14px; font-weight:800; cursor:pointer;">LEARN NOW</button>
+                <h2 style="font-weight: 800; font-size: 2.5rem; margin-bottom: 10px;">AI Teaching Assistant</h2>
+                <p style="opacity: 0.6; margin-bottom: 30px;">Deep multi-step lessons with human-like audio and topic quizzes.</p>
+                <div style="display:flex; gap:12px; background: var(--card); padding: 15px; border-radius: 24px; border: 1px solid var(--border);">
+                    <input type="text" id="assistant-topic" placeholder="e.g. Derive the quadratic formula step-by-step" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
+                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 35px; border-radius:16px; font-weight:800; cursor:pointer;">LEARN</button>
                 </div>
             </div>
 
@@ -187,13 +224,13 @@
                 </div>
                 
                 <div class="quiz-card" id="quiz-section">
-                    <h3 style="color: var(--accent); margin-bottom: 15px;">Mastery Quiz</h3>
-                    <div id="quiz-question" style="font-weight: 700; margin-bottom: 15px;"></div>
-                    <div id="quiz-options"></div>
+                    <h3 style="color: var(--accent); margin-bottom: 15px; font-weight: 800;">Topic Mastery Quiz</h3>
+                    <div id="quiz-question" style="font-weight: 700; margin-bottom: 20px; font-size: 1.2rem;"></div>
+                    <div id="quiz-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
 
-                <div style="display:flex; gap:10px; justify-content: center; margin-top: 20px;">
-                    <button onclick="stopLesson()" style="background:rgba(255,255,255,0.05); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer;">End Lesson</button>
+                <div style="display:flex; gap:12px; justify-content: center; margin-top: 30px;">
+                    <button onclick="stopLesson()" style="background:rgba(255,255,255,0.05); color:white; border:none; padding:12px 35px; border-radius:14px; cursor:pointer; font-weight: 700;">EXIT LESSON</button>
                 </div>
             </div>
         </div>
@@ -203,8 +240,8 @@
     <div id="view-archive" class="view">
         <div style="padding:40px; max-width:1000px; margin:0 auto; width:100%;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="font-weight: 800; font-size: 2rem;">Archive Hub</h2>
-                <button onclick="document.getElementById('archive-file-in').click()" style="background:var(--accent); color:white; border:none; padding:12px 25px; border-radius:14px; font-weight:800; cursor:pointer;">UPLOAD TO CLOUD</button>
+                <h2 style="font-weight: 800; font-size: 2.2rem; margin: 0;">Archive Hub</h2>
+                <button onclick="document.getElementById('archive-file-in').click()" style="background:var(--accent); color:white; border:none; padding:14px 25px; border-radius:14px; font-weight:800; cursor:pointer;">ADD TO CLOUD</button>
                 <input type="file" id="archive-file-in" hidden onchange="uploadToArchive(this)">
             </div>
             <div id="archive-container" class="archive-grid"></div>
@@ -213,10 +250,10 @@
 
     <!-- Deck Manager -->
     <div id="view-deck" class="view">
-        <div style="padding:40px; max-width:800px; margin:0 auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin:0;">Deck Manager</h2>
-                <button onclick="publishDeck()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:800; cursor:pointer;">SYNC DECK</button>
+        <div style="padding:40px; max-width:850px; margin:0 auto; width:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                <h2 style="margin:0; font-weight: 800; font-size: 2.2rem;">Deck Manager</h2>
+                <button onclick="publishDeck()" style="background:var(--success); color:white; border:none; padding:14px 25px; border-radius:16px; font-weight:800; cursor:pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">CLOUD SYNC</button>
             </div>
             <div id="deck-list-container" class="deck-list"></div>
         </div>
@@ -225,23 +262,63 @@
     <!-- Whiteboard View -->
     <div id="view-whiteboard" class="view">
         <div class="room-bar">
-            <span class="room-status" id="room-display">OFFLINE</span>
-            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; width:100px;">
-            <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">JOIN</button>
-            <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">HOST</button>
-            <div id="presence-list" style="display:flex; gap:5px; margin-left:10px;"></div>
+            <span class="room-status" id="room-display">LOCAL</span>
+            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:130px; outline:none;">
+            <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:8px 18px; border-radius:8px; font-size:0.75rem; font-weight:800; cursor:pointer;">JOIN</button>
+            <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:8px 18px; border-radius:8px; font-size:0.75rem; font-weight:800; cursor:pointer;">HOST</button>
         </div>
         <div id="wb-box">
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
-                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
-                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
-                <button class="tool-btn" onclick="addWbText()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
-                <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
-                <button class="tool-btn" id="capture-btn" onclick="setMode('capture')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
+                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Pointer Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Pen Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Smart Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" onclick="addWbText()" title="Text Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
+                <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()" title="Insert Image"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+                <button class="tool-btn" id="capture-btn" onclick="setMode('capture')" title="Region Capture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
                 <input type="color" id="wb-color" class="color-input" style="width:24px; height:24px; border:none; cursor:pointer;" value="#3b82f6" onchange="wbColor=this.value">
                 <input type="file" id="wb-img-upload" hidden onchange="uploadImageToWb(this)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="view-settings" class="view">
+        <div style="padding:40px; max-width:800px; margin:0 auto; width:100%;">
+            <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 30px;">Settings</h2>
+            
+            <div class="settings-section">
+                <h3 style="font-size: 1rem; margin-bottom: 20px; color: var(--accent);">APPEARANCE</h3>
+                <div class="settings-row">
+                    <span>Accent Color</span>
+                    <input type="color" id="accent-picker" value="#3b82f6" onchange="updateAccent(this.value)" style="border:none; background:none; cursor:pointer;">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 style="font-size: 1rem; margin-bottom: 20px; color: var(--accent);">DATA MANAGEMENT</h3>
+                <div class="settings-row">
+                    <div>
+                        <div style="font-weight: 700;">Export Data</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6;">Download your library as JSON</div>
+                    </div>
+                    <button class="set-btn" onclick="exportAppData()">EXPORT</button>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div style="font-weight: 700;">Import Data</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6;">Replace library with a JSON file</div>
+                    </div>
+                    <button class="set-btn" onclick="document.getElementById('import-data-in').click()">IMPORT</button>
+                    <input type="file" id="import-data-in" hidden onchange="importAppData(this)">
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div style="font-weight: 700; color: var(--danger);">Clear All Data</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6;">Permanently delete everything</div>
+                    </div>
+                    <button class="set-btn" style="color: var(--danger);" onclick="clearAppData()">CLEAR</button>
+                </div>
             </div>
         </div>
     </div>
@@ -249,7 +326,7 @@
 
 <script>
     const ABLY_KEY = "xTLjRw.7-yVUg:GK9phICjvxzGuZ6twIpLPJVh1Ek92fL20YVT9RTJnfE";
-    let deck = [], friends = [], wbLayers = [], archive = [], flipped = false;
+    let deck = [], archive = [], wbLayers = [], flipped = false;
     let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
     let currentUser = null, wbColor = '#3b82f6', activeRoom = null, ably = null, channel = null;
     let pomoTime = 1500, pomoActive = false, pomoInt = null, selectedCat = "All";
@@ -263,14 +340,15 @@
             if (!puter.auth.isSignedIn()) await puter.auth.signIn();
             currentUser = await puter.auth.getUser();
             document.getElementById('user-name').innerText = currentUser.username;
+            document.getElementById('my-puter-id').innerText = currentUser.uuid || currentUser.id;
 
-            const d = await puter.kv.get('sm_deck_v14');
+            const d = await puter.kv.get('sm_deck_v15');
             if(d) deck = JSON.parse(d);
 
-            const arc = await puter.kv.get('sm_archive_v14');
+            const arc = await puter.kv.get('sm_archive_v15');
             if(arc) archive = JSON.parse(arc);
 
-            const l = await puter.kv.get('sm_wb_v14');
+            const l = await puter.kv.get('sm_wb_v15');
             if(l) {
                 wbLayers = await Promise.all(JSON.parse(l).map(async obj => {
                     if(obj.type === 'image') {
@@ -282,32 +360,34 @@
                 }));
             }
             
+            const accent = await puter.kv.get('sm_accent_v1');
+            if(accent) updateAccent(accent);
+
             initWb(); resizeWb(); refresh(); redrawBoard(); setupKeyboard(); updateCategories();
         } catch (e) { console.error(e); }
     };
 
-    // --- AI Teaching Assistant Engine ---
+    // --- AI Teaching Assistant & Quiz ---
     async function startLesson() {
         const topic = document.getElementById('assistant-topic').value;
         if(!topic) return showToast("Enter a topic!");
         lessonActive = true;
         document.getElementById('lesson-container').style.display = 'block';
-        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:20px;'>AI Tutor is drafting your lesson...</div>";
+        document.getElementById('assistant-intro').style.display = 'none';
+        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:30px; font-weight:800; color:var(--accent);'>AI is preparing your premium lesson...</div>";
         document.getElementById('quiz-section').style.display = 'none';
 
         try {
-            const prompt = `You are a specialized teaching assistant. Explain "${topic}" in 4 distinct segments. 
-            Include complex mathematical equations using $...$ format where appropriate. 
-            Also provide 3 multiple-choice quiz questions at the end. 
-            Return the response ONLY as a JSON object with: 
-            { "steps": [{ "text": "...", "highlight": "...", "visual": "SVG path description" }], "quiz": [{ "q": "...", "o": ["A","B","C","D"], "a": index }] }`;
+            const prompt = `You are a professional tutor. Explain "${topic}" in 4 steps. 
+            Include complex math in LaTeX $...$ format. Provide 3 MCQs at the end.
+            Return ONLY as JSON: { "steps": [{ "text": "Step info", "highlight": "Phrase", "visual": "SVG path" }], "quiz": [{ "q": "Question text", "o": ["Opt1","Opt2","Opt3","Opt4"], "a": 0 }] }`;
 
             const r = await puter.ai.chat(prompt);
             const cleanJson = r.message.content.replace(/```json|```/g, "").trim();
             currentLessonData = JSON.parse(cleanJson);
             renderLesson();
             jumpToStep(0);
-        } catch (e) { showToast("Lesson generation failed."); }
+        } catch (e) { showToast("Generation failed."); stopLesson(); }
     }
 
     function renderLesson() {
@@ -324,34 +404,28 @@
         if(!lessonActive) return;
         currentStep = index;
         window.speechSynthesis.cancel();
-
         document.querySelectorAll('.lesson-step').forEach(s => s.classList.remove('active'));
         const activeDiv = document.getElementById(`step-${index}`);
         if(activeDiv) activeDiv.classList.add('active');
+        document.getElementById('lesson-bar').style.width = `${((index + 1) / currentLessonData.steps.length) * 100}%`;
 
-        const bar = document.getElementById('lesson-bar');
-        bar.style.width = `${((index + 1) / currentLessonData.steps.length) * 100}%`;
-
-        // Update Visual
         const visual = document.getElementById('visual-stage');
-        visual.innerHTML = `<svg width="200" height="200" viewBox="0 0 100 100">
-            <path d="M10 50 Q 50 10 90 50 T 10 50" fill="none" stroke="var(--accent)" stroke-width="2">
-                <animate attributeName="d" values="M10 50 Q 50 10 90 50 T 10 50; M10 50 Q 50 90 90 50 T 10 50; M10 50 Q 50 10 90 50 T 10 50" dur="4s" repeatCount="indefinite"/>
-            </path>
+        visual.innerHTML = `<svg width="120" height="120" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="35" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="220">
+                <animate attributeName="stroke-dashoffset" from="220" to="0" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <text x="50" y="55" text-anchor="middle" fill="white" font-size="8" font-weight="800">${index+1}</text>
         </svg>`;
 
         speak(currentLessonData.steps[index].text, () => {
-            if(index < currentLessonData.steps.length - 1) {
-                jumpToStep(index + 1);
-            } else {
-                showQuiz();
-            }
+            if(index < currentLessonData.steps.length - 1) jumpToStep(index + 1);
+            else showQuiz();
         });
     }
 
     function speak(text, callback) {
         const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = 0.95;
+        utter.rate = 1.0;
         utter.onend = callback;
         window.speechSynthesis.speak(utter);
     }
@@ -361,24 +435,24 @@
         const section = document.getElementById('quiz-section');
         section.style.display = 'block';
         document.getElementById('quiz-question').innerText = quiz[0].q;
-        document.getElementById('quiz-options').innerHTML = quiz[0].o.map((opt, i) => `
-            <div class="quiz-option" onclick="checkQuiz(${i}, ${quiz[0].a}, this)">${opt}</div>
-        `).join('');
+        document.getElementById('quiz-options').innerHTML = quiz[0].o.map((opt, i) => `<div class="quiz-option" onclick="checkQuiz(${i}, ${quiz[0].a}, this)">${opt}</div>`).join('');
     }
 
-    function checkQuiz(selected, correct, el) {
-        if(selected === correct) {
-            el.classList.add('correct');
-            showToast("Excellent! Mastery achieved. ✨");
+    function checkQuiz(sel, corr, el) {
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(o => o.style.pointerEvents = 'none');
+        if(sel === corr) {
+            el.style.borderColor = 'var(--success)'; el.style.background = 'rgba(16, 185, 129, 0.1)';
+            showToast("Correct! You've mastered this topic.");
         } else {
-            el.classList.add('wrong');
-            showToast("Not quite. Review step 1.");
+            el.style.borderColor = 'var(--danger)'; el.style.background = 'rgba(239, 68, 68, 0.1)';
+            showToast("Try reviewing the steps again.");
         }
     }
 
-    function stopLesson() { lessonActive = false; window.speechSynthesis.cancel(); document.getElementById('lesson-container').style.display = 'none'; }
+    function stopLesson() { lessonActive = false; window.speechSynthesis.cancel(); document.getElementById('lesson-container').style.display = 'none'; document.getElementById('assistant-intro').style.display = 'block'; }
 
-    // --- Whiteboard Engine (Optimized & Resizable) ---
+    // --- Whiteboard Engine ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
     function redrawBoard() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -392,16 +466,15 @@
                 ctx.moveTo(l.points[0].x, l.points[0].y); l.points.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
+                const m = ctx.measureText(l.content); l.w = m.width; l.h = 24;
             }
             if(l === selectedObject) { 
-                ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='#3b82f6'; ctx.strokeRect(l.x-5, l.y-5, (l.w||100)+10, (l.h||100)+10);
-                if(l.type === 'image') { ctx.fillStyle='#3b82f6'; ctx.fillRect(l.x+l.w-5, l.y+l.h-5, 10, 10); }
+                ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='var(--accent)'; ctx.strokeRect(l.x-5, l.y-5, (l.w||100)+10, (l.h||100)+10);
+                if(l.type === 'image') { ctx.fillStyle='var(--accent)'; ctx.fillRect(l.x+l.w-5, l.y+l.h-5, 10, 10); }
                 ctx.restore();
             }
         });
-        if(mode === 'capture' && captureRect) {
-            ctx.save(); ctx.strokeStyle = 'red'; ctx.setLineDash([5,5]); ctx.strokeRect(captureRect.x, captureRect.y, captureRect.w, captureRect.h); ctx.restore();
-        }
+        if(mode === 'capture' && captureRect) { ctx.save(); ctx.strokeStyle = 'red'; ctx.setLineDash([8,4]); ctx.strokeRect(captureRect.x, captureRect.y, captureRect.w, captureRect.h); ctx.restore(); }
     }
 
     function initWb() {
@@ -424,7 +497,7 @@
             if(!isMousedown) return;
             const p = getP(e);
             if(mode === 'capture') { captureRect = { x: Math.min(p.x, captureStart.x), y: Math.min(p.y, captureStart.y), w: Math.abs(p.x-captureStart.x), h: Math.abs(p.y-captureStart.y) }; redrawBoard(); }
-            else if(resizingObject) { selectedObject.w = p.x - selectedObject.x; selectedObject.h = p.y - selectedObject.y; redrawBoard(); }
+            else if(resizingObject) { selectedObject.w = Math.max(10, p.x - selectedObject.x); selectedObject.h = Math.max(10, p.y - selectedObject.y); redrawBoard(); }
             else if(mode === 'pointer' && selectedObject) { selectedObject.x += (p.x - lastX); selectedObject.y += (p.y - lastY); redrawBoard(); }
             else if(mode === 'draw') {
                 wbLayers[wbLayers.length-1].points.push(p);
@@ -444,34 +517,22 @@
                 const tmp = document.createElement('canvas'); tmp.width = captureRect.w; tmp.height = captureRect.h;
                 tmp.getContext('2d').drawImage(canvas, captureRect.x, captureRect.y, captureRect.w, captureRect.h, 0,0, captureRect.w, captureRect.h);
                 archive.push({ id: Date.now(), name: 'Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
-                await puter.kv.set('sm_archive_v14', JSON.stringify(archive));
-                showToast("Capture saved to Archive Hub!");
-                captureRect = null;
+                await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
+                showToast("Saved to Archive Hub!"); captureRect = null;
             }
             isMousedown = resizingObject = false; saveWb();
         };
     }
 
-    async function uploadImageToWb(input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            let img = new Image();
-            img.onload = () => { wbLayers.push({ type: 'image', img, src: e.target.result, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+500, w: 300, h: 200 }); redrawBoard(); saveWb(); };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    // --- Archive logic ---
+    // --- Archive & Viewing ---
     async function uploadToArchive(input) {
         if(!input.files[0]) return;
         const file = input.files[0];
         const reader = new FileReader();
         reader.onload = async (e) => {
             archive.push({ id: Date.now(), name: file.name, data: e.target.result, type: file.type.startsWith('image/') ? 'image' : 'file', date: new Date().toLocaleDateString() });
-            await puter.kv.set('sm_archive_v14', JSON.stringify(archive));
-            renderArchive(); showToast("File Uploaded!");
+            await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
+            renderArchive(); showToast("File Saved!");
         };
         reader.readAsDataURL(file);
     }
@@ -482,7 +543,8 @@
             <div class="archive-item" onclick="openViewer(${item.id})">
                 <div class="del-circle" onclick="event.stopPropagation(); deleteArchive(${item.id})">×</div>
                 <div class="archive-preview">${item.type === 'image' ? `<img src="${item.data}" style="width:100%;height:100%;object-fit:cover;">` : '📄'}</div>
-                <div style="font-weight:700; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</div>
+                <div style="font-weight:800; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</div>
+                <div style="font-size:0.65rem; opacity:0.5; margin-top:5px;">${item.date}</div>
             </div>
         `).join('');
     }
@@ -492,13 +554,92 @@
         const target = document.getElementById('viewer-target');
         const exportBtn = document.getElementById('viewer-export');
         if(item.type === 'image') target.innerHTML = `<img src="${item.data}">`;
-        else target.innerHTML = `<div style="color:white; padding:50px;">Preview not available for documents. Use Download button.</div>`;
+        else target.innerHTML = `<div style="color:white; padding:100px; font-weight:800;">DOCUMENT PREVIEW NOT SUPPORTED. DOWNLOAD BELOW.</div>`;
         exportBtn.onclick = () => { const link = document.createElement('a'); link.href = item.data; link.download = item.name; link.click(); };
         document.getElementById('viewer-overlay').style.display = 'flex';
     }
 
     function closeViewer() { document.getElementById('viewer-overlay').style.display = 'none'; }
-    async function deleteArchive(id) { if(confirm("Delete?")) { archive = archive.filter(a => a.id !== id); await puter.kv.set('sm_archive_v14', JSON.stringify(archive)); renderArchive(); } }
+    async function deleteArchive(id) { if(confirm("Permanently delete?")) { archive = archive.filter(a => a.id !== id); await puter.kv.set('sm_archive_v15', JSON.stringify(archive)); renderArchive(); } }
+
+    // --- Study / Flashcards Logic (V2) ---
+    function flip() { 
+        if(deck.length === 0) return; 
+        flipped = !flipped; 
+        document.getElementById('card-inner').classList.toggle('flipped', flipped); 
+        document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; 
+        document.getElementById('ans-box').style.display = flipped ? 'none' : 'flex'; 
+    }
+    
+    function checkAnswer() {
+        const input = document.getElementById('user-input-ans');
+        const userVal = input.value.trim().toLowerCase();
+        if(!userVal || deck.length === 0) return;
+        const current = (selectedCat === "All" ? deck[0] : deck.filter(c => c.category === selectedCat)[0]);
+        const correctVal = current.back.trim().toLowerCase();
+        
+        const dist = levenshtein(userVal, correctVal);
+        if(dist < correctVal.length * 0.3) { showToast("Correct! Flip to rate."); flip(); }
+        else { showToast("Keep trying! Or flip to see answer."); flip(); }
+    }
+
+    function levenshtein(s, t) {
+        if (!s.length) return t.length; if (!t.length) return s.length;
+        const arr = Array.from({length: t.length + 1}, (_, i) => [i]);
+        for(let j=1; j<=s.length; j++) arr[0][j] = j;
+        for(let i=1; i<=t.length; i++) for(let j=1; j<=s.length; j++) arr[i][j] = t[i-1] === s[j-1] ? arr[i-1][j-1] : Math.min(arr[i-1][j-1], arr[i][j-1], arr[i-1][j]) + 1;
+        return arr[t.length][s.length];
+    }
+
+    function rate(diff) {
+        const card = deck.shift();
+        if(diff === 'hard') deck.splice(1,0,card); else deck.push(card);
+        flipped = false; document.getElementById('card-inner').classList.remove('flipped');
+        document.getElementById('srs-btns').style.display='none'; document.getElementById('ans-box').style.display='flex';
+        document.getElementById('user-input-ans').value = "";
+        saveDeck(); refresh();
+    }
+
+    // --- Settings & Data Management ---
+    function updateAccent(color) {
+        document.documentElement.style.setProperty('--accent', color);
+        puter.kv.set('sm_accent_v1', color);
+    }
+
+    async function exportAppData() {
+        const data = { deck, archive, accent: document.getElementById('accent-picker').value };
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `StudyMate_Export_${new Date().getTime()}.json`;
+        link.click();
+        showToast("Data exported!");
+    }
+
+    function importAppData(input) {
+        if(!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = JSON.parse(e.target.result);
+            if(data.deck) deck = data.deck;
+            if(data.archive) archive = data.archive;
+            if(data.accent) updateAccent(data.accent);
+            await puter.kv.set('sm_deck_v15', JSON.stringify(deck));
+            await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
+            showToast("Library Imported!");
+            location.reload();
+        };
+        reader.readAsText(input.files[0]);
+    }
+
+    async function clearAppData() {
+        if(confirm("THIS WILL DELETE EVERYTHING. ARE YOU SURE?")) {
+            await puter.kv.del('sm_deck_v15');
+            await puter.kv.del('sm_archive_v15');
+            await puter.kv.del('sm_wb_v15');
+            location.reload();
+        }
+    }
 
     // --- Generic Utilities ---
     function setView(v) {
@@ -508,27 +649,33 @@
         const navEl = document.getElementById('nav-'+v); if(navEl) navEl.classList.add('active');
         if(v === 'whiteboard') redrawBoard(); if(v === 'archive') renderArchive(); if(v === 'deck') renderDeck();
     }
-    function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+    function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; t.style.animation = 'slideIn 0.3s ease-out'; setTimeout(() => t.style.display = 'none', 3000); }
     function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); }
-    async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v14', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
-    function setupKeyboard() { window.onkeydown = (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject && document.activeElement.tagName !== 'INPUT') { wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb(); } }; }
-    function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
-    function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START SESSION"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP SESSION"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Break time!"); } }, 1000); } }
     function toggleCatDropdown() { document.getElementById('cat-options').classList.toggle('active'); }
     function selectCat(c) { selectedCat = c; document.getElementById('cat-label').innerText = c; toggleCatDropdown(); refresh(); }
     function updateCategories() { const cats = ["All", ...new Set(deck.map(c => c.category))]; document.getElementById('cat-options').innerHTML = cats.map(c => `<div class="option-item" onclick="selectCat('${c}')">${c}</div>`).join(''); }
-    function refresh() { const filtered = selectedCat === "All" ? deck : deck.filter(c => c.category === selectedCat); document.getElementById('deck-stats').innerText = `${filtered.length} CARDS REMAINING`; if(filtered.length > 0) { document.getElementById('card-content').innerHTML = flipped ? filtered[0].back : filtered[0].front; document.getElementById('card-side-label').innerText = flipped ? "ANSWER" : "QUESTION"; } else document.getElementById('card-content').innerText = "Empty."; if(window.MathJax) MathJax.typesetPromise(); }
-    function flip() { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); }
-    function rate(diff) { const card = deck.shift(); if(diff === 'hard') deck.splice(1,0,card); else deck.push(card); flipped = false; document.getElementById('srs-btns').style.display='none'; saveDeck(); refresh(); }
-    async function saveDeck() { await puter.kv.set('sm_deck_v14', JSON.stringify(deck)); updateCategories(); }
-    function renderDeck() { document.getElementById('deck-list-container').innerHTML = deck.map((c, i) => `<div class="deck-card"><div class="deck-info"><div style="font-size:0.6rem; color:var(--accent); font-weight:800;">${c.category}</div><div style="font-size:1rem; font-weight:600;">${c.front}</div></div><button class="action-btn delete-btn" onclick="deleteCard(${i})">Delete</button></div>`).join(''); if(window.MathJax) MathJax.typesetPromise(); }
+    function refresh() {
+        const filtered = selectedCat === "All" ? deck : deck.filter(c => c.category === selectedCat);
+        document.getElementById('deck-stats').innerText = `${filtered.length} CARDS REMAINING`;
+        if(filtered.length > 0) {
+            document.getElementById('card-front-content').innerHTML = filtered[0].front;
+            document.getElementById('card-back-content').innerHTML = filtered[0].back;
+        } else { document.getElementById('card-front-content').innerText = "Add cards below!"; }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    async function saveDeck() { await puter.kv.set('sm_deck_v15', JSON.stringify(deck)); updateCategories(); }
+    function renderDeck() { document.getElementById('deck-list-container').innerHTML = deck.map((c, i) => `<div class="deck-card"><div><div style="font-size:0.6rem; color:var(--accent); font-weight:800; margin-bottom:5px;">${c.category}</div><div style="font-size:1.1rem; font-weight:700; color:white;">${c.front}</div></div><button class="action-btn delete-btn" onclick="deleteCard(${i})">Delete</button></div>`).join(''); if(window.MathJax) MathJax.typesetPromise(); }
     function deleteCard(i) { deck.splice(i,1); saveDeck(); renderDeck(); }
-    async function handleGen() { const val = document.getElementById('ai-in').value; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI generating..."); const r = await puter.ai.chat(`Generate 5 concepts for: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); } }
+    async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v15', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
+    function setupKeyboard() { window.onkeydown = (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject && document.activeElement.tagName !== 'INPUT') { wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb(); } }; }
+    function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
+    function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Break time!"); } }, 1000); } }
     function joinAbly() { const id = document.getElementById('room-input').value.trim().toUpperCase(); if(!id || ABLY_KEY.includes("INSERT")) return; activeRoom = id; ably = new Ably.Realtime(ABLY_KEY); channel = ably.channels.get(id); channel.subscribe('sync', (msg) => { if(msg.clientId !== currentUser.id) applyRemote(msg.data.layers); }); showToast("Connected!"); }
     async function applyRemote(raw) { wbLayers = await Promise.all(raw.map(async obj => { if(obj.type === 'image') { const img = new Image(); img.src = obj.src; await new Promise(r => img.onload = r); return { ...obj, img }; } return obj; })); redrawBoard(); }
     function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
-    async function takeSnapshot() { archive.push({ id: Date.now(), name: 'Snapshot', data: canvas.toDataURL(), type: 'image', date: new Date().toLocaleDateString() }); await puter.kv.set('sm_archive_v14', JSON.stringify(archive)); showToast("Full snap saved!"); }
     function addWbText() { const t = prompt("Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: 500, y: 500, color: wbColor }); redrawBoard(); saveWb(); } }
+    async function handleGen() { const val = document.getElementById('ai-in').value; if(!val) return; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI is generating concepts..."); const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } }
+    function uploadImageToWb(input) { if(!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { let img = new Image(); img.onload = () => { wbLayers.push({ type: 'image', img, src: e.target.result, x: 400, y: 400, w: 300, h: 200 }); redrawBoard(); saveWb(); }; img.src = e.target.result; }; reader.readAsDataURL(input.files[0]); }
     function copyId() { navigator.clipboard.writeText(currentUser.uuid || currentUser.id).then(() => showToast("ID copied!")); }
 </script>
 </body>
