@@ -39,7 +39,7 @@
         .pomo-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: center; }
         #pomo-time { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
         .pomo-controls { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
-        .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; }
+        .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
         .pomo-btn { background: var(--accent); border: none; color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 800; }
 
         main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
@@ -48,16 +48,8 @@
 
         /* Custom Dropdown */
         .custom-select { position: relative; width: 200px; user-select: none; }
-        .select-trigger { 
-            background: var(--card); border: 1px solid var(--border); padding: 8px 14px; 
-            border-radius: 12px; color: white; display: flex; justify-content: space-between; 
-            align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600;
-        }
-        .options-list { 
-            position: absolute; top: 110%; left: 0; width: 100%; background: var(--card); 
-            border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        .options-list { position: absolute; top: 110%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .options-list.active { display: block; }
         .option-item { padding: 10px 14px; font-size: 0.8rem; cursor: pointer; }
         .option-item:hover { background: rgba(255,255,255,0.05); }
@@ -65,34 +57,38 @@
         /* Whiteboard */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; }
-        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; }
-        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
+        .color-picker-wrap { border-left: 1px solid var(--border); padding-left: 10px; display: flex; align-items: center; }
 
         /* AI Assistant UI */
-        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 20px; position: relative; }
         .lesson-step { margin-bottom: 20px; opacity: 0.3; transition: 0.5s; padding: 20px; border-radius: 16px; border: 1px solid transparent; }
         .lesson-step.active { opacity: 1; background: rgba(59, 130, 246, 0.05); border-color: var(--accent); }
-        .lesson-step.active .highlight { color: var(--accent); font-weight: 800; text-decoration: underline; }
+        .lesson-step .highlight { font-weight: 800; text-decoration: underline; color: var(--accent); }
         .lesson-progress { position: absolute; top: 0; left: 0; height: 4px; background: var(--accent); transition: width 0.3s; width: 0%; }
-        .visual-stage { background: #000; border-radius: 16px; height: 250px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .visual-stage svg { max-width: 100%; max-height: 100%; }
+        .visual-stage { background: #000; border-radius: 16px; height: 300px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); }
 
         /* Flashcards */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
-        .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: 0.3s; padding: 60px; position: relative; }
+        .flashcard { background: var(--card); width: 100%; min-height: 400px; border-radius: 32px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: 0.3s; padding: 60px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .flashcard:hover { border-color: var(--accent); transform: translateY(-3px); }
         .card-content { font-size: 1.8rem; line-height: 1.5; }
         .card-meta { position: absolute; top: 25px; left: 30px; font-size: 0.75rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 2px; }
 
-        /* Deck Manager */
-        .deck-list { display: flex; flex-direction: column; gap: 15px; padding: 20px 0; }
-        .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .action-btn { border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.75rem; margin-left: 5px; }
-        .edit-btn { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
-        .delete-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        /* Archive UI */
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; transition: 0.2s; }
+        .archive-item:hover { border-color: var(--accent); }
+        .archive-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; background: #000; }
+        .archive-meta { display: flex; justify-content: space-between; align-items: center; }
+        .del-circle { width: 24px; height: 24px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; position: absolute; top: 10px; right: 10px; }
 
         #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 16px 24px; border-radius: 16px; display: none; z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .presence-user { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: white; font-weight: 800; border: 2px solid var(--bg); }
     </style>
 </head>
 <body>
@@ -100,7 +96,7 @@
 <div id="notif-toast"></div>
 
 <nav id="sidebar">
-    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent);">STUDYMATE PRO</div>
+    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent); text-align: center;">STUDYMATE PRO</div>
     
     <div class="pomo-box">
         <div id="pomo-time">25:00</div>
@@ -113,11 +109,12 @@
         <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START SESSION</button>
     </div>
 
-    <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
-    <div class="nav-item" id="nav-assistant" onclick="setView('assistant')">AI Assistant</div>
-    <div class="nav-item" id="nav-deck" onclick="setView('deck')">Deck Manager</div>
-    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
-    <div class="nav-item" id="nav-social" onclick="setView('social')">Friends Hub</div>
+    <div class="nav-item active" onclick="setView('study')">Study Session</div>
+    <div class="nav-item" onclick="setView('assistant')">AI Assistant</div>
+    <div class="nav-item" onclick="setView('deck')">Deck Manager</div>
+    <div class="nav-item" onclick="setView('whiteboard')">Whiteboard</div>
+    <div class="nav-item" onclick="setView('archive')">Archive Hub</div>
+    <div class="nav-item" onclick="setView('social')">Friends Hub</div>
     
     <div class="user-block" style="margin-top: auto;">
         <div id="my-pfp" class="pfp-wrap"></div>
@@ -141,7 +138,7 @@
 
             <div class="flashcard" id="card-box" onclick="flip()">
                 <div class="card-meta" id="card-side-label">QUESTION</div>
-                <div id="card-content" class="card-content">Type a topic to start.</div>
+                <div id="card-content" class="card-content">Type a topic to generate cards.</div>
             </div>
             
             <div id="srs-btns" style="display:none; gap:10px; width:100%; margin-top:20px;">
@@ -161,37 +158,48 @@
     <div id="view-assistant" class="view">
         <div style="padding:40px; max-width:900px; margin:0 auto; width:100%;">
             <div style="margin-bottom: 30px; text-align: center;">
-                <h2 style="font-weight: 800; font-size: 2rem;">AI Teaching Assistant</h2>
-                <p style="opacity: 0.6;">I'll explain complex topics with diagrams, examples, and analogies.</p>
+                <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 10px;">AI Teaching Assistant</h2>
+                <p style="opacity: 0.6; margin-bottom: 25px;">Deep explanations with human-like audio and visual guidance.</p>
                 
-                <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-                    <select id="assistant-voice" style="background:var(--card); color:white; border:1px solid var(--border); padding:8px; border-radius:8px;">
-                        <option value="Kore">Voice: Kore (Natural)</option>
-                        <option value="Zephyr">Voice: Zephyr (Clear)</option>
-                        <option value="Leda">Voice: Leda (Calm)</option>
+                <div style="display:flex; gap:12px; justify-content:center; background: var(--card); padding: 10px; border-radius: 20px; border: 1px solid var(--border);">
+                    <select id="assistant-voice" style="background:transparent; color:white; border:none; border-right: 1px solid var(--border); padding-right: 10px; font-weight: 600;">
+                        <option value="Kore">Kore (Male)</option>
+                        <option value="Zephyr">Zephyr (Deep)</option>
+                        <option value="Leda">Leda (Female)</option>
+                        <option value="Charon">Charon (Professional)</option>
                     </select>
-                    <input type="text" id="assistant-topic" placeholder="e.g. How does Quantum Entanglement work?" style="flex:1; background:var(--card); border:1px solid var(--border); color:white; padding:10px 20px; border-radius:14px; outline:none;">
-                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 25px; border-radius:14px; font-weight:800; cursor:pointer;">START LESSON</button>
+                    <input type="text" id="assistant-topic" placeholder="Explain a complex concept..." style="flex:1; background:none; border:none; color:white; outline:none;">
+                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 30px; border-radius:14px; font-weight:800; cursor:pointer;">START LESSON</button>
                 </div>
             </div>
 
             <div id="lesson-container" style="display:none;">
                 <div class="lesson-card">
                     <div class="lesson-progress" id="lesson-bar"></div>
-                    <div class="visual-stage" id="visual-stage">
-                        <!-- Diagram / Animation SVG will appear here -->
-                    </div>
-                    <div id="lesson-steps-target">
-                        <!-- Paragraphs will appear here -->
-                    </div>
+                    <div class="visual-stage" id="visual-stage"></div>
+                    <div id="lesson-steps-target"></div>
                 </div>
-                <div style="display:flex; gap:10px; justify-content: center;">
-                    <button onclick="stopLesson()" style="background:rgba(255,255,255,0.05); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">Cancel Lesson</button>
-                </div>
+                <button onclick="stopLesson()" style="display:block; margin: 20px auto; background:rgba(255,255,255,0.05); color:white; border:none; padding:10px 30px; border-radius:12px; cursor:pointer;">Stop Assistant</button>
             </div>
         </div>
     </div>
 
+    <!-- Archive Hub -->
+    <div id="view-archive" class="view">
+        <div style="padding:40px; max-width:1000px; margin:0 auto; width:100%;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="font-weight: 800; font-size: 2rem; margin: 0;">Archive Hub</h2>
+                <button onclick="document.getElementById('archive-file-in').click()" style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:800; cursor:pointer;">UPLOAD FILE</button>
+                <input type="file" id="archive-file-in" hidden onchange="uploadToArchive(this)">
+            </div>
+            
+            <div id="archive-container" class="archive-grid">
+                <!-- Archive items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Deck Manager -->
     <div id="view-deck" class="view">
         <div style="padding:40px; max-width:800px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -202,10 +210,11 @@
         </div>
     </div>
 
+    <!-- Whiteboard View -->
     <div id="view-whiteboard" class="view">
         <div class="room-bar">
             <span class="room-status" id="room-display">LOCAL</span>
-            <input type="text" id="room-input" placeholder="Room Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; width:100px;">
+            <input type="text" id="room-input" placeholder="Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:6px; padding:4px 8px; width:100px;">
             <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">JOIN</button>
             <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; cursor:pointer;">HOST</button>
             <div id="presence-list" style="display:flex; gap:5px; margin-left:10px;"></div>
@@ -213,12 +222,17 @@
         <div id="wb-box">
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
-                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
-                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
-                <button class="tool-btn" onclick="addWbText()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
-                <button class="tool-btn" onclick="takeSnapshot()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
-                <input type="color" id="wb-color" class="color-input" value="#3b82f6" onchange="wbColor=this.value">
+                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Move/Select"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Draw"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Erase Entire Strokes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" onclick="addWbText()" title="Text Tool"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
+                <button class="tool-btn" onclick="document.getElementById('wb-upload').click()" title="Upload Image"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+                <button class="tool-btn" id="capture-btn" onclick="setMode('capture')" title="Region Capture"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
+                <button class="tool-btn" onclick="takeSnapshot()" title="Save Full Snap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+                <div class="color-picker-wrap">
+                    <input type="color" id="wb-color" class="color-input" style="width:24px; height:24px; border:none; cursor:pointer;" value="#3b82f6" onchange="wbColor=this.value">
+                </div>
+                <input type="file" id="wb-upload" hidden onchange="uploadImageToWb(this)">
             </div>
         </div>
     </div>
@@ -227,28 +241,24 @@
         <div style="padding:40px; max-width:500px; margin:0 auto;">
             <h2>Friends Hub</h2>
             <div style="background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border);">
-                <div style="font-size:0.7rem; font-weight:800; opacity:0.6;">MY ID</div>
+                <div style="font-size:0.7rem; font-weight:800; opacity:0.6;">MY PUTER ID</div>
                 <div id="my-puter-id" style="font-family:monospace; margin:10px 0; word-break:break-all; font-size:0.8rem;">...</div>
                 <button onclick="copyId()" style="background:var(--accent); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">Copy ID</button>
             </div>
-            <div style="margin-top: 20px;">
-                <input type="text" id="friend-id-input" placeholder="Paste Puter ID..." style="width:100%; padding:15px; background:rgba(0,0,0,0.1); border:1px solid var(--border); border-radius:12px; color:white; outline:none; margin-bottom:10px;">
-                <button onclick="addFriend()" style="width:100%; background:var(--accent); color:white; border:none; padding:15px; border-radius:12px; font-weight:800; cursor:pointer;">ADD FRIEND</button>
-            </div>
-            <div id="friends-list-ui" style="margin-top:20px;"></div>
         </div>
     </div>
 </main>
 
 <script>
     const ABLY_KEY = "xTLjRw.7-yVUg:GK9phICjvxzGuZ6twIpLPJVh1Ek92fL20YVT9RTJnfE";
-    const apiKey = ""; // Managed by environment
+    const apiKey = ""; // Managed by system
 
-    let deck = [], friends = [], wbLayers = [], flipped = false;
+    let deck = [], friends = [], wbLayers = [], archive = [], flipped = false;
     let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
     let currentUser = null, wbColor = '#3b82f6', activeRoom = null, ably = null, channel = null;
     let pomoTime = 1500, pomoActive = false, pomoInt = null, selectedCat = "All";
     let lessonActive = false, currentAudio = null;
+    let captureStart = null, captureRect = null;
 
     const canvas = document.getElementById('wb-canvas'), ctx = canvas.getContext('2d');
 
@@ -261,6 +271,9 @@
 
             const d = await puter.kv.get('sm_deck_v13');
             if(d) deck = JSON.parse(d);
+
+            const arc = await puter.kv.get('sm_archive_v13');
+            if(arc) archive = JSON.parse(arc);
 
             const l = await puter.kv.get('sm_wb_v13');
             if(l) {
@@ -278,26 +291,20 @@
         } catch (e) { console.error(e); }
     };
 
-    // --- AI Teaching Assistant (The Main Add) ---
+    // --- AI Teaching Assistant ---
     async function startLesson() {
         const topic = document.getElementById('assistant-topic').value;
         if(!topic) return showToast("Enter a topic first!");
-        
         lessonActive = true;
         document.getElementById('lesson-container').style.display = 'block';
-        document.getElementById('lesson-steps-target').innerHTML = "Generating lesson...";
-        document.getElementById('visual-stage').innerHTML = "";
+        document.getElementById('lesson-steps-target').innerHTML = "Synthesizing lesson...";
         
         try {
-            const systemPrompt = `You are a professional teaching assistant. Create a 4-step lesson about the topic. 
-            Format the response as a JSON array of objects. Each object MUST have:
-            - text: A paragraph of explanation (max 3 sentences).
-            - highlight: A key phrase from the text to bold/underline.
-            - visual: A short description of a simple diagram (e.g., 'A circle with arrows pointing out').
-            Use $ for math formulas.`;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const resp = await fetch(url, {
+            const systemPrompt = `You are a world-class teacher. Explain the topic in exactly 4 steps. 
+            Return a JSON array of objects: { "text": "Short explanation", "bold": "Key term", "diagram": "SVG shape description" }.
+            Use analogies. Be concise.`;
+            
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: topic }] }],
@@ -307,12 +314,8 @@
             });
             const data = await resp.json();
             const lesson = JSON.parse(data.candidates[0].content.parts[0].text);
-            
             runLessonSequence(lesson);
-        } catch (e) {
-            console.error(e);
-            showToast("Failed to generate lesson.");
-        }
+        } catch (e) { showToast("Lesson generation failed."); }
     }
 
     async function runLessonSequence(lesson) {
@@ -324,40 +327,30 @@
 
         for(let i=0; i<lesson.length; i++) {
             if(!lessonActive) break;
-            
             const step = lesson[i];
-            const stepDiv = document.createElement('div');
-            stepDiv.className = "lesson-step active";
-            const processedText = step.text.replace(step.highlight, `<span class="highlight">${step.highlight}</span>`);
-            stepDiv.innerHTML = `<p>${processedText}</p>`;
-            target.appendChild(stepDiv);
-            
+            const div = document.createElement('div');
+            div.className = "lesson-step active";
+            const html = step.text.replace(step.bold, `<span class="highlight">${step.bold}</span>`);
+            div.innerHTML = `<p>${html}</p>`;
+            target.appendChild(div);
             bar.style.width = `${((i+1)/lesson.length)*100}%`;
             
-            // Render basic "Diagram" (Placeholder logic for real SVG generation)
-            visual.innerHTML = `<div style="color:var(--accent); font-weight:bold;">[Diagram: ${step.visual}]</div>`;
+            // Simple Dynamic Animation (Circle pulses or expands)
+            visual.innerHTML = `<svg width="200" height="200" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--accent)" stroke-width="2">
+                    <animate attributeName="r" values="30;40;30" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <text x="50" y="55" text-anchor="middle" fill="white" font-size="5">${step.bold}</text>
+            </svg>`;
             
-            if(window.MathJax) await MathJax.typesetPromise([stepDiv]);
-
-            // Speak step
             await speakAI(step.text, voice);
-            
-            stepDiv.classList.remove('active');
-            stepDiv.style.opacity = "0.5";
+            div.classList.remove('active');
+            div.style.opacity = "0.4";
         }
-        
         lessonActive = false;
-        showToast("Lesson complete!");
     }
 
-    function stopLesson() {
-        lessonActive = false;
-        if(currentAudio) currentAudio.pause();
-        document.getElementById('lesson-container').style.display = 'none';
-    }
-
-    // --- Reliable TTS Engine ---
-    async function speakAI(text, voice = "Kore") {
+    async function speakAI(text, voice) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
         const payload = {
             contents: [{ parts: [{ text }] }],
@@ -367,42 +360,73 @@
             },
             model: "gemini-2.5-flash-preview-tts"
         };
-        
         try {
             const resp = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
             const result = await resp.json();
-            const audioData = result.candidates[0].content.parts[0].inlineData.data;
-            await playPCM(audioData);
+            const pcm = result.candidates[0].content.parts[0].inlineData.data;
+            await playPCM(pcm);
         } catch (e) { console.error(e); }
     }
 
     async function playPCM(base64) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
-        const arrayBuffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
-        const wavBuffer = pcmToWav(arrayBuffer, 24000);
-        const audioBuffer = await audioCtx.decodeAudioData(wavBuffer);
+        const binary = atob(base64);
+        const len = binary.length;
+        const bytes = new Int16Array(len / 2);
+        for (let i = 0; i < len; i += 2) bytes[i/2] = (binary.charCodeAt(i+1) << 8) | binary.charCodeAt(i);
+        const buffer = audioCtx.createBuffer(1, bytes.length, 24000);
+        buffer.getChannelData(0).set(Array.from(bytes).map(v => v / 32768));
         const source = audioCtx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioCtx.destination);
+        source.buffer = buffer; source.connect(audioCtx.destination);
         source.start();
         return new Promise(r => source.onended = r);
     }
 
-    function pcmToWav(pcmBuffer, sampleRate) {
-        const buffer = new ArrayBuffer(44 + pcmBuffer.byteLength);
-        const view = new DataView(buffer);
-        const writeString = (off, s) => { for(let i=0; i<s.length; i++) view.setUint8(off+i, s.charCodeAt(i)); };
-        writeString(0, 'RIFF'); view.setUint32(4, 32 + pcmBuffer.byteLength, true);
-        writeString(8, 'WAVE'); writeString(12, 'fmt '); view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-        view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
-        view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-        writeString(36, 'data'); view.setUint32(40, pcmBuffer.byteLength, true);
-        new Uint8Array(buffer, 44).set(new Uint8Array(pcmBuffer));
-        return buffer;
+    function stopLesson() { lessonActive = false; document.getElementById('lesson-container').style.display = 'none'; }
+
+    // --- Archive logic ---
+    async function uploadToArchive(input) {
+        if(!input.files[0]) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const isImg = file.type.startsWith('image/');
+            archive.push({
+                id: Date.now(),
+                name: file.name,
+                data: e.target.result,
+                type: isImg ? 'image' : 'file',
+                date: new Date().toLocaleDateString()
+            });
+            await puter.kv.set('sm_archive_v13', JSON.stringify(archive));
+            renderArchive();
+            showToast("Added to Archive!");
+        };
+        reader.readAsDataURL(file);
     }
 
-    // --- Whiteboard (Zero Lag + Real Eraser) ---
+    function renderArchive() {
+        const container = document.getElementById('archive-container');
+        container.innerHTML = archive.map(item => `
+            <div class="archive-item">
+                <div class="del-circle" onclick="deleteArchive(${item.id})">×</div>
+                ${item.type === 'image' ? `<img src="${item.data}" class="archive-img">` : `<div class="archive-img" style="display:flex; align-items:center; justify-content:center; background:#222;">📄</div>`}
+                <div class="archive-meta">
+                    <div style="font-weight:700; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">${item.name}</div>
+                    <div style="font-size:0.6rem; opacity:0.5;">${item.date}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function deleteArchive(id) {
+        if(!confirm("Delete from archive?")) return;
+        archive = archive.filter(a => a.id !== id);
+        await puter.kv.set('sm_archive_v13', JSON.stringify(archive));
+        renderArchive();
+    }
+
+    // --- Whiteboard Improvements ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
     function redrawBoard() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -417,37 +441,39 @@
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
             }
+            if(l === selectedObject) { ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='#3b82f6'; ctx.strokeRect(l.x-5, l.y-5, (l.w||100)+10, (l.h||100)+10); ctx.restore(); }
         });
+        if(mode === 'capture' && captureRect) {
+            ctx.save(); ctx.strokeStyle = 'red'; ctx.setLineDash([10,5]);
+            ctx.strokeRect(captureRect.x, captureRect.y, captureRect.w, captureRect.h);
+            ctx.restore();
+        }
     }
 
     function initWb() {
         const getP = (e) => ({ x: e.clientX - canvas.getBoundingClientRect().left, y: e.clientY - canvas.getBoundingClientRect().top });
         canvas.onmousedown = (e) => {
             isMousedown = true; const p = getP(e); [lastX, lastY] = [p.x, p.y];
-            if(mode === 'pointer') {
+            if(mode === 'capture') captureStart = p;
+            else if(mode === 'pointer') {
                 selectedObject = [...wbLayers].reverse().find(l => p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
-                if(selectedObject) {
-                    wbLayers = wbLayers.filter(o => o !== selectedObject);
-                    wbLayers.push(selectedObject); // Layering: Move to front
-                }
+                if(selectedObject) { wbLayers = wbLayers.filter(o => o !== selectedObject); wbLayers.push(selectedObject); }
                 redrawBoard();
             } else if(mode === 'draw') {
                 wbLayers.push({ type: 'path', color: wbColor, points: [p] });
-                if(channel) channel.publish('draw', { type: 'start', x: p.x, y: p.y, color: wbColor });
             }
         };
         canvas.onmousemove = (e) => {
             if(!isMousedown) return;
             const p = getP(e);
-            if(mode === 'drag') { offsetX += (e.clientX - lastX); offsetY += (e.clientY - lastY); canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`; }
+            if(mode === 'capture') { captureRect = { x: Math.min(p.x, captureStart.x), y: Math.min(p.y, captureStart.y), w: Math.abs(p.x - captureStart.x), h: Math.abs(p.y - captureStart.y) }; redrawBoard(); }
             else if(mode === 'pointer' && selectedObject) { selectedObject.x += (p.x - lastX); selectedObject.y += (p.y - lastY); redrawBoard(); }
             else if(mode === 'draw') {
                 wbLayers[wbLayers.length-1].points.push(p);
                 ctx.beginPath(); ctx.strokeStyle=wbColor; ctx.lineWidth=3; ctx.lineCap="round";
                 ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
-                if(channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y, color: wbColor });
             } else if(mode === 'eraser') {
-                const r = 25; // Erase radius
+                const r = 25;
                 wbLayers = wbLayers.filter(l => {
                     if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < r);
                     return !(p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
@@ -456,23 +482,47 @@
             }
             [lastX, lastY] = [p.x, p.y];
         };
-        canvas.onmouseup = () => { isMousedown = false; if(channel) channel.publish('draw', { type: 'stop' }); saveWb(); };
+        canvas.onmouseup = async () => {
+            if(mode === 'capture' && captureRect) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = captureRect.w; tempCanvas.height = captureRect.h;
+                tempCanvas.getContext('2d').drawImage(canvas, captureRect.x, captureRect.y, captureRect.w, captureRect.h, 0, 0, captureRect.w, captureRect.h);
+                archive.push({ id: Date.now(), name: 'Capture', data: tempCanvas.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
+                await puter.kv.set('sm_archive_v13', JSON.stringify(archive));
+                showToast("Region captured to Archive!");
+                captureRect = null;
+            }
+            isMousedown = false; saveWb();
+        };
     }
 
-    // --- Ably & Room Handlers ---
-    function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
+    async function uploadImageToWb(input) {
+        if(!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            let img = new Image();
+            img.onload = () => {
+                wbLayers.push({ type: 'image', img, src: e.target.result, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+300, w: 300, h: 300 });
+                redrawBoard(); saveWb();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    async function takeSnapshot() {
+        archive.push({ id: Date.now(), name: 'Full Board', data: canvas.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
+        await puter.kv.set('sm_archive_v13', JSON.stringify(archive));
+        showToast("Board saved to Archive!");
+    }
+
+    // --- Ably ---
     function joinAbly() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
         if(!id || ABLY_KEY.includes("INSERT")) return;
         activeRoom = id; ably = new Ably.Realtime(ABLY_KEY); channel = ably.channels.get(id);
-        channel.subscribe('draw', (msg) => {
-            if(msg.clientId === currentUser.id) return;
-            const { type, x, y, color } = msg.data;
-            if(type === 'start') { wbLayers.push({ type: 'path', color, points: [{x, y}] }); }
-            else if(type === 'move') { wbLayers[wbLayers.length-1].points.push({x, y}); redrawBoard(); }
-        });
         channel.subscribe('sync', (msg) => { if(msg.clientId !== currentUser.id) applyRemote(msg.data.layers); });
-        showToast("Connected: " + id);
+        showToast("Joined Room: " + id);
     }
     async function applyRemote(raw) {
         wbLayers = await Promise.all(raw.map(async obj => {
@@ -486,7 +536,14 @@
         redrawBoard();
     }
 
-    // --- SRS & Decks ---
+    // --- UI/Flashcards ---
+    function setView(v) {
+        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+        document.getElementById(`view-${v}`).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+        if(v === 'whiteboard') redrawBoard();
+        if(v === 'archive') renderArchive();
+    }
     function toggleCatDropdown() { document.getElementById('cat-options').classList.toggle('active'); }
     function selectCat(c) { selectedCat = c; document.getElementById('cat-label').innerText = c; toggleCatDropdown(); refresh(); }
     function updateCategories() {
@@ -499,7 +556,7 @@
         if(filtered.length > 0) {
             document.getElementById('card-content').innerHTML = flipped ? filtered[0].back : filtered[0].front;
             document.getElementById('card-side-label').innerText = flipped ? "ANSWER" : "QUESTION";
-        } else document.getElementById('card-content').innerText = "Empty subject.";
+        } else document.getElementById('card-content').innerText = "Add cards to start.";
         if(window.MathJax) MathJax.typesetPromise();
     }
     function flip() { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); }
@@ -509,31 +566,55 @@
         flipped = false; document.getElementById('srs-btns').style.display='none';
         saveDeck(); refresh();
     }
-
-    // --- Helpers ---
-    function setView(v) {
-        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-        document.getElementById(`view-${v}`).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        if(document.getElementById('nav-'+v)) document.getElementById('nav-'+v).classList.add('active');
-        if(v === 'whiteboard') redrawBoard();
-        if(v === 'deck') renderDeck();
+    async function handleGen() {
+        const val = document.getElementById('ai-in').value;
+        if(!val) return;
+        if(val.includes('|')) {
+            const p = val.split('|');
+            deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() });
+            saveDeck(); refresh(); document.getElementById('ai-in').value = "";
+        } else {
+            showToast("AI thinking...");
+            const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Category | Question | Answer. One per line. Use $ for math.`);
+            r.message.content.split('\n').forEach(l => {
+                if(l.includes('|')) {
+                    const p = l.split('|');
+                    if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()});
+                }
+            });
+            saveDeck(); refresh();
+        }
     }
-    function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); }
-    function copyId() { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID Copied!")); }
     async function saveDeck() { await puter.kv.set('sm_deck_v13', JSON.stringify(deck)); updateCategories(); }
-    function setupKeyboard() {
-        window.onkeydown = (e) => {
-            if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject) {
-                wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb();
-            }
-        };
-    }
+    function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = m==='drag'?'grab':'crosshair'; }
+    function copyId() { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID Copied!")); }
     async function saveWb() {
         const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
         await puter.kv.set('sm_wb_v13', JSON.stringify(meta));
         if(channel) channel.publish('sync', { layers: meta });
+    }
+    function setupKeyboard() {
+        window.onkeydown = (e) => {
+            if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject) {
+                if(document.activeElement.tagName === 'INPUT') return;
+                wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb();
+            }
+        };
+    }
+    function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
+    function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
+    function togglePomo() {
+        if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START SESSION"; }
+        else {
+            pomoActive = true; document.getElementById('pomo-start').innerText = "STOP SESSION";
+            pomoInt = setInterval(() => {
+                pomoTime--;
+                const m = Math.floor(pomoTime/60), s = pomoTime % 60;
+                document.getElementById('pomo-time').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; alert("Focus time up!"); }
+            }, 1000);
+        }
     }
 </script>
 </body>
