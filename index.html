@@ -88,7 +88,7 @@
         .voice-btn { position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.05); border: none; color: #94a3b8; padding: 12px; border-radius: 50%; cursor: pointer; transition: 0.2s; }
         .voice-btn:hover { background: var(--accent); color: white; }
 
-        /* Deck Manager - Premium List */
+        /* Deck Manager */
         .deck-list { display: flex; flex-direction: column; gap: 15px; padding: 20px 0; }
         .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; display: flex; justify-content: space-between; align-items: flex-start; transition: 0.2s; }
         .deck-card:hover { border-color: var(--accent); }
@@ -102,7 +102,7 @@
         .edit-btn:hover { background: var(--accent); color: white; }
         .delete-btn:hover { background: var(--danger); color: white; }
 
-        /* Magic Bar UI */
+        /* Magic Bar */
         .magic-bar { margin-top: auto; width: 100%; background: var(--card); padding: 12px; border-radius: 22px; border: 1px solid var(--border); display: flex; gap: 10px; margin-bottom: 20px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .magic-bar input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 5px 10px; }
         .gen-btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
@@ -144,15 +144,12 @@
     <div id="view-study" class="view active">
         <div class="study-grid">
             <div style="display:flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 25px;">
-                <!-- Custom Subject Selector -->
                 <div class="custom-select" id="study-cat-widget">
                     <div class="select-trigger" id="study-cat-trigger" onclick="toggleDropdown()">
                         <span id="study-cat-label">All Subjects</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </div>
-                    <div class="options-list" id="study-cat-options">
-                        <!-- Options injected here -->
-                    </div>
+                    <div class="options-list" id="study-cat-options"></div>
                 </div>
                 <div id="deck-stats" style="font-size:0.75rem; font-weight:800; color:var(--accent); letter-spacing:1px;">0 CARDS REMAINING</div>
             </div>
@@ -208,22 +205,22 @@
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
                 <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Pointer">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
                 </button>
                 <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Draw">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg>
                 </button>
                 <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Eraser">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg>
                 </button>
                 <button class="tool-btn" onclick="addText()" title="Add Text">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                 </button>
                 <button class="tool-btn" onclick="takeSnapshot()" title="Save Snapshot">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 </button>
                 <button class="tool-btn" onclick="document.getElementById('wb-img-in').click()" title="Add Image">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </button>
                 <div class="color-picker-wrap">
                     <input type="color" id="wb-color" class="color-input" value="#3b82f6" onchange="wbColor=this.value">
@@ -310,7 +307,6 @@
             
             initWb(); resizeWb(); refresh(); redrawEverything(); renderFriends(); setupKeyboard(); updateCategories();
 
-            // Click outside to close custom dropdown
             window.addEventListener('click', (e) => {
                 if(!e.target.closest('.custom-select')) {
                     document.getElementById('study-cat-options').classList.remove('active');
@@ -321,62 +317,34 @@
     };
 
     // --- Custom Dropdown Logic ---
-    function toggleDropdown() {
-        document.getElementById('study-cat-options').classList.toggle('active');
-    }
-
+    function toggleDropdown() { document.getElementById('study-cat-options').classList.toggle('active'); }
     function selectCategory(cat) {
         selectedCategory = cat;
         document.getElementById('study-cat-label').innerText = cat === "All" ? "All Subjects" : cat;
         document.getElementById('study-cat-options').classList.remove('active');
         refresh();
     }
-
     function updateCategories() {
         const container = document.getElementById('study-cat-options');
         const cats = ["All", ...new Set(deck.map(c => c.category))];
-        container.innerHTML = cats.map(c => `
-            <div class="option-item ${selectedCategory === c ? 'selected' : ''}" onclick="selectCategory('${c}')">
-                ${c === "All" ? "All Subjects" : c}
-            </div>
-        `).join('');
+        container.innerHTML = cats.map(c => `<div class="option-item ${selectedCategory === c ? 'selected' : ''}" onclick="selectCategory('${c}')">${c === "All" ? "All Subjects" : c}</div>`).join('');
     }
 
     // --- Pomodoro ---
     function togglePomo() {
-        if(pomoActive) {
-            clearInterval(pomoInt); pomoActive = false;
-            document.getElementById('pomo-start').innerText = "START";
-        } else {
-            pomoActive = true;
-            document.getElementById('pomo-start').innerText = "STOP";
+        if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; }
+        else {
+            pomoActive = true; document.getElementById('pomo-start').innerText = "STOP";
             pomoInt = setInterval(() => {
                 pomoTime--;
-                if(pomoTime <= 0) {
-                    clearInterval(pomoInt); pomoActive = false;
-                    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3').play();
-                    showToast("Focus session complete!");
-                }
+                if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Focus session complete!"); }
                 const m = Math.floor(pomoTime/60), s = pomoTime % 60;
                 document.getElementById('pomo-time').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
             }, 1000);
         }
     }
 
-    // --- Analytics ---
-    function updateAnalytics() {
-        document.getElementById('stat-total').innerText = deck.length;
-        document.getElementById('stat-mastered').innerText = deck.filter(c => c.mastered).length;
-    }
-
-    // --- Voice Mode ---
-    function speakCard() {
-        if(deck.length === 0) return;
-        const msg = new SpeechSynthesisUtterance(flipped ? deck[0].back : deck[0].front);
-        window.speechSynthesis.speak(msg);
-    }
-
-    // --- Whiteboard Logic ---
+    // --- Whiteboard Engine (Optimized) ---
     function resizeWb() { 
         const size = 4000; canvas.width = size; canvas.height = size; 
         memCanvas.width = size; memCanvas.height = size;
@@ -391,7 +359,8 @@
             else if(l.type === 'path') {
                 ctx.beginPath(); ctx.strokeStyle=l.color; ctx.lineWidth=l.width; ctx.lineCap="round"; ctx.lineJoin="round";
                 ctx.moveTo(l.points[0].x, l.points[0].y);
-                l.points.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+                for(let i=1; i<l.points.length; i++) ctx.lineTo(l.points[i].x, l.points[i].y);
+                ctx.stroke();
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
                 l.w = ctx.measureText(l.content).width; l.h = 24;
@@ -409,7 +378,7 @@
             isMousedown = true; const p = getP(e); [lastX, lastY] = [e.clientX, e.clientY];
             if(mode === 'pointer') {
                 selectedObject = [...wbLayers].reverse().find(l => p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
-                if(selectedObject) { // Bring to front
+                if(selectedObject) { // Move to front (z-index fix)
                     wbLayers = wbLayers.filter(l => l !== selectedObject);
                     wbLayers.push(selectedObject);
                 }
@@ -428,13 +397,13 @@
             }
             else if(currentPath) { 
                 currentPath.points.push(p); 
-                redrawEverything(); 
+                // Draw local stroke segment directly for speed (0 lag)
                 ctx.beginPath(); ctx.strokeStyle=currentPath.color; ctx.lineWidth=currentPath.width; ctx.lineCap="round";
                 const prev = currentPath.points[currentPath.points.length-2];
                 ctx.moveTo(prev.x, prev.y); ctx.lineTo(p.x, p.y); ctx.stroke();
             }
         };
-        canvas.onmouseup = () => { if(currentPath) { wbLayers.push(currentPath); currentPath = null; } isMousedown = false; saveWb(); };
+        canvas.onmouseup = () => { if(currentPath) { wbLayers.push(currentPath); currentPath = null; redrawEverything(); } isMousedown = false; saveWb(); };
     }
 
     function setupKeyboard() {
@@ -455,17 +424,11 @@
     function addText() {
         const t = prompt("Text content:");
         if(t) { 
-            const layer = { type:'text', content:t, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+300, color:wbColor };
-            wbLayers.push(layer); redrawEverything(); saveWb(); 
+            wbLayers.push({ type:'text', content:t, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+300, color:wbColor });
+            redrawEverything(); saveWb(); 
         }
     }
-
-    function takeSnapshot() {
-        const link = document.createElement('a');
-        link.download = 'study-whiteboard.png';
-        link.href = canvas.toDataURL(); link.click();
-    }
-
+    function takeSnapshot() { const link = document.createElement('a'); link.download = 'whiteboard.png'; link.href = canvas.toDataURL(); link.click(); }
     async function addImgToWb(input) {
         if (!input.files[0]) return;
         const reader = new FileReader();
@@ -483,13 +446,15 @@
     // --- Ably Collaboration ---
     function joinRoom() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
-        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Room ID required");
+        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Room ID/Key required");
         activeRoomId = id; ably = new Ably.Realtime(ABLY_KEY); channel = ably.channels.get(id);
-        channel.subscribe('board', (msg) => { applyRemote(msg.data.layers); });
+        channel.subscribe('board', (msg) => { 
+            if(msg.clientId === currentUser.id) return;
+            applyRemote(msg.data.layers); 
+        });
         document.getElementById('share-btn').style.display = 'block';
-        showToast("Joined Ably Room!");
+        showToast("Joined Room!");
     }
-
     async function applyRemote(raw) {
         wbLayers = await Promise.all(raw.map(async obj => {
             if(obj.type === 'image') {
@@ -501,25 +466,15 @@
         }));
         redrawEverything();
     }
+    function hostRoom() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinRoom(); }
+    function copyInviteLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + activeRoomId).then(() => showToast("Invite link copied!")); }
 
-    function hostRoom() {
-        const id = Math.random().toString(36).substring(2,6).toUpperCase();
-        document.getElementById('room-input').value = id; joinRoom();
-    }
-
-    function copyInviteLink() {
-        const url = window.location.origin + window.location.pathname + '?room=' + activeRoomId;
-        navigator.clipboard.writeText(url).then(() => showToast("Invite link copied!"));
-    }
-
-    // --- Card Generation Logic ---
+    // --- Flashcards ---
     async function handleFileUpload(input) {
         if(!input.files[0]) return;
-        showToast("Processing file...");
         const text = await input.files[0].text();
         runAI(text);
     }
-
     function handleCreation() {
         const input = document.getElementById('ai-in').value;
         if(!input) return;
@@ -531,10 +486,9 @@
             document.getElementById('ai-in').value = "";
         } else runAI(input);
     }
-
     async function runAI(topic) {
-        showToast("AI generating cards...");
-        const r = await puter.ai.chat(`Generate 5 concepts for: ${topic}. Format: Subject | Question | Answer. One per line. Use $ for math formulas.`);
+        showToast("AI generating...");
+        const r = await puter.ai.chat(`Generate 5 concepts for: ${topic}. Format: Subject | Question | Answer. One per line. Use $ for math.`);
         r.message.content.split('\n').forEach(l => {
             if(l.includes('|')) {
                 const p = l.split('|');
@@ -543,56 +497,36 @@
         });
         document.getElementById('ai-in').value = "";
     }
-
     function addCard(front, back, category) {
         deck.push({ front, back, category, mastered: false, id: Date.now() });
         saveDeck(); refresh();
     }
-
     async function saveDeck() {
         await puter.kv.set('sm_deck_v11', JSON.stringify(deck));
         renderDeck(); updateAnalytics(); updateCategories();
     }
-
     function refresh() {
-        const cat = selectedCategory;
-        const filtered = cat === "All" ? deck : deck.filter(c => c.category === cat);
+        const filtered = selectedCategory === "All" ? deck : deck.filter(c => c.category === selectedCategory);
         document.getElementById('deck-stats').innerText = `${filtered.length} CARDS REMAINING`;
         if(filtered.length > 0) {
             document.getElementById('card-content').innerHTML = flipped ? filtered[0].back : filtered[0].front;
             document.getElementById('card-side-label').innerText = flipped ? "ANSWER" : "QUESTION";
-        } else {
-            document.getElementById('card-content').innerText = "Empty deck. Add some cards below!";
-        }
+        } else { document.getElementById('card-content').innerText = "Subject empty."; }
         if(window.MathJax) MathJax.typesetPromise();
     }
-
     function flip() { if(deck.length === 0) return; flipped = !flipped; document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; refresh(); }
-
     function rate(diff) {
         const cat = selectedCategory;
-        let card;
-        if(cat === "All") {
-            card = deck.shift();
-        } else {
-            const idx = deck.findIndex(c => c.category === cat);
-            card = deck.splice(idx, 1)[0];
-        }
-
+        const idx = cat === "All" ? 0 : deck.findIndex(c => c.category === cat);
+        const card = deck.splice(idx, 1)[0];
         if(diff === 'easy') card.mastered = true;
-        if(diff === 'hard') deck.splice(1,0,card);
-        else deck.push(card);
-        
+        if(diff === 'hard') deck.splice(1,0,card); else deck.push(card);
         flipped = false; document.getElementById('srs-btns').style.display='none';
         saveDeck(); refresh();
     }
-
     function renderDeck() {
         const container = document.getElementById('deck-list-container');
-        if(deck.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:40px; opacity:0.5;">No cards in your library yet.</div>`;
-            return;
-        }
+        if(deck.length === 0) { container.innerHTML = `<div style="text-align:center; padding:40px; opacity:0.5;">No cards yet.</div>`; return; }
         container.innerHTML = deck.map((c, i) => `
             <div class="deck-card">
                 <div class="deck-info">
@@ -608,39 +542,28 @@
         `).join('');
         if(window.MathJax) MathJax.typesetPromise();
     }
-
     function editCard(i) {
-        const q = prompt("Edit Question:", deck[i].front); if(q===null)return;
-        const a = prompt("Edit Answer:", deck[i].back); if(a===null)return;
-        deck[i].front = q.trim(); deck[i].back = a.trim(); saveDeck(); refresh();
+        const q = prompt("Edit Q:", deck[i].front); if(q===null)return;
+        const a = prompt("Edit A:", deck[i].back); if(a===null)return;
+        deck[i].front = q; deck[i].back = a; saveDeck(); refresh();
     }
+    function deleteCard(i) { if(confirm("Delete?")) { deck.splice(i,1); saveDeck(); } }
 
-    function deleteCard(i) { if(confirm("Delete this card?")) { deck.splice(i,1); saveDeck(); } }
-
+    // --- UI Helpers ---
     function setView(v) {
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        const navEl = document.getElementById('nav-' + v);
-        if(navEl) navEl.classList.add('active');
-        if(v === 'whiteboard') redrawEverything();
-        if(v === 'deck') renderDeck();
-        if(v === 'analytics') updateAnalytics();
+        const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active');
+        if(v === 'whiteboard') redrawEverything(); if(v === 'deck') renderDeck();
     }
-
     function showToast(msg) { const t = document.getElementById('notif-toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-    
     function setMode(m) { 
-        mode = m; 
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); 
+        mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); 
         if(document.getElementById(m+'-btn')) document.getElementById(m+'-btn').classList.add('active'); 
         canvas.style.cursor = m === 'drag' ? 'grab' : 'crosshair';
-        if(m !== 'pointer') selectedObject = null;
-        redrawEverything();
     }
-
-    function copyMyId() { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("Discovery ID copied!")); }
-    
+    function copyMyId() { navigator.clipboard.writeText(document.getElementById('my-puter-id').innerText).then(() => showToast("ID copied!")); }
     async function addFriend() {
         const id = document.getElementById('friend-id-input').value.trim();
         if(id && !friends.includes(id)) {
@@ -648,24 +571,12 @@
             document.getElementById('friend-id-input').value = ""; renderFriends(); showToast("Friend added!");
         }
     }
-    
     function renderFriends() {
         const ui = document.getElementById('friends-list-ui');
         ui.innerHTML = friends.map(f => `<div style="background:var(--card); padding:15px; border-radius:14px; margin-top:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border);"><span>${f.substring(0,12)}...</span><button onclick="viewFriendDeck('${f}')" class="edit-btn" style="padding:8px 15px; border-radius:10px;">View Deck</button></div>`).join('');
     }
-    
-    async function publishMyDeck() {
-        showToast("Publishing...");
-        await puter.kv.set(`pub_deck_${currentUser.uuid || currentUser.id}`, JSON.stringify(deck), true);
-        showToast("Deck published successfully!");
-    }
-    
-    async function viewFriendDeck(id) {
-        showToast("Fetching...");
-        const d = await puter.kv.get(`pub_deck_${id}`, id);
-        if(d) { deck = JSON.parse(d); showToast("Friend's deck loaded!"); refresh(); setView('study'); }
-        else alert("No public deck found.");
-    }
+    async function publishMyDeck() { await puter.kv.set(`pub_deck_${currentUser.uuid || currentUser.id}`, JSON.stringify(deck), true); showToast("Deck published!"); }
+    async function speakCard() { if(deck.length > 0) window.speechSynthesis.speak(new SpeechSynthesisUtterance(flipped ? deck[0].back : deck[0].front)); }
 </script>
 </body>
 </html>
