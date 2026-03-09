@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMate Pro | Premium Suite</title>
+    <title>StudyMate Pro | Premium suite</title>
     
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
@@ -18,92 +18,140 @@
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady();
-                }
             }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #0b0f1a; --card: #161b2c; --text: #f8fafc; --accent: #3b82f6; 
-            --border: #2d364d; --sidebar: #060912; --success: #10b981; --danger: #ef4444;
+            --bg: #06080f; 
+            --card: #111524; 
+            --text: #f1f5f9; 
+            --accent: #3b82f6; 
+            --border: rgba(255, 255, 255, 0.08); 
+            --sidebar: #090c16; 
+            --success: #10b981; 
+            --danger: #ef4444;
             --warning: #f59e0b;
+            --glass: rgba(255, 255, 255, 0.02);
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar */
-        #sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; flex-shrink: 0; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
-        .nav-item:hover, .nav-item.active { background: var(--accent); color: white; }
+        * { box-sizing: border-box; transition: background-color 0.2s, border-color 0.2s; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        
+        /* Sidebar Styling */
+        #sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 6px; z-index: 100; flex-shrink: 0; }
+        .sidebar-brand { font-weight: 800; font-size: 1.2rem; margin-bottom: 35px; color: var(--accent); text-align: center; letter-spacing: 3px; text-transform: uppercase; }
+        
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; cursor: pointer; font-size: 0.9rem; color: #94a3b8; font-weight: 500; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
+        .nav-item:hover { background: var(--glass); color: white; border-color: var(--border); }
+        .nav-item.active { background: var(--accent); color: white; box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3); border-color: transparent; }
 
-        .pomo-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: center; }
-        #pomo-time { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
-        .pomo-controls { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
-        .pomo-adj { background: rgba(255,255,255,0.05); border: none; color: white; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; }
-        .pomo-btn { background: var(--accent); border: none; color: white; padding: 6px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 800; width: 100%; }
+        /* Widgets */
+        .pomo-box { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 25px; text-align: center; backdrop-filter: blur(10px); }
+        #pomo-time { font-size: 1.7rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+        .pomo-controls { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+        .pomo-adj { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #94a3b8; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .pomo-adj:hover { color: white; border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        .pomo-btn { background: var(--accent); border: none; color: white; padding: 10px 15px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; font-weight: 800; width: 100%; transition: transform 0.2s; }
+        .pomo-btn:active { transform: scale(0.97); }
 
-        /* Lofi Radio */
-        .radio-box { background: rgba(59, 130, 246, 0.05); border: 1px solid var(--accent); border-radius: 16px; padding: 12px; margin-top: 10px; display: flex; align-items: center; gap: 10px; font-size: 0.7rem; }
-        .radio-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .radio-box { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 14px; margin-top: 10px; display: flex; align-items: center; gap: 12px; font-size: 0.75rem; }
+        .radio-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
+        /* Main Viewport */
+        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent 40%); }
+        .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; animation: fadeIn 0.4s ease-out; }
         .view.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Custom Dropdown */
-        .custom-select { position: relative; width: 200px; user-select: none; }
-        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
-        .select-trigger:hover { border-color: var(--accent); }
-        .options-list { position: absolute; top: 115%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
-        .options-list.active { display: block; }
-        .option-item { padding: 12px 14px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
-        .option-item:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
+        .custom-select { position: relative; width: 220px; user-select: none; }
+        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 10px 16px; border-radius: 14px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .options-list { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 16px; display: none; z-index: 1000; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; backdrop-filter: blur(20px); }
+        .options-list.active { display: block; animation: dropdownIn 0.2s ease-out; }
+        .option-item { padding: 12px 16px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .option-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+        @keyframes dropdownIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Whiteboard */
+        /* Whiteboard Viewport */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; }
-        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
+        .wb-tools { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 12px 24px; border-radius: 100px; display: flex; gap: 14px; border: 1px solid rgba(255,255,255,0.1); z-index: 200; align-items: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
 
-        /* Flashcards Smaller GUI */
+        /* Compact Study Session GUI */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px; max-width: 800px; margin: 0 auto; width: 100%; }
-        .flashcard-outer { perspective: 1500px; width: 100%; height: 320px; cursor: pointer; }
-        .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .flashcard-outer { perspective: 2000px; width: 100%; height: 340px; cursor: pointer; margin-bottom: 5px; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
         .flashcard-inner.flipped { transform: rotateY(180deg); }
-        .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 30px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; background: linear-gradient(145deg, var(--card), #1a2235); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 35px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; background: linear-gradient(165deg, var(--card), #0d111d); box-shadow: 0 40px 80px rgba(0,0,0,0.5); overflow: hidden; }
         .flashcard-back { transform: rotateY(180deg); }
-        .card-label { position: absolute; top: 25px; left: 35px; font-size: 0.65rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 2px; }
-        .card-content { font-size: 1.6rem; line-height: 1.4; font-weight: 600; width: 100%; overflow: hidden; text-overflow: ellipsis; }
+        .flashcard-front::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top left, var(--accent), transparent 70%); opacity: 0.05; pointer-events: none; }
+        
+        .card-label { position: absolute; top: 30px; left: 40px; font-size: 0.65rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 3px; opacity: 0.8; }
+        .card-content { font-size: 1.7rem; line-height: 1.4; font-weight: 600; width: 100%; }
 
-        .answer-checker-box { width: 100%; margin-top: 20px; display: flex; gap: 10px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 20px; border: 1px solid var(--border); }
-        .ans-input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 0 10px; }
-        .ans-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.8rem; }
+        .answer-checker-box { width: 100%; margin-top: 25px; display: flex; gap: 12px; background: var(--glass); padding: 12px; border-radius: 20px; border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+        .ans-input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1.1rem; padding: 5px 15px; font-family: inherit; }
+        .ans-btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.85rem; letter-spacing: 1px; }
+        .ans-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
 
-        .srs-wrap { display: none; width: 100%; gap: 10px; margin-top: 20px; }
-        .srs-btn { flex: 1; padding: 15px; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
+        .srs-wrap { display: none; width: 100%; gap: 12px; margin-top: 25px; }
+        .srs-btn { flex: 1; padding: 18px; border-radius: 20px; color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.3s; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .srs-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        /* AI Assistant */
+        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 45px; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+        .lesson-step { margin-bottom: 12px; opacity: 0.4; transition: 0.3s; padding: 20px; border-radius: 18px; border: 1px solid transparent; cursor: pointer; }
+        .lesson-step.active { opacity: 1; background: rgba(59, 130, 246, 0.08); border-color: var(--accent); transform: scale(1.01); }
+        .lesson-step .highlight { font-weight: 800; text-decoration: underline; color: var(--accent); }
+        .lesson-progress { position: absolute; top: 0; left: 0; height: 6px; background: var(--accent); transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); width: 0%; box-shadow: 0 0 20px var(--accent); }
+        .visual-stage { background: #000; border-radius: 20px; height: 260px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); box-shadow: inset 0 0 40px rgba(0,0,0,0.6); }
+        
+        .quiz-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 24px; padding: 35px; margin-top: 30px; display: none; border-left: 5px solid var(--accent); }
+        .quiz-option { background: var(--sidebar); border: 1px solid var(--border); padding: 16px; border-radius: 14px; margin-top: 10px; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .quiz-option:hover { border-color: var(--accent); transform: translateX(5px); background: rgba(255,255,255,0.02); }
+        .quiz-option.correct { background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success); font-weight: 700; }
+        .quiz-option.wrong { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
 
         /* Archive UI */
-        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
-        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; position: relative; transition: 0.3s; cursor: pointer; }
-        .archive-item:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .archive-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .del-circle { width: 22px; height: 22px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; position: absolute; top: 12px; right: 12px; z-index: 10; font-weight: bold; }
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 25px; }
+        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; position: relative; transition: 0.3s; cursor: pointer; }
+        .archive-item:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .archive-preview { width: 100%; height: 130px; object-fit: cover; border-radius: 14px; margin-bottom: 12px; background: #000; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .del-circle { width: 28px; height: 28px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; position: absolute; top: 12px; right: 12px; z-index: 10; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        /* Settings View */
+        .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 35px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .settings-header { font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .settings-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .set-btn { background: rgba(255,255,255,0.03); color: white; border: 1px solid var(--border); padding: 12px 24px; border-radius: 14px; cursor: pointer; font-weight: 700; transition: 0.2s; font-size: 0.85rem; }
+        .set-btn:hover { background: var(--accent); border-color: transparent; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
+
+        /* Deck Manager Restoration */
+        .deck-list { display: flex; flex-direction: column; gap: 14px; padding: 20px 0; }
+        .deck-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 22px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .deck-card:hover { border-color: var(--accent); background: rgba(255,255,255,0.01); }
+        .action-btn { border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.75rem; margin-left: 8px; transition: 0.2s; }
+        .delete-btn { background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .delete-btn:hover { background: var(--danger); color: white; }
 
         /* Viewer Modal */
-        #viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; backdrop-filter: blur(10px); }
-        #viewer-content { max-width: 95%; max-height: 95%; position: relative; text-align: center; }
-        #viewer-content img { max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid var(--border); }
-        #viewer-close { position: absolute; top: -50px; right: 0; color: white; cursor: pointer; font-weight: 800; font-size: 1rem; }
+        #viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; backdrop-filter: blur(15px); }
+        #viewer-content { max-width: 95%; max-height: 95%; position: relative; text-align: center; animation: zoomIn 0.3s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #viewer-content img { max-width: 100%; max-height: 80vh; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 0 100px rgba(0,0,0,0.8); }
+        #viewer-close { position: absolute; top: -55px; right: 0; color: white; cursor: pointer; font-weight: 800; font-size: 0.9rem; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 10px; }
 
-        #notif-toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: white; padding: 18px 28px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.4); pointer-events: none; }
-        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* Notif Toast */
+        #notif-toast { position: fixed; bottom: 40px; right: 40px; background: var(--accent); color: white; padding: 18px 32px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 20px 40px rgba(0,0,0,0.5); pointer-events: none; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .magic-bar-container { margin-top: auto; width: 100%; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -115,12 +163,12 @@
     <div id="viewer-content" onclick="event.stopPropagation()">
         <span id="viewer-close" onclick="closeViewer()">CLOSE PREVIEW ×</span>
         <div id="viewer-target"></div>
-        <button id="viewer-export" style="margin-top: 25px; background: var(--accent); color:white; border:none; padding:14px 40px; border-radius:16px; font-weight:800; cursor:pointer;">EXPORT AS PNG</button>
+        <button id="viewer-export" style="margin-top: 30px; background: var(--accent); color:white; border:none; padding:16px 45px; border-radius:20px; font-weight:800; cursor:pointer; font-size: 0.9rem; letter-spacing: 1px;">EXPORT TO DEVICE</button>
     </div>
 </div>
 
 <nav id="sidebar">
-    <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 25px; color: var(--accent); text-align: center; letter-spacing: 2px;">STUDYMATE</div>
+    <div class="sidebar-brand">STUDYMATE</div>
     
     <div class="pomo-box">
         <div id="pomo-time">25:00</div>
@@ -128,28 +176,30 @@
             <button class="pomo-adj" onclick="adjTimer(-60)">-1</button>
             <button class="pomo-adj" onclick="adjTimer(60)">+1</button>
         </div>
-        <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START</button>
+        <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START SESSION</button>
     </div>
 
     <div class="radio-box">
         <button class="radio-btn" id="radio-toggle" onclick="toggleRadio()">▶</button>
-        <div>
-            <div style="font-weight: 800;">LOFI STATION</div>
-            <div style="opacity: 0.5; font-size: 0.6rem;">Study Atmosphere</div>
+        <div style="flex:1;">
+            <div style="font-weight: 800; color: white;">LOFI STUDY</div>
+            <div style="opacity: 0.5; font-size: 0.6rem; letter-spacing: 0.5px;">Focus Atmosphere</div>
         </div>
         <audio id="study-audio" loop src="https://stream.zeno.fm/0r0xa792kwzuv"></audio>
     </div>
 
-    <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
-    <div class="nav-item" id="nav-assistant" onclick="setView('assistant')">AI Assistant</div>
-    <div class="nav-item" id="nav-deck" onclick="setView('deck')">Deck Manager</div>
-    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
-    <div class="nav-item" id="nav-archive" onclick="setView('archive')">Archive Hub</div>
-    <div class="nav-item" id="nav-settings" onclick="setView('settings')" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
+    <div style="margin-top: 25px; flex: 1;">
+        <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
+        <div class="nav-item" id="nav-assistant" onclick="setView('assistant')">AI Assistant</div>
+        <div class="nav-item" id="nav-deck" onclick="setView('deck')">Deck Manager</div>
+        <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
+        <div class="nav-item" id="nav-archive" onclick="setView('archive')">Archive Hub</div>
+        <div class="nav-item" id="nav-settings" onclick="setView('settings')" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
+    </div>
     
-    <div class="user-block" style="margin-top: auto;">
-        <div id="my-pfp" class="pfp-wrap"></div>
-        <div id="user-name" style="font-size:0.8rem; font-weight:700;">User</div>
+    <div class="user-block" style="display: flex; align-items: center; gap: 12px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <div id="my-pfp" style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">U</div>
+        <div id="user-name" style="font-size:0.85rem; font-weight:700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</div>
     </div>
 </nav>
 
@@ -157,24 +207,24 @@
     <!-- Study View -->
     <div id="view-study" class="view active">
         <div class="study-grid">
-            <div style="display:flex; justify-content: space-between; width: 100%; margin-bottom: 20px;">
+            <div style="display:flex; justify-content: space-between; width: 100%; margin-bottom: 25px; align-items: center;">
                 <div class="custom-select">
                     <div class="select-trigger" onclick="toggleCatDropdown()">
                         <span id="cat-label">All Subjects</span> ▾
                     </div>
                     <div class="options-list" id="cat-options"></div>
                 </div>
-                <div id="deck-stats" style="font-size:0.75rem; font-weight:800; color:var(--accent); letter-spacing: 1px;">0 CARDS REMAINING</div>
+                <div id="deck-stats" style="font-size:0.7rem; font-weight:800; color:var(--accent); letter-spacing: 2px;">0 CARDS REMAINING</div>
             </div>
 
             <div class="flashcard-outer" onclick="flip()">
                 <div class="flashcard-inner" id="card-inner">
                     <div class="flashcard-front">
                         <div class="card-label">QUESTION</div>
-                        <div id="card-front-content" class="card-content">Welcome! Type a topic below to begin.</div>
+                        <div id="card-front-content" class="card-content">Type a topic below to begin your premium study session.</div>
                     </div>
                     <div class="flashcard-back">
-                        <div class="card-label">ANSWER</div>
+                        <div class="card-label">PRO-ANSWER</div>
                         <div id="card-back-content" class="card-content">...</div>
                     </div>
                 </div>
@@ -186,14 +236,16 @@
             </div>
             
             <div class="srs-wrap" id="srs-btns">
-                <button onclick="rate('hard')" class="srs-btn" style="background:var(--danger)">HARD</button>
-                <button onclick="rate('mid')" class="srs-btn" style="background:var(--warning)">MID</button>
-                <button onclick="rate('easy')" class="srs-btn" style="background:var(--success)">EASY</button>
+                <button onclick="rate('hard')" class="srs-btn" style="background:var(--danger)">Hard</button>
+                <button onclick="rate('mid')" class="srs-btn" style="background:var(--warning)">Mid</button>
+                <button onclick="rate('easy')" class="srs-btn" style="background:var(--success)">Easy</button>
             </div>
 
-            <div style="margin-top: auto; width: 100%; display:flex; gap:10px; background:var(--card); padding:12px; border-radius:22px; border:1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                <input type="text" id="ai-in" placeholder="Ask AI: 'Algebra' or 'Subject | Q | A'..." style="flex:1; background:none; border:none; color:white; outline:none; font-size: 1rem; padding: 0 10px;">
-                <button onclick="handleGen()" style="background:var(--accent); color:white; border:none; padding:10px 24px; border-radius:14px; font-weight:800; cursor:pointer;">GENERATE</button>
+            <div class="magic-bar-container">
+                <div style="width: 100%; display:flex; gap:12px; background:var(--card); padding:14px; border-radius:24px; border:1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                    <input type="text" id="ai-in" placeholder="Ask AI: 'Neuroscience' or 'Subject | Q | A'..." style="flex:1; background:none; border:none; color:white; outline:none; font-size: 1rem; padding: 0 10px;">
+                    <button onclick="handleGen()" style="background:var(--accent); color:white; border:none; padding:12px 30px; border-radius:18px; font-weight:800; cursor:pointer; font-size: 0.85rem;">GENERATE</button>
+                </div>
             </div>
         </div>
     </div>
@@ -202,11 +254,11 @@
     <div id="view-assistant" class="view">
         <div style="padding:40px; max-width:900px; margin:0 auto; width:100%;">
             <div id="assistant-intro" style="text-align: center; margin-bottom: 40px;">
-                <h2 style="font-weight: 800; font-size: 2.5rem; margin-bottom: 10px;">AI Teaching Assistant</h2>
-                <p style="opacity: 0.6; margin-bottom: 30px;">Deep multi-step lessons with human-like audio and mastery quizzes.</p>
-                <div style="display:flex; gap:12px; background: var(--card); padding: 15px; border-radius: 24px; border: 1px solid var(--border);">
-                    <input type="text" id="assistant-topic" placeholder="Explain a complex concept step-by-step..." style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
-                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 35px; border-radius:16px; font-weight:800; cursor:pointer;">LEARN</button>
+                <h2 style="font-weight: 800; font-size: 2.8rem; margin-bottom: 10px;">AI Assistant</h2>
+                <p style="opacity: 0.5; margin-bottom: 40px; font-size: 1.1rem;">Interactive multi-step lessons with human-like audio.</p>
+                <div style="display:flex; gap:12px; background: var(--card); padding: 18px; border-radius: 28px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+                    <input type="text" id="assistant-topic" placeholder="e.g. Derive the quadratic formula step-by-step" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.2rem;">
+                    <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:15px 45px; border-radius:20px; font-weight:800; cursor:pointer; font-size: 1rem; letter-spacing: 1px;">LEARN</button>
                 </div>
             </div>
 
@@ -218,14 +270,14 @@
                 </div>
                 
                 <div class="quiz-card" id="quiz-section">
-                    <h3 style="color: var(--accent); margin-bottom: 15px; font-weight: 800;">Topic Mastery Quiz</h3>
-                    <div id="quiz-question" style="font-weight: 700; margin-bottom: 20px; font-size: 1.2rem;"></div>
-                    <div id="quiz-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    <h3 style="color: var(--accent); margin-bottom: 15px; font-weight: 800;">Mastery Assessment</h3>
+                    <div id="quiz-question" style="font-weight: 700; margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5;"></div>
+                    <div id="quiz-options" style="display: flex; flex-direction: column; gap: 12px;"></div>
                 </div>
 
-                <div style="display:flex; gap:12px; justify-content: center; margin-top: 30px;">
-                    <button id="end-lesson-btn" onclick="triggerQuizManual()" style="background:var(--warning); color:black; border:none; padding:12px 35px; border-radius:14px; cursor:pointer; font-weight: 800;">END & QUIZ</button>
-                    <button onclick="stopLesson()" style="background:rgba(255,255,255,0.05); color:white; border:none; padding:12px 35px; border-radius:14px; cursor:pointer; font-weight: 700;">CANCEL</button>
+                <div style="display:flex; gap:12px; justify-content: center; margin-top: 35px;">
+                    <button id="end-lesson-btn" onclick="triggerQuizManual()" style="background:var(--warning); color:black; border:none; padding:15px 45px; border-radius:20px; cursor:pointer; font-weight: 800; letter-spacing: 1px;">QUIZ NOW</button>
+                    <button onclick="stopLesson()" style="background:rgba(255,255,255,0.06); color:white; border:none; padding:15px 45px; border-radius:20px; cursor:pointer; font-weight: 700;">CANCEL</button>
                 </div>
             </div>
         </div>
@@ -234,9 +286,9 @@
     <!-- Archive Hub -->
     <div id="view-archive" class="view">
         <div style="padding:40px; max-width:1000px; margin:0 auto; width:100%;">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="font-weight: 800; font-size: 2.2rem; margin: 0;">Archive Hub</h2>
-                <button onclick="document.getElementById('archive-file-in').click()" style="background:var(--accent); color:white; border:none; padding:14px 25px; border-radius:14px; font-weight:800; cursor:pointer;">UPLOAD TO CLOUD</button>
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h2 style="font-weight: 800; font-size: 2.5rem; margin: 0;">Archive Hub</h2>
+                <button onclick="document.getElementById('archive-file-in').click()" style="background:var(--accent); color:white; border:none; padding:15px 35px; border-radius:18px; font-weight:800; cursor:pointer; letter-spacing: 1px;">UPLOAD CLOUD FILE</button>
                 <input type="file" id="archive-file-in" hidden onchange="uploadToArchive(this)">
             </div>
             <div id="archive-container" class="archive-grid"></div>
@@ -246,9 +298,9 @@
     <!-- Deck Manager -->
     <div id="view-deck" class="view">
         <div style="padding:40px; max-width:850px; margin:0 auto; width:100%;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                <h2 style="margin:0; font-weight: 800; font-size: 2.2rem;">Deck Manager</h2>
-                <button onclick="publishDeck()" style="background:var(--success); color:white; border:none; padding:14px 25px; border-radius:16px; font-weight:800; cursor:pointer;">CLOUD SYNC</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+                <h2 style="margin:0; font-weight: 800; font-size: 2.5rem;">Deck Manager</h2>
+                <button onclick="publishDeck()" style="background:var(--success); color:white; border:none; padding:15px 35px; border-radius:18px; font-weight:800; cursor:pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);">CLOUD SYNC</button>
             </div>
             <div id="deck-list-container" class="deck-list"></div>
         </div>
@@ -256,22 +308,23 @@
 
     <!-- Whiteboard View -->
     <div id="view-whiteboard" class="view">
-        <div class="room-bar">
-            <span class="room-status" id="room-display">LOCAL</span>
-            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:130px; outline:none;">
-            <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:8px 18px; border-radius:8px; font-size:0.75rem; font-weight:800; cursor:pointer;">JOIN</button>
-            <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:8px 18px; border-radius:8px; font-size:0.75rem; font-weight:800; cursor:pointer;">HOST</button>
+        <div class="room-bar" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 12px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <span class="room-status" id="room-display" style="font-size: 0.7rem; font-weight: 900; color: var(--accent);">LOCAL WORKSPACE</span>
+            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:10px; padding:10px 14px; width:140px; outline:none; font-size: 0.8rem;">
+            <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:10px 22px; border-radius:12px; font-size:0.8rem; font-weight:800; cursor:pointer;">JOIN</button>
+            <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:10px 22px; border-radius:12px; font-size:0.8rem; font-weight:800; cursor:pointer;">HOST</button>
         </div>
         <div id="wb-box">
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
-                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Pointer Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
-                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Pen Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Smart Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
-                <button class="tool-btn" onclick="addWbText()" title="Text Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
-                <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()" title="Insert Image"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
-                <button class="tool-btn" id="capture-btn" onclick="setMode('capture')" title="Region Capture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
-                <input type="color" id="wb-color" class="color-input" style="width:24px; height:24px; border:none; cursor:pointer;" value="#3b82f6" onchange="wbColor=this.value">
+                <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Move & Resize"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Precision Pen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Smart Deletion"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" onclick="addWbText()" title="Add Typography"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
+                <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()" title="Add Multimedia"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+                <button class="tool-btn" id="capture-btn" onclick="setMode('capture')" title="Region Capture"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
+                <div style="width: 1px; height: 30px; background: var(--border); margin: 0 5px;"></div>
+                <input type="color" id="wb-color" class="color-input" style="width:28px; height:28px; border:none; cursor:pointer;" value="#3b82f6" onchange="wbColor=this.value">
                 <input type="file" id="wb-img-upload" hidden onchange="uploadImageToWb(this)">
             </div>
         </div>
@@ -279,40 +332,43 @@
 
     <!-- Settings View -->
     <div id="view-settings" class="view">
-        <div style="padding:40px; max-width:800px; margin:0 auto; width:100%;">
-            <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 30px;">Settings</h2>
+        <div style="padding:40px; max-width:850px; margin:0 auto; width:100%;">
+            <h2 style="font-weight: 800; font-size: 2.5rem; margin-bottom: 35px;">Account Settings</h2>
             
             <div class="settings-section">
-                <h3 style="font-size: 1rem; margin-bottom: 20px; color: var(--accent);">APPEARANCE</h3>
+                <div class="settings-header">UI Aesthetics</div>
                 <div class="settings-row">
-                    <span>Accent Color</span>
-                    <input type="color" id="accent-picker" value="#3b82f6" onchange="updateAccent(this.value)" style="border:none; background:none; cursor:pointer;">
+                    <div>
+                        <div style="font-weight: 700;">Global Accent Color</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Choose the color for buttons, progress, and highlights.</div>
+                    </div>
+                    <input type="color" id="accent-picker" value="#3b82f6" onchange="updateAccent(this.value)" style="border:none; background:none; cursor:pointer; width: 40px; height: 40px;">
                 </div>
             </div>
 
             <div class="settings-section">
-                <h3 style="font-size: 1rem; margin-bottom: 20px; color: var(--accent);">DATA MANAGEMENT</h3>
+                <div class="settings-header">Workspace & Data</div>
                 <div class="settings-row">
                     <div>
-                        <div style="font-weight: 700;">Export Data</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6;">Download your library as JSON</div>
+                        <div style="font-weight: 700;">Export Workspace</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Download your entire library as a portable JSON file.</div>
                     </div>
-                    <button class="set-btn" onclick="exportAppData()">EXPORT</button>
+                    <button class="set-btn" onclick="exportAppData()">EXPORT NOW</button>
                 </div>
                 <div class="settings-row">
                     <div>
-                        <div style="font-weight: 700;">Import Data</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6;">Replace library with a JSON file</div>
+                        <div style="font-weight: 700;">Import Workspace</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Replace current library with a previously saved file.</div>
                     </div>
-                    <button class="set-btn" onclick="document.getElementById('import-data-in').click()">IMPORT</button>
+                    <button class="set-btn" onclick="document.getElementById('import-data-in').click()">IMPORT FILE</button>
                     <input type="file" id="import-data-in" hidden onchange="importAppData(this)">
                 </div>
                 <div class="settings-row">
                     <div>
-                        <div style="font-weight: 700; color: var(--danger);">Clear All Data</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6;">Permanently delete everything</div>
+                        <div style="font-weight: 700; color: var(--danger);">Hard Reset</div>
+                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Wipe all local data and configurations permanently.</div>
                     </div>
-                    <button class="set-btn" style="color: var(--danger);" onclick="clearAppData()">CLEAR</button>
+                    <button class="set-btn" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" onclick="clearAppData()">ERASE SITE DATA</button>
                 </div>
             </div>
         </div>
@@ -335,7 +391,6 @@
             if (!puter.auth.isSignedIn()) await puter.auth.signIn();
             currentUser = await puter.auth.getUser();
             document.getElementById('user-name').innerText = currentUser.username;
-            document.getElementById('my-puter-id').innerText = currentUser.uuid || currentUser.id;
 
             const d = await puter.kv.get('sm_deck_v15');
             if(d) deck = JSON.parse(d);
@@ -362,16 +417,6 @@
         } catch (e) { console.error(e); }
     };
 
-    // --- Lofi Radio ---
-    let isRadioPlaying = false;
-    function toggleRadio() {
-        const audio = document.getElementById('study-audio');
-        const btn = document.getElementById('radio-toggle');
-        if(isRadioPlaying) { audio.pause(); btn.innerText = "▶"; }
-        else { audio.play(); btn.innerText = "⏸"; }
-        isRadioPlaying = !isRadioPlaying;
-    }
-
     // --- AI Teaching Assistant & Quiz ---
     async function startLesson() {
         const topic = document.getElementById('assistant-topic').value;
@@ -379,7 +424,7 @@
         lessonActive = true;
         document.getElementById('lesson-container').style.display = 'block';
         document.getElementById('assistant-intro').style.display = 'none';
-        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:30px; font-weight:800; color:var(--accent);'>AI is drafting your lesson...</div>";
+        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:30px; font-weight:800; color:var(--accent); letter-spacing: 1px;'>AI TUTOR DRAFTING LESSON...</div>";
         document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('lesson-main-card').style.display = 'block';
 
@@ -400,7 +445,7 @@
         const target = document.getElementById('lesson-steps-target');
         target.innerHTML = currentLessonData.steps.map((step, i) => `
             <div class="lesson-step" id="step-${i}" onclick="jumpToStep(${i})">
-                <p>${step.text.replace(step.highlight, `<span class="highlight">${step.highlight}</span>`)}</p>
+                <p style="margin:0; line-height:1.6;">${step.text.replace(step.highlight, `<span class="highlight">${step.highlight}</span>`)}</p>
             </div>
         `).join('');
         if(window.MathJax) MathJax.typesetPromise();
@@ -417,10 +462,10 @@
 
         const visual = document.getElementById('visual-stage');
         visual.innerHTML = `<svg width="100" height="100" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--accent)" stroke-width="4">
-                <animate attributeName="stroke-dasharray" values="0,200; 200,0" dur="4s" repeatCount="indefinite"/>
+            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--accent)" stroke-width="3">
+                <animate attributeName="stroke-dasharray" values="0,200; 200,0" dur="3s" repeatCount="indefinite"/>
             </circle>
-            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="800">${index+1}</text>
+            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="900">${index+1}</text>
         </svg>`;
 
         const utter = new SpeechSynthesisUtterance(currentLessonData.steps[index].text);
@@ -448,13 +493,19 @@
     }
 
     function checkQuiz(sel, corr, el) {
-        if(sel === corr) { el.classList.add('correct'); showToast("Excellent! Mastery achieved."); }
-        else { el.classList.add('wrong'); showToast("Try again!"); }
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(o => o.style.pointerEvents = 'none');
+        if(sel === corr) { el.classList.add('correct'); showToast("Excellent Mastery! ✨"); }
+        else { el.classList.add('wrong'); showToast("Review lesson and retry."); }
     }
 
-    function stopLesson() { lessonActive = false; window.speechSynthesis.cancel(); document.getElementById('lesson-container').style.display = 'none'; document.getElementById('assistant-intro').style.display = 'block'; }
+    function stopLesson() { 
+        lessonActive = false; window.speechSynthesis.cancel(); 
+        document.getElementById('lesson-container').style.display = 'none'; 
+        document.getElementById('assistant-intro').style.display = 'block';
+    }
 
-    // --- Whiteboard Engine (Precision Fix) ---
+    // --- Whiteboard Engine ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
     function redrawBoard() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -476,7 +527,7 @@
                 ctx.restore();
             }
         });
-        if(mode === 'capture' && captureRect) { ctx.save(); ctx.strokeStyle = 'red'; ctx.setLineDash([8,4]); ctx.strokeRect(captureRect.x, captureRect.y, captureRect.w, captureRect.h); ctx.restore(); }
+        if(mode === 'capture' && captureRect) { ctx.save(); ctx.strokeStyle = '#ef4444'; ctx.setLineDash([8,4]); ctx.strokeRect(captureRect.x, captureRect.y, captureRect.w, captureRect.h); ctx.restore(); }
     }
 
     function initWb() {
@@ -521,7 +572,7 @@
             if(mode === 'capture' && captureRect) {
                 const tmp = document.createElement('canvas'); tmp.width = captureRect.w; tmp.height = captureRect.h;
                 tmp.getContext('2d').drawImage(canvas, captureRect.x, captureRect.y, captureRect.w, captureRect.h, 0,0, captureRect.w, captureRect.h);
-                archive.push({ id: Date.now(), name: 'Whiteboard Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
+                archive.push({ id: Date.now(), name: 'Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
                 await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
                 showToast("Saved to Archive!"); captureRect = null;
             }
@@ -552,7 +603,7 @@
         reader.onload = async (e) => {
             archive.push({ id: Date.now(), name: file.name, data: e.target.result, type: file.type.startsWith('image/') ? 'image' : 'file', date: new Date().toLocaleDateString() });
             await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
-            renderArchive(); showToast("File Saved!");
+            renderArchive(); showToast("Cloud Storage Updated!");
         };
         reader.readAsDataURL(file);
     }
@@ -563,8 +614,8 @@
             <div class="archive-item" onclick="openViewer(${item.id})">
                 <div class="del-circle" onclick="event.stopPropagation(); deleteArchive(${item.id})">×</div>
                 <div class="archive-preview">${item.type === 'image' ? `<img src="${item.data}" style="width:100%;height:100%;object-fit:cover;">` : '📄'}</div>
-                <div style="font-weight:800; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</div>
-                <div style="font-size:0.65rem; opacity:0.5; margin-top:5px;">${item.date}</div>
+                <div style="font-weight:800; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:5px;">${item.name}</div>
+                <div style="font-size:0.6rem; opacity:0.5; margin-top:2px;">${item.date}</div>
             </div>
         `).join('');
     }
@@ -574,7 +625,7 @@
         const target = document.getElementById('viewer-target');
         const exportBtn = document.getElementById('viewer-export');
         if(item.type === 'image') target.innerHTML = `<img src="${item.data}">`;
-        else target.innerHTML = `<div style="color:white; padding:100px; font-weight:800;">DOCUMENT PREVIEW NOT SUPPORTED. DOWNLOAD BELOW.</div>`;
+        else target.innerHTML = `<div style="color:white; padding:100px; font-weight:800;">PREVIEW NOT AVAILABLE FOR DOCS. DOWNLOAD BELOW.</div>`;
         exportBtn.onclick = () => { const link = document.createElement('a'); link.href = item.data; link.download = item.name; link.click(); };
         document.getElementById('viewer-overlay').style.display = 'flex';
     }
@@ -598,7 +649,7 @@
         const current = (selectedCat === "All" ? deck[0] : deck.filter(c => c.category === selectedCat)[0]);
         const correctVal = current.back.trim().toLowerCase();
         if(levenshtein(userVal, correctVal) < correctVal.length * 0.3) { showToast("Correct! ✨"); flip(); }
-        else { showToast("Keep trying! Or flip to see answer."); flip(); }
+        else { showToast("Almost! Flip to verify."); flip(); }
     }
 
     function levenshtein(s, t) {
@@ -627,7 +678,8 @@
     async function exportAppData() {
         const data = { deck, archive, accent: document.getElementById('accent-picker').value };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `StudyMate_Export.json`; link.click();
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `StudyMate_Backup.json`; link.click();
+        showToast("Backup exported!");
     }
     function importAppData(input) {
         if(!input.files[0]) return;
@@ -637,13 +689,13 @@
             if(data.deck) deck = data.deck; if(data.archive) archive = data.archive; if(data.accent) updateAccent(data.accent);
             await puter.kv.set('sm_deck_v15', JSON.stringify(deck));
             await puter.kv.set('sm_archive_v15', JSON.stringify(archive));
-            showToast("Library Imported!"); location.reload();
+            showToast("Library Restored!"); location.reload();
         };
         reader.readAsText(input.files[0]);
     }
-    async function clearAppData() { if(confirm("ERASE EVERYTHING?")) { await puter.kv.del('sm_deck_v15'); await puter.kv.del('sm_archive_v15'); await puter.kv.del('sm_wb_v15'); location.reload(); } }
+    async function clearAppData() { if(confirm("ERASE ALL APP DATA PERMANENTLY?")) { await puter.kv.del('sm_deck_v15'); await puter.kv.del('sm_archive_v15'); await puter.kv.del('sm_wb_v15'); location.reload(); } }
 
-    // --- Generic Utilities ---
+    // --- Utilities ---
     function setView(v) {
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
@@ -662,7 +714,7 @@
         if(filtered.length > 0) {
             document.getElementById('card-front-content').innerHTML = filtered[0].front;
             document.getElementById('card-back-content').innerHTML = filtered[0].back;
-        } else { document.getElementById('card-front-content').innerText = "Queue is empty."; }
+        } else { document.getElementById('card-front-content').innerText = "Add cards via Generate."; }
         if(window.MathJax) MathJax.typesetPromise();
     }
     async function saveDeck() { await puter.kv.set('sm_deck_v15', JSON.stringify(deck)); updateCategories(); }
@@ -671,12 +723,12 @@
     async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v15', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
     function setupKeyboard() { window.onkeydown = (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject && document.activeElement.tagName !== 'INPUT') { wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb(); } }; }
     function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
-    function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Focus session complete!"); } }, 1000); } }
+    function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Break time!"); } }, 1000); } }
     function joinAbly() { const id = document.getElementById('room-input').value.trim().toUpperCase(); if(!id || ABLY_KEY.includes("INSERT")) return; activeRoom = id; ably = new Ably.Realtime(ABLY_KEY); channel = ably.channels.get(id); channel.subscribe('sync', (msg) => { if(msg.clientId !== currentUser.id) applyRemote(msg.data.layers); }); showToast("Connected!"); }
     async function applyRemote(raw) { wbLayers = await Promise.all(raw.map(async obj => { if(obj.type === 'image') { const img = new Image(); img.src = obj.src; await new Promise(r => img.onload = r); return { ...obj, img }; } return obj; })); redrawBoard(); }
     function hostAbly() { const id = Math.random().toString(36).substring(2,6).toUpperCase(); document.getElementById('room-input').value = id; joinAbly(); }
-    function addWbText() { const t = prompt("Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: 500, y: 500, color: wbColor }); redrawBoard(); saveWb(); } }
-    async function handleGen() { const val = document.getElementById('ai-in').value; if(!val) return; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI generating cards..."); const r = await puter.ai.chat(`Generate 5 concepts from: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } }
+    function addWbText() { const t = prompt("Enter text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+500, color: wbColor }); redrawBoard(); saveWb(); } }
+    async function handleGen() { const val = document.getElementById('ai-in').value; if(!val) return; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI generating concepts..."); const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } }
 </script>
 </body>
 </html>
