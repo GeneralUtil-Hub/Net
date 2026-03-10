@@ -63,27 +63,25 @@
         .radio-box { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-top: 10px; display: flex; align-items: center; gap: 10px; font-size: 0.65rem; }
         .radio-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Main */
+        /* Main Viewport */
         main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.03), transparent 40%); }
         .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
         .view.active { display: flex; flex-direction: column; }
 
-        /* Custom Dropdown */
-        .custom-select { position: relative; width: 180px; user-select: none; }
-        .select-trigger { background: var(--card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 10px; color: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
-        .options-list { position: absolute; top: 110%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
-        .options-list.active { display: block; }
-        .option-item { padding: 10px 14px; font-size: 0.75rem; cursor: pointer; }
-        .option-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+        /* Whiteboard Custom Components */
+        .participant-list { position: absolute; top: 20px; left: 20px; background: rgba(16, 27, 44, 0.9); padding: 12px 18px; border-radius: 16px; border: 1px solid var(--border); z-index: 210; box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(10px); min-width: 140px; }
+        .room-name-header { font-weight: 800; color: var(--accent); margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        .user-entry { font-size: 0.8rem; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+        .user-entry::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
 
-        /* Whiteboard */
+        /* Whiteboard Tools */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; }
         .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
 
-        /* Flashcard V3 GUI */
+        /* Flashcard GUI V3 */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px; max-width: 800px; margin: 0 auto; width: 100%; }
         .flashcard-outer { perspective: 1500px; width: 100%; height: 320px; cursor: pointer; }
         .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
@@ -100,39 +98,20 @@
         .srs-wrap { display: none; width: 100%; gap: 10px; margin-top: 20px; }
         .srs-btn { flex: 1; padding: 15px; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
 
-        /* AI Assistant */
-        .lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 20px; position: relative; overflow: hidden; }
-        .lesson-step { margin-bottom: 12px; opacity: 0.4; transition: 0.3s; padding: 15px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; }
-        .lesson-step.active { opacity: 1; background: rgba(59, 130, 246, 0.08); border-color: var(--accent); transform: scale(1.01); }
-        .lesson-progress { position: absolute; top: 0; left: 0; height: 4px; background: var(--accent); transition: width 0.3s; width: 0%; }
-        .visual-stage { background: #000; border-radius: 16px; height: 260px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); }
-        
-        .quiz-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-top: 30px; display: none; }
-        .quiz-option { background: var(--sidebar); border: 1px solid var(--border); padding: 14px; border-radius: 12px; margin-top: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-        .quiz-option.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
-        .quiz-option.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
-
-        /* Viewer */
-        #viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 40px; backdrop-filter: blur(15px); }
-        #viewer-content { max-width: 95%; max-height: 95%; position: relative; text-align: center; }
-        #viewer-content img { max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid var(--border); }
-        #viewer-close { position: absolute; top: -50px; right: 0; color: white; cursor: pointer; font-weight: 800; font-size: 1rem; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 10px; }
-
-        #notif-toast { position: fixed; bottom: 40px; right: 40px; background: var(--accent); color: white; padding: 18px 32px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
-        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
         /* Archive Grid */
         .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
         .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; position: relative; transition: 0.2s; cursor: pointer; }
         .archive-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
-        .del-circle { width: 20px; height: 20px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem; position: absolute; top: 15px; right: 15px; z-index: 10; font-weight: bold; }
+        .del-circle { width: 22px; height: 22px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; position: absolute; top: 12px; right: 12px; z-index: 10; font-weight: bold; }
+
+        #notif-toast { position: fixed; bottom: 40px; right: 40px; background: var(--accent); color: white; padding: 18px 32px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div id="notif-toast"></div>
 
-<!-- Viewer -->
+<!-- Archive Viewer -->
 <div id="viewer-overlay" onclick="closeViewer()">
     <div id="viewer-content" onclick="event.stopPropagation()">
         <span id="viewer-close" onclick="closeViewer()">CLOSE ×</span>
@@ -157,7 +136,7 @@
         <button class="radio-btn" id="radio-toggle" onclick="toggleRadio()">▶</button>
         <div>
             <div style="font-weight: 800;">LOFI STATION</div>
-            <div style="opacity: 0.5; font-size: 0.6rem;">Study Atmosphere</div>
+            <div style="opacity: 0.5; font-size: 0.6rem;">Focus Environment</div>
         </div>
         <audio id="study-audio" loop src="https://stream.zeno.fm/0r0xa792kwzuv"></audio>
     </div>
@@ -178,7 +157,6 @@
 </nav>
 
 <main>
-    <!-- Study Session -->
     <div id="view-study" class="view active">
         <div class="study-grid">
             <div style="display:flex; justify-content: space-between; width: 100%; margin-bottom: 25px; align-items: center;">
@@ -195,7 +173,7 @@
                 <div class="flashcard-inner" id="card-inner">
                     <div class="flashcard-front">
                         <div class="card-label">QUESTION</div>
-                        <div id="card-front-content" class="card-content">Type a topic below to generate cards.</div>
+                        <div id="card-front-content" class="card-content">Type a topic to generate cards.</div>
                     </div>
                     <div class="flashcard-back">
                         <div class="card-label">PRO-ANSWER</div>
@@ -205,7 +183,7 @@
             </div>
 
             <div class="answer-checker-box" id="ans-box">
-                <input type="text" id="user-input-ans" class="ans-input" placeholder="Type your answer to verify..." onkeypress="if(event.key==='Enter')checkAnswer()" onclick="event.stopPropagation()">
+                <input type="text" id="user-input-ans" class="ans-input" placeholder="Verify your answer here..." onkeypress="if(event.key==='Enter')checkAnswer()" onclick="event.stopPropagation()">
                 <button class="ans-btn" onclick="event.stopPropagation(); checkAnswer()">CHECK</button>
             </div>
             
@@ -229,7 +207,7 @@
                 <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 10px;">AI Assistant</h2>
                 <p style="opacity: 0.6; margin-bottom: 25px;">Interactive multi-step lessons with mastery quizzes.</p>
                 <div style="display:flex; gap:12px; background: var(--card); padding: 15px; border-radius: 24px; border: 1px solid var(--border);">
-                    <input type="text" id="assistant-topic" placeholder="e.g. Derive the quadratic formula step-by-step" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
+                    <input type="text" id="assistant-topic" placeholder="e.g. How does Quantum Entanglement work?" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
                     <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 35px; border-radius:16px; font-weight:800; cursor:pointer;">LEARN</button>
                 </div>
             </div>
@@ -257,19 +235,26 @@
 
     <!-- Whiteboard -->
     <div id="view-whiteboard" class="view">
-        <div class="room-bar" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
-            <div id="ably-status" style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;" title="Offline"></div>
-            <span class="room-status" id="room-display" style="font-size: 0.7rem; font-weight: 900; color: var(--accent);">LOCAL</span>
-            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:120px; outline:none; font-size: 0.8rem;">
+        <div id="room-controls" class="room-bar" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 220; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <div id="ably-status-light" style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;" title="Offline"></div>
+            <span id="room-display-text" style="font-size: 0.7rem; font-weight: 900; color: var(--accent);">LOCAL</span>
+            <input type="text" id="room-input" placeholder="Join Room..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:120px; outline:none; font-size: 0.8rem;">
             <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:8px 18px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer;">JOIN</button>
             <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:8px 18px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer;">HOST</button>
         </div>
+
+        <div id="participant-ui" class="participant-list" style="display:none;">
+            <div id="active-room-label" class="room-name-header">...</div>
+            <div id="users-target"></div>
+        </div>
+
         <div id="wb-box">
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
                 <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Move & Resize"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
                 <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Pen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Smart Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" id="drag-btn" onclick="setMode('drag')" title="Move Canvas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
                 <button class="tool-btn" onclick="addWbText()" title="Text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
                 <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()" title="Add Image"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
                 <button class="tool-btn" id="capture-btn" onclick="setMode('capture')" title="Region Capture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 3v18"/></svg></button>
@@ -279,7 +264,7 @@
         </div>
     </div>
 
-    <!-- Archive Hub -->
+    <!-- Archive -->
     <div id="view-archive" class="view">
         <div style="padding:40px; max-width:1000px; margin:0 auto; width:100%;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -306,7 +291,6 @@
     <div id="view-settings" class="view">
         <div style="padding:40px; max-width:850px; margin:0 auto; width:100%;">
             <h2 style="font-weight: 800; font-size: 2.5rem; margin-bottom: 35px;">Settings</h2>
-            
             <div class="settings-section">
                 <h3 style="font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 25px; letter-spacing: 2px;">APPEARANCE</h3>
                 <div class="settings-row">
@@ -314,31 +298,11 @@
                     <input type="color" id="accent-picker" value="#3b82f6" onchange="updateAccent(this.value)" style="border:none; background:none; cursor:pointer; width: 40px; height: 40px;">
                 </div>
             </div>
-
             <div class="settings-section">
                 <h3 style="font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 25px; letter-spacing: 2px;">DATA MANAGEMENT</h3>
-                <div class="settings-row">
-                    <div>
-                        <div style="font-weight: 700;">Export Workspace</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Download library as JSON.</div>
-                    </div>
-                    <button class="set-btn" onclick="exportAppData()">EXPORT</button>
-                </div>
-                <div class="settings-row">
-                    <div>
-                        <div style="font-weight: 700;">Import Workspace</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Restore library from JSON.</div>
-                    </div>
-                    <button class="set-btn" onclick="document.getElementById('import-data-in').click()">IMPORT</button>
-                    <input type="file" id="import-data-in" hidden onchange="importAppData(this)">
-                </div>
-                <div class="settings-row">
-                    <div>
-                        <div style="font-weight: 700; color: var(--danger);">Hard Reset</div>
-                        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 4px;">Delete all data permanently.</div>
-                    </div>
-                    <button class="set-btn" style="color: var(--danger);" onclick="clearAppData()">CLEAR SITE DATA</button>
-                </div>
+                <div class="settings-row"><button class="set-btn" onclick="exportAppData()">EXPORT LIBRARY</button></div>
+                <div class="settings-row"><button class="set-btn" onclick="document.getElementById('import-data-in').click()">IMPORT LIBRARY</button><input type="file" id="import-data-in" hidden onchange="importAppData(this)"></div>
+                <div class="settings-row"><button class="set-btn" style="color: var(--danger);" onclick="clearAppData()">ERASE SITE DATA</button></div>
             </div>
         </div>
     </div>
@@ -393,104 +357,9 @@
         } catch (e) { console.error(e); }
     };
 
-    // --- Lofi Radio ---
-    let isRadioPlaying = false;
-    function toggleRadio() {
-        const audio = document.getElementById('study-audio');
-        const btn = document.getElementById('radio-toggle');
-        if(isRadioPlaying) { audio.pause(); btn.innerText = "▶"; }
-        else { audio.play(); btn.innerText = "⏸"; }
-        isRadioPlaying = !isRadioPlaying;
-    }
-
-    // --- AI Assistant ---
-    async function startLesson() {
-        const topic = document.getElementById('assistant-topic').value;
-        if(!topic) return showToast("Enter a topic!");
-        lessonActive = true;
-        document.getElementById('lesson-container').style.display = 'block';
-        document.getElementById('assistant-intro').style.display = 'none';
-        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:30px; font-weight:800; color:var(--accent);'>AI is drafting your lesson...</div>";
-        document.getElementById('quiz-section').style.display = 'none';
-        document.getElementById('lesson-main-card').style.display = 'block';
-
-        try {
-            const prompt = `You are a specialized tutor. Explain "${topic}" in 4 steps. 
-            Use $...$ for math. Provide 3 MCQs at the end.
-            Return ONLY JSON: { "steps": [{ "text": "Explanation", "highlight": "Key phrase", "visual": "Shape" }], "quiz": [{ "q": "Question", "o": ["A","B","C","D"], "a": 0 }] }`;
-
-            const r = await puter.ai.chat(prompt);
-            const cleanJson = r.message.content.replace(/```json|```/g, "").trim();
-            currentLessonData = JSON.parse(cleanJson);
-            renderLesson();
-            jumpToStep(0);
-        } catch (e) { showToast("Generation failed."); stopLesson(); }
-    }
-
-    function renderLesson() {
-        const target = document.getElementById('lesson-steps-target');
-        target.innerHTML = currentLessonData.steps.map((step, i) => `
-            <div class="lesson-step" id="step-${i}" onclick="jumpToStep(${i})">
-                <p style="margin:0; line-height:1.6;">${step.text.replace(step.highlight, `<span class="highlight">${step.highlight}</span>`)}</p>
-            </div>
-        `).join('');
-        if(window.MathJax) MathJax.typesetPromise();
-    }
-
-    async function jumpToStep(index) {
-        if(!lessonActive) return;
-        currentStep = index;
-        window.speechSynthesis.cancel();
-        document.querySelectorAll('.lesson-step').forEach(s => s.classList.remove('active'));
-        const activeDiv = document.getElementById(`step-${index}`);
-        if(activeDiv) activeDiv.classList.add('active');
-        document.getElementById('lesson-bar').style.width = `${((index + 1) / currentLessonData.steps.length) * 100}%`;
-
-        const visual = document.getElementById('visual-stage');
-        visual.innerHTML = `<svg width="100" height="100" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--accent)" stroke-width="4">
-                <animate attributeName="stroke-dasharray" values="0,200; 200,0" dur="4s" repeatCount="indefinite"/>
-            </circle>
-            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="900">${index+1}</text>
-        </svg>`;
-
-        const utter = new SpeechSynthesisUtterance(currentLessonData.steps[index].text);
-        utter.onend = () => {
-            if(index < currentLessonData.steps.length - 1 && lessonActive) jumpToStep(index + 1);
-            else if (lessonActive) showQuiz();
-        };
-        window.speechSynthesis.speak(utter);
-    }
-
-    function triggerQuizManual() {
-        window.speechSynthesis.cancel();
-        if (currentLessonData) showQuiz();
-        else stopLesson();
-    }
-
-    function showQuiz() {
-        if (!currentLessonData) return;
-        document.getElementById('lesson-main-card').style.display = 'none';
-        const quiz = currentLessonData.quiz;
-        const section = document.getElementById('quiz-section');
-        section.style.display = 'block';
-        document.getElementById('quiz-question').innerText = quiz[0].q;
-        document.getElementById('quiz-options').innerHTML = quiz[0].o.map((opt, i) => `<div class="quiz-option" onclick="checkQuiz(${i}, ${quiz[0].a}, this)">${opt}</div>`).join('');
-    }
-
-    function checkQuiz(sel, corr, el) {
-        if(sel === corr) { el.classList.add('correct'); showToast("Perfect! Mastery achieved."); }
-        else { el.classList.add('wrong'); showToast("Try again!"); }
-    }
-
-    function stopLesson() { 
-        lessonActive = false; window.speechSynthesis.cancel(); 
-        document.getElementById('lesson-container').style.display = 'none'; 
-        document.getElementById('assistant-intro').style.display = 'block';
-    }
-
-    // --- Whiteboard Engine (FIXED DRAWING) ---
+    // --- Whiteboard Engine (Re-calibrated) ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
+    
     function redrawBoard() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.save(); ctx.fillStyle="#cbd5e1";
@@ -503,12 +372,16 @@
             if(l.type === 'image') ctx.drawImage(l.img, l.x, l.y, l.w, l.h);
             else if(l.type === 'path') {
                 ctx.beginPath(); ctx.strokeStyle=l.color; ctx.lineWidth=3; ctx.lineCap="round"; ctx.lineJoin="round";
-                ctx.moveTo(l.points[0].x, l.points[0].y); l.points.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+                if(l.points.length > 0) {
+                    ctx.moveTo(l.points[0].x, l.points[0].y);
+                    l.points.forEach(p => ctx.lineTo(p.x, p.y));
+                }
+                ctx.stroke();
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
             }
             if(l === selectedObject) { 
-                ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='var(--accent)'; ctx.strokeRect(l.x-5, l.y-5, (l.w||100)+10, (l.h||100)+10);
+                ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle='var(--accent)'; ctx.strokeRect(l.x-5, l.y-5, (l.w||100)+10, (l.h||24)+10);
                 if(l.type === 'image') { ctx.fillStyle='var(--accent)'; ctx.fillRect(l.x+l.w-5, l.y+l.h-5, 10, 10); }
                 ctx.restore();
             }
@@ -520,7 +393,6 @@
     function initWb() {
         const getP = (e) => {
             const rect = canvas.getBoundingClientRect();
-            // Core drawing fix: calculate position relative to current panning
             return { 
                 x: (e.clientX - rect.left) - offsetX, 
                 y: (e.clientY - rect.top) - offsetY 
@@ -529,7 +401,8 @@
         
         canvas.onmousedown = (e) => {
             isMousedown = true; const p = getP(e); [lastX, lastY] = [p.x, p.y];
-            if(mode === 'capture') captureStart = p;
+            if(mode === 'drag') { [lastX, lastY] = [e.clientX, e.clientY]; }
+            else if(mode === 'capture') captureStart = p;
             else if(mode === 'pointer') {
                 if(selectedObject && selectedObject.type === 'image' && p.x > selectedObject.x+selectedObject.w-15 && p.y > selectedObject.y+selectedObject.h-15) resizingObject = true;
                 else {
@@ -546,13 +419,18 @@
         canvas.onmousemove = (e) => {
             if(!isMousedown) return;
             const p = getP(e);
-            if(mode === 'capture') { captureRect = { x: Math.min(p.x, captureStart.x), y: Math.min(p.y, captureStart.y), w: Math.abs(p.x-captureStart.x), h: Math.abs(p.y-captureStart.y) }; redrawBoard(); }
-            else if(resizingObject) { selectedObject.w = Math.max(10, p.x - selectedObject.x); selectedObject.h = Math.max(10, p.y - selectedObject.y); redrawBoard(); }
+            if(mode === 'drag') { 
+                offsetX += (e.clientX - lastX); offsetY += (e.clientY - lastY); 
+                [lastX, lastY] = [e.clientX, e.clientY];
+                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                redrawBoard(); 
+            }
+            else if(mode === 'capture') { captureRect = { x: Math.min(p.x, captureStart.x), y: Math.min(p.y, captureStart.y), w: Math.abs(p.x-captureStart.x), h: Math.abs(p.y-captureStart.y) }; redrawBoard(); }
+            else if(resizingObject) { selectedObject.w = p.x - selectedObject.x; selectedObject.h = p.y - selectedObject.y; redrawBoard(); }
             else if(mode === 'pointer' && selectedObject) { selectedObject.x += (p.x - lastX); selectedObject.y += (p.y - lastY); redrawBoard(); }
             else if(mode === 'draw') {
                 const curPath = wbLayers[wbLayers.length-1];
                 curPath.points.push(p);
-                // Draw current stroke segment immediately for zero lag
                 ctx.save();
                 ctx.translate(offsetX, offsetY);
                 ctx.beginPath(); ctx.strokeStyle=wbColor; ctx.lineWidth=3; ctx.lineCap="round";
@@ -560,24 +438,22 @@
                 ctx.restore();
                 if(channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y, color: wbColor });
             } else if(mode === 'eraser') {
-                const r = 25;
-                const prevLen = wbLayers.length;
                 wbLayers = wbLayers.filter(l => {
-                    if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < r);
+                    if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < 25);
                     return !(p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
                 });
-                if(wbLayers.length !== prevLen) redrawBoard();
+                redrawBoard();
             }
-            [lastX, lastY] = [p.x, p.y];
+            if(mode !== 'drag') [lastX, lastY] = [p.x, p.y];
         };
         
         canvas.onmouseup = async () => {
             if(mode === 'capture' && captureRect) {
                 const tmp = document.createElement('canvas'); tmp.width = captureRect.w; tmp.height = captureRect.h;
                 tmp.getContext('2d').drawImage(canvas, captureRect.x + offsetX, captureRect.y + offsetY, captureRect.w, captureRect.h, 0,0, captureRect.w, captureRect.h);
-                archive.push({ id: Date.now(), name: 'Whiteboard Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
+                archive.push({ id: Date.now(), name: 'Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
                 await puter.kv.set('sm_archive_v16', JSON.stringify(archive));
-                showToast("Captured to Archive!"); captureRect = null;
+                showToast("Saved to Archive!"); captureRect = null;
             }
             isMousedown = resizingObject = false; 
             if(channel) channel.publish('draw', { type: 'end' });
@@ -585,125 +461,62 @@
         };
     }
 
-    async function uploadImageToWb(input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            let img = new Image();
-            img.onload = () => { 
-                const xPos = Math.abs(offsetX) + 300; const yPos = Math.abs(offsetY) + 300;
-                wbLayers.push({ type: 'image', img, src: e.target.result, x: xPos, y: yPos, w: img.width/3, h: img.height/3 }); 
-                redrawBoard(); saveWb(); 
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    // --- Archive & Viewing ---
-    async function uploadToArchive(input) {
-        if(!input.files[0]) return;
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            archive.push({ id: Date.now(), name: file.name, data: e.target.result, type: file.type.startsWith('image/') ? 'image' : 'file', date: new Date().toLocaleDateString() });
-            await puter.kv.set('sm_archive_v16', JSON.stringify(archive));
-            renderArchive(); showToast("File Saved!");
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function renderArchive() {
-        const container = document.getElementById('archive-container');
-        container.innerHTML = archive.map(item => `
-            <div class="archive-item" onclick="openViewer(${item.id})">
-                <div class="del-circle" onclick="event.stopPropagation(); deleteArchive(${item.id})">×</div>
-                <div class="archive-preview">${item.type === 'image' ? `<img src="${item.data}" style="width:100%;height:100%;object-fit:cover;">` : '📄'}</div>
-                <div style="font-weight:800; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:5px;">${item.name}</div>
-                <div style="font-size:0.65rem; opacity:0.5; margin-top:2px;">${item.date}</div>
-            </div>
-        `).join('');
-    }
-
-    function openViewer(id) {
-        const item = archive.find(a => a.id == id);
-        const target = document.getElementById('viewer-target');
-        const exportBtn = document.getElementById('viewer-export');
-        if(item.type === 'image') target.innerHTML = `<img src="${item.data}">`;
-        else target.innerHTML = `<div style="color:white; padding:100px; font-weight:800;">PREVIEW NOT AVAILABLE.</div>`;
-        exportBtn.onclick = () => { const link = document.createElement('a'); link.href = item.data; link.download = item.name; link.click(); };
-        document.getElementById('viewer-overlay').style.display = 'flex';
-    }
-
-    function closeViewer() { document.getElementById('viewer-overlay').style.display = 'none'; }
-    async function deleteArchive(id) { if(confirm("Delete permanently?")) { archive = archive.filter(a => a.id !== id); await puter.kv.set('sm_archive_v16', JSON.stringify(archive)); renderArchive(); } }
-
-    // --- Study / Flashcards Logic ---
-    function flip() { 
-        if(deck.length === 0) return; 
-        flipped = !flipped; 
-        document.getElementById('card-inner').classList.toggle('flipped', flipped); 
-        document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; 
-        document.getElementById('ans-box').style.display = flipped ? 'none' : 'flex'; 
-    }
-    
-    function checkAnswer() {
-        const input = document.getElementById('user-input-ans');
-        const userVal = input.value.trim().toLowerCase();
-        if(!userVal || deck.length === 0) return;
-        const current = (selectedCat === "All" ? deck[0] : deck.filter(c => c.category === selectedCat)[0]);
-        const correctVal = current.back.trim().toLowerCase();
-        if(levenshtein(userVal, correctVal) < correctVal.length * 0.3) { showToast("Correct! ✨"); flip(); }
-        else { showToast("Almost! Verify with answer."); flip(); }
-    }
-
-    function levenshtein(s, t) {
-        if (!s.length) return t.length; if (!t.length) return s.length;
-        const arr = Array.from({length: t.length + 1}, (_, i) => [i]);
-        for(let j=1; j<=s.length; j++) arr[0][j] = j;
-        for(let i=1; i<=t.length; i++) for(let j=1; j<=s.length; j++) arr[i][j] = t[i-1] === s[j-1] ? arr[i-1][j-1] : Math.min(arr[i-1][j-1], arr[i][j-1], arr[i-1][j]) + 1;
-        return arr[t.length][s.length];
-    }
-
-    function rate(diff) {
-        const card = deck.shift();
-        if(diff === 'hard') deck.splice(1,0,card); else deck.push(card);
-        flipped = false; document.getElementById('card-inner').classList.remove('flipped');
-        document.getElementById('srs-btns').style.display='none'; document.getElementById('ans-box').style.display='flex';
-        document.getElementById('user-input-ans').value = "";
-        saveDeck(); refresh();
-    }
-
-    // --- Ably ---
+    // --- Ably Collaboration & Room Logic ---
     function joinAbly() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
-        if(!id || ABLY_KEY.includes("INSERT")) return;
-        activeRoom = id; ably = new Ably.Realtime(ABLY_KEY); channel = ably.channels.get(id);
+        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Insert Ably Key and Room ID.");
+        
+        if(ably) ably.close();
+        activeRoom = id;
+        ably = new Ably.Realtime(ABLY_KEY);
+        channel = ably.channels.get(id);
         
         ably.connection.on('connected', () => {
-            document.getElementById('ably-status').style.background = '#10b981';
-            document.getElementById('room-display').innerText = id;
-            showToast("Collaboration Connected!");
-            channel.publish('request_sync', { id: currentUser.id });
+            document.getElementById('ably-status-light').style.background = '#10b981';
+            document.getElementById('room-display-text').innerText = `ROOM: ${id}`;
+            document.getElementById('active-room-label').innerText = id;
+            document.getElementById('participant-ui').style.display = 'block';
+            showToast("Syncing Room...");
+            
+            // Enter presence
+            channel.presence.enter({ username: currentUser.username });
+            updateParticipants();
         });
+
+        channel.presence.subscribe(() => updateParticipants());
 
         channel.subscribe('draw', (msg) => {
-            if(msg.clientId === currentUser.id) return;
+            if(msg.clientId === ably.auth.clientId) return;
             const { type, x, y, color } = msg.data;
-            if(type === 'start') { wbLayers.push({ type: 'path', color, points: [{x, y}] }); }
-            else if(type === 'move') { wbLayers[wbLayers.length-1].points.push({x, y}); redrawBoard(); }
+            if(type === 'start') wbLayers.push({ type: 'path', color, points: [{x, y}] });
+            else if(type === 'move' && wbLayers.length) wbLayers[wbLayers.length-1].points.push({x, y});
+            redrawBoard();
         });
 
-        channel.subscribe('request_sync', (msg) => {
-            if(msg.data.id !== currentUser.id) {
-                const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
-                channel.publish('sync', { layers: meta });
-            }
+        channel.subscribe('sync', (msg) => {
+            if(msg.clientId === ably.auth.clientId) return;
+            applyRemote(msg.data.layers);
         });
 
-        channel.subscribe('sync', (msg) => { if(msg.clientId !== currentUser.id) applyRemote(msg.data.layers); });
+        // Request full sync on join
+        channel.publish('request_sync', {});
+        channel.subscribe('request_sync', () => {
+            channel.publish('sync', { layers: wbLayers.map(l => { const {img, ...rest} = l; return rest; }) });
+        });
     }
-    
+
+    function updateParticipants() {
+        if(!channel) return;
+        channel.presence.get((err, members) => {
+            const target = document.getElementById('users-target');
+            target.innerHTML = members.map(m => `
+                <div class="user-entry">
+                    ${m.data.username} ${m.clientId === ably.auth.clientId ? '(You)' : ''}
+                </div>
+            `).join('');
+        });
+    }
+
     async function applyRemote(raw) {
         wbLayers = await Promise.all(raw.map(async obj => {
             if(obj.type === 'image') {
@@ -715,71 +528,101 @@
         }));
         redrawBoard();
     }
-    
+
     function hostAbly() {
         const id = Math.random().toString(36).substring(2,6).toUpperCase();
         document.getElementById('room-input').value = id; 
         joinAbly();
         const url = window.location.origin + window.location.pathname + '?room=' + id;
-        navigator.clipboard.writeText(url).then(() => showToast("Host Link Copied!"));
+        navigator.clipboard.writeText(url).then(() => showToast("Host link copied!"));
     }
 
-    // --- Settings Hub ---
-    function updateAccent(color) {
-        document.documentElement.style.setProperty('--accent', color);
-        document.getElementById('accent-picker').value = color;
-        puter.kv.set('sm_accent_v1', color);
+    // --- Study Session & Flashcards ---
+    function flip() { if(!deck.length) return; flipped = !flipped; document.getElementById('card-inner').classList.toggle('flipped', flipped); document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; document.getElementById('ans-box').style.display = flipped ? 'none' : 'flex'; }
+    function checkAnswer() {
+        const input = document.getElementById('user-input-ans');
+        const userVal = input.value.trim().toLowerCase();
+        if(!userVal || !deck.length) return;
+        const current = (selectedCat === "All" ? deck[0] : deck.filter(c => c.category === selectedCat)[0]);
+        const correctVal = current.back.trim().toLowerCase();
+        if(levenshtein(userVal, correctVal) < correctVal.length * 0.3) { showToast("Correct! ✨"); flip(); }
+        else { showToast("Almost! Flip to check."); flip(); }
     }
-    async function exportAppData() {
-        const data = { deck, archive, accent: document.getElementById('accent-picker').value };
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `StudyMate_Data.json`; link.click();
+    function rate(diff) {
+        const card = deck.shift();
+        if(diff === 'hard') deck.splice(1,0,card); else deck.push(card);
+        flipped = false; document.getElementById('card-inner').classList.remove('flipped');
+        document.getElementById('srs-btns').style.display='none'; document.getElementById('ans-box').style.display='flex';
+        document.getElementById('user-input-ans').value = "";
+        saveDeck(); refresh();
     }
-    function importAppData(input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const data = JSON.parse(e.target.result);
-            if(data.deck) deck = data.deck; if(data.archive) archive = data.archive; if(data.accent) updateAccent(data.accent);
-            await puter.kv.set('sm_deck_v16', JSON.stringify(deck));
-            await puter.kv.set('sm_archive_v16', JSON.stringify(archive));
-            location.reload();
-        };
-        reader.readAsText(input.files[0]);
+    function levenshtein(s, t) {
+        if (!s.length) return t.length; if (!t.length) return s.length;
+        const arr = Array.from({length: t.length + 1}, (_, i) => [i]);
+        for(let j=1; j<=s.length; j++) arr[0][j] = j;
+        for(let i=1; i<=t.length; i++) for(let j=1; j<=s.length; j++) arr[i][j] = t[i-1] === s[j-1] ? arr[i-1][j-1] : Math.min(arr[i-1][j-1], arr[i][j-1], arr[i-1][j]) + 1;
+        return arr[t.length][s.length];
     }
-    async function clearAppData() { if(confirm("ERASE ALL DATA?")) { await puter.kv.del('sm_deck_v16'); await puter.kv.del('sm_archive_v16'); await puter.kv.del('sm_wb_v16'); location.reload(); } }
+
+    // --- AI Assistant ---
+    async function startLesson() {
+        const topic = document.getElementById('assistant-topic').value;
+        if(!topic) return showToast("Topic required.");
+        lessonActive = true;
+        document.getElementById('lesson-container').style.display = 'block';
+        document.getElementById('assistant-intro').style.display = 'none';
+        document.getElementById('lesson-steps-target').innerHTML = "<div style='padding:20px; font-weight:800;'>Drafting...</div>";
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('lesson-main-card').style.display = 'block';
+
+        try {
+            const prompt = `Explain "${topic}" in 4 segments. Use LaTeX $...$. Provide 3 MCQs. JSON: { "steps": [{ "text": "...", "highlight": "...", "visual": "..." }], "quiz": [{ "q": "...", "o": ["A","B","C","D"], "a": 0 }] }`;
+            const r = await puter.ai.chat(prompt);
+            const cleanJson = r.message.content.replace(/```json|```/g, "").trim();
+            currentLessonData = JSON.parse(cleanJson);
+            renderLesson();
+            jumpToStep(0);
+        } catch (e) { showToast("AI failure."); stopLesson(); }
+    }
+    function renderLesson() {
+        document.getElementById('lesson-steps-target').innerHTML = currentLessonData.steps.map((s, i) => `<div class="lesson-step" id="step-${i}" onclick="jumpToStep(${i})"><p>${s.text.replace(s.highlight, `<span class="highlight">${s.highlight}</span>`)}</p></div>`).join('');
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    async function jumpToStep(idx) {
+        if(!lessonActive) return;
+        currentStep = idx; window.speechSynthesis.cancel();
+        document.querySelectorAll('.lesson-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`step-${idx}`).classList.add('active');
+        document.getElementById('lesson-bar').style.width = `${((idx+1)/4)*100}%`;
+        const utter = new SpeechSynthesisUtterance(currentLessonData.steps[idx].text);
+        utter.onend = () => { if(idx < 3 && lessonActive) jumpToStep(idx+1); else if(lessonActive) showQuiz(); };
+        window.speechSynthesis.speak(utter);
+    }
+    function showQuiz() {
+        document.getElementById('lesson-main-card').style.display = 'none';
+        const section = document.getElementById('quiz-section');
+        section.style.display = 'block';
+        const q = currentLessonData.quiz[0];
+        document.getElementById('quiz-question').innerText = q.q;
+        document.getElementById('quiz-options').innerHTML = q.o.map((opt, i) => `<div class="quiz-option" onclick="checkQuiz(${i}, ${q.a}, this)">${opt}</div>`).join('');
+    }
+    function stopLesson() { lessonActive = false; window.speechSynthesis.cancel(); document.getElementById('lesson-container').style.display = 'none'; document.getElementById('assistant-intro').style.display = 'block'; }
 
     // --- Utilities ---
     function setView(v) {
         document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        if(document.getElementById('nav-'+v)) document.getElementById('nav-'+v).classList.add('active');
-        if(v === 'whiteboard') resizeWb(); if(v === 'archive') renderArchive(); if(v === 'deck') renderDeck();
+        const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active');
+        if(v === 'whiteboard') redrawBoard(); if(v === 'archive') renderArchive();
     }
     function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; t.style.animation = 'slideIn 0.3s ease-out'; setTimeout(() => t.style.display = 'none', 3000); }
     function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = (m==='drag'?'grab':'crosshair'); }
-    function toggleCatDropdown() { document.getElementById('cat-options').classList.toggle('active'); }
-    function selectCat(c) { selectedCat = c; document.getElementById('cat-label').innerText = c; toggleCatDropdown(); refresh(); }
-    function updateCategories() { const cats = ["All", ...new Set(deck.map(c => c.category))]; document.getElementById('cat-options').innerHTML = cats.map(c => `<div class="option-item" onclick="selectCat('${c}')">${c}</div>`).join(''); }
-    function refresh() {
-        const filtered = selectedCat === "All" ? deck : deck.filter(c => c.category === selectedCat);
-        document.getElementById('deck-stats').innerText = `${filtered.length} CARDS REMAINING`;
-        if(filtered.length > 0) {
-            document.getElementById('card-front-content').innerHTML = filtered[0].front;
-            document.getElementById('card-back-content').innerHTML = filtered[0].back;
-        } else { document.getElementById('card-front-content').innerText = "Empty deck."; }
-        if(window.MathJax) MathJax.typesetPromise();
-    }
     async function saveDeck() { await puter.kv.set('sm_deck_v16', JSON.stringify(deck)); updateCategories(); }
-    function renderDeck() { document.getElementById('deck-list-container').innerHTML = deck.map((c, i) => `<div class="deck-card"><div><div style="font-size:0.6rem; color:var(--accent); font-weight:800; margin-bottom:5px;">${c.category}</div><div style="font-size:1.1rem; font-weight:700;">${c.front}</div></div><button class="action-btn delete-btn" onclick="deleteCard(${i})">Delete</button></div>`).join(''); if(window.MathJax) MathJax.typesetPromise(); }
-    function deleteCard(i) { deck.splice(i,1); saveDeck(); renderDeck(); }
     async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v16', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
-    function setupKeyboard() { window.onkeydown = (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject && document.activeElement.tagName !== 'INPUT') { wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb(); } }; }
     function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
     function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Break time!"); } }, 1000); } }
-    function addWbText() { const t = prompt("Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: Math.abs(offsetX)+500, y: Math.abs(offsetY)+500, color: wbColor }); redrawBoard(); saveWb(); } }
-    async function handleGen() { const val = document.getElementById('ai-in').value; if(!val) return; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI generating concepts..."); const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } }
+    function toggleRadio() { const a = document.getElementById('study-audio'); const b = document.getElementById('radio-toggle'); if(isRadioPlaying) { a.pause(); b.innerText = "▶"; } else { a.play(); b.innerText = "⏸"; } isRadioPlaying = !isRadioPlaying; }
 </script>
 </body>
 </html>
