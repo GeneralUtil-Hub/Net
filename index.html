@@ -18,11 +18,6 @@
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady();
-                }
             }
         };
     </script>
@@ -64,32 +59,32 @@
         .radio-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* Main Viewport */
-        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.03), transparent 40%); }
+        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; width: 100%; height: 100%; overflow-y: auto; box-sizing: border-box; }
         .view.active { display: flex; flex-direction: column; }
 
         /* Whiteboard Custom Components */
-        .participant-list { position: absolute; top: 20px; left: 20px; background: rgba(16, 27, 44, 0.9); padding: 12px 18px; border-radius: 16px; border: 1px solid var(--border); z-index: 210; box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(10px); min-width: 140px; }
-        .room-name-header { font-weight: 800; color: var(--accent); margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-        .user-entry { font-size: 0.8rem; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
-        .user-entry::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+        .participant-list { position: absolute; top: 20px; left: 20px; background: rgba(16, 27, 44, 0.95); padding: 12px 18px; border-radius: 16px; border: 1px solid var(--border); z-index: 250; box-shadow: 0 8px 32px rgba(0,0,0,0.4); backdrop-filter: blur(10px); min-width: 150px; }
+        .room-name-header { font-weight: 800; color: var(--accent); margin-bottom: 8px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .user-entry { font-size: 0.8rem; margin-top: 6px; display: flex; align-items: center; gap: 8px; color: #cbd5e1; }
+        .user-entry::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
 
-        /* Whiteboard Tools */
+        /* Whiteboard Structure */
         #wb-box { flex: 1; position: relative; background: #ffffff; cursor: crosshair; overflow: hidden; }
         #wb-canvas { position: absolute; top: 0; left: 0; }
         .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 200; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
 
-        /* Flashcard GUI V3 */
+        /* Flashcard Premium GUI */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px; max-width: 800px; margin: 0 auto; width: 100%; }
-        .flashcard-outer { perspective: 1500px; width: 100%; height: 320px; cursor: pointer; }
+        .flashcard-outer { perspective: 1500px; width: 100%; height: 300px; cursor: pointer; }
         .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
         .flashcard-inner.flipped { transform: rotateY(180deg); }
         .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 30px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; background: linear-gradient(145deg, var(--card), #0d111d); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
         .flashcard-back { transform: rotateY(180deg); }
-        .card-label { position: absolute; top: 25px; left: 35px; font-size: 0.65rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 2px; }
-        .card-content { font-size: 1.6rem; line-height: 1.4; font-weight: 600; width: 100%; }
+        .card-label { position: absolute; top: 20px; left: 30px; font-size: 0.6rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 2px; }
+        .card-content { font-size: 1.5rem; line-height: 1.4; font-weight: 600; width: 100%; }
 
         .answer-checker-box { width: 100%; margin-top: 20px; display: flex; gap: 10px; background: var(--glass); padding: 10px; border-radius: 20px; border: 1px solid var(--border); }
         .ans-input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 0 10px; }
@@ -98,13 +93,12 @@
         .srs-wrap { display: none; width: 100%; gap: 10px; margin-top: 20px; }
         .srs-btn { flex: 1; padding: 15px; border-radius: 16px; color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
 
-        /* Archive Grid */
-        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .archive-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; position: relative; transition: 0.2s; cursor: pointer; }
-        .archive-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
-        .del-circle { width: 22px; height: 22px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; position: absolute; top: 12px; right: 12px; z-index: 10; font-weight: bold; }
+        /* Settings Hub */
+        .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 25px; }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         #notif-toast { position: fixed; bottom: 40px; right: 40px; background: var(--accent); color: white; padding: 18px 32px; border-radius: 20px; display: none; z-index: 10000; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
+        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -134,9 +128,9 @@
 
     <div class="radio-box">
         <button class="radio-btn" id="radio-toggle" onclick="toggleRadio()">▶</button>
-        <div>
-            <div style="font-weight: 800;">LOFI STATION</div>
-            <div style="opacity: 0.5; font-size: 0.6rem;">Focus Environment</div>
+        <div style="flex:1">
+            <div style="font-weight: 800; font-size: 0.75rem;">LOFI STUDY</div>
+            <div style="opacity: 0.5; font-size: 0.55rem;">Ambient Mode</div>
         </div>
         <audio id="study-audio" loop src="https://stream.zeno.fm/0r0xa792kwzuv"></audio>
     </div>
@@ -194,7 +188,7 @@
             </div>
 
             <div style="margin-top: auto; width: 100%; display:flex; gap:12px; background:var(--card); padding:12px; border-radius:22px; border:1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                <input type="text" id="ai-in" placeholder="Ask AI: 'Neuroscience' or 'Subject | Q | A'..." style="flex:1; background:none; border:none; color:white; outline:none; font-size: 1rem; padding: 0 10px;">
+                <input type="text" id="ai-in" placeholder="Atomic Physics, Biology, etc..." style="flex:1; background:none; border:none; color:white; outline:none; font-size: 1rem; padding: 0 10px;">
                 <button onclick="handleGen()" style="background:var(--accent); color:white; border:none; padding:10px 24px; border-radius:14px; font-weight:800; cursor:pointer;">GENERATE</button>
             </div>
         </div>
@@ -207,7 +201,7 @@
                 <h2 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 10px;">AI Assistant</h2>
                 <p style="opacity: 0.6; margin-bottom: 25px;">Interactive multi-step lessons with mastery quizzes.</p>
                 <div style="display:flex; gap:12px; background: var(--card); padding: 15px; border-radius: 24px; border: 1px solid var(--border);">
-                    <input type="text" id="assistant-topic" placeholder="e.g. How does Quantum Entanglement work?" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
+                    <input type="text" id="assistant-topic" placeholder="e.g. Derive the quadratic formula step-by-step" style="flex:1; background:none; border:none; color:white; outline:none; padding: 0 15px; font-size: 1.1rem;">
                     <button onclick="startLesson()" style="background:var(--accent); color:white; border:none; padding:10px 35px; border-radius:16px; font-weight:800; cursor:pointer;">LEARN</button>
                 </div>
             </div>
@@ -233,12 +227,12 @@
         </div>
     </div>
 
-    <!-- Whiteboard -->
+    <!-- Whiteboard View -->
     <div id="view-whiteboard" class="view">
-        <div id="room-controls" class="room-bar" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 220; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+        <div class="room-bar" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; z-index: 220; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
             <div id="ably-status-light" style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;" title="Offline"></div>
             <span id="room-display-text" style="font-size: 0.7rem; font-weight: 900; color: var(--accent);">LOCAL</span>
-            <input type="text" id="room-input" placeholder="Join Room..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:120px; outline:none; font-size: 0.8rem;">
+            <input type="text" id="room-input" placeholder="Join Code..." style="background:var(--bg); border:1px solid var(--border); color:white; border-radius:8px; padding:8px 12px; width:130px; outline:none; font-size: 0.8rem;">
             <button onclick="joinAbly()" style="background:var(--accent); color:white; border:none; padding:8px 18px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer;">JOIN</button>
             <button onclick="hostAbly()" style="background:var(--success); color:white; border:none; padding:8px 18px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer;">HOST</button>
         </div>
@@ -253,7 +247,7 @@
             <div class="wb-tools">
                 <button class="tool-btn" id="pointer-btn" onclick="setMode('pointer')" title="Move & Resize"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
                 <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Pen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Smart Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
                 <button class="tool-btn" id="drag-btn" onclick="setMode('drag')" title="Move Canvas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
                 <button class="tool-btn" onclick="addWbText()" title="Text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
                 <button class="tool-btn" onclick="document.getElementById('wb-img-upload').click()" title="Add Image"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
@@ -264,7 +258,7 @@
         </div>
     </div>
 
-    <!-- Archive -->
+    <!-- Archive Hub -->
     <div id="view-archive" class="view">
         <div style="padding:40px; max-width:1000px; margin:0 auto; width:100%;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -273,17 +267,6 @@
                 <input type="file" id="archive-file-in" hidden onchange="uploadToArchive(this)">
             </div>
             <div id="archive-container" class="archive-grid"></div>
-        </div>
-    </div>
-
-    <!-- Deck Manager -->
-    <div id="view-deck" class="view">
-        <div style="padding:40px; max-width:850px; margin:0 auto; width:100%;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                <h2 style="margin:0; font-weight: 800; font-size: 2.2rem;">Deck Manager</h2>
-                <button onclick="publishDeck()" style="background:var(--success); color:white; border:none; padding:14px 25px; border-radius:16px; font-weight:800; cursor:pointer;">CLOUD SYNC</button>
-            </div>
-            <div id="deck-list-container" class="deck-list"></div>
         </div>
     </div>
 
@@ -325,15 +308,16 @@
             currentUser = await puter.auth.getUser();
             document.getElementById('user-name').innerText = currentUser.username;
 
-            const d = await puter.kv.get('sm_deck_v16');
+            const d = await puter.kv.get('sm_deck_v17');
             if(d) deck = JSON.parse(d);
 
-            const arc = await puter.kv.get('sm_archive_v16');
+            const arc = await puter.kv.get('sm_archive_v17');
             if(arc) archive = JSON.parse(arc);
 
-            const l = await puter.kv.get('sm_wb_v16');
+            const l = await puter.kv.get('sm_wb_v17');
             if(l) {
-                wbLayers = await Promise.all(JSON.parse(l).map(async obj => {
+                const rawLayers = JSON.parse(l);
+                wbLayers = await Promise.all(rawLayers.map(async obj => {
                     if(obj.type === 'image') {
                         const img = new Image(); img.src = obj.src;
                         await new Promise(r => img.onload = r);
@@ -343,25 +327,21 @@
                 }));
             }
             
-            const accent = await puter.kv.get('sm_accent_v1');
+            const accent = await puter.kv.get('sm_accent_v17');
             if(accent) updateAccent(accent);
 
             initWb(); resizeWb(); refresh(); redrawBoard(); setupKeyboard(); updateCategories();
-
-            const params = new URLSearchParams(window.location.search);
-            if(params.has('room')) {
-                document.getElementById('room-input').value = params.get('room');
-                joinAbly();
-                setView('whiteboard');
-            }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Init Error:", e); }
     };
 
-    // --- Whiteboard Engine (Re-calibrated) ---
+    // --- Whiteboard Engine (Re-engineered for Stability) ---
     function resizeWb() { canvas.width = 4000; canvas.height = 4000; redrawBoard(); }
     
     function redrawBoard() {
+        if(!ctx) return;
         ctx.clearRect(0,0,canvas.width,canvas.height);
+        
+        // Draw Grid
         ctx.save(); ctx.fillStyle="#cbd5e1";
         for(let x=20;x<canvas.width;x+=40) for(let y=20;y<canvas.height;y+=40) { ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill(); }
         ctx.restore();
@@ -369,13 +349,11 @@
         ctx.save();
         ctx.translate(offsetX, offsetY);
         wbLayers.forEach(l => {
-            if(l.type === 'image') ctx.drawImage(l.img, l.x, l.y, l.w, l.h);
-            else if(l.type === 'path') {
+            if(l.type === 'image' && l.img) ctx.drawImage(l.img, l.x, l.y, l.w, l.h);
+            else if(l.type === 'path' && l.points && l.points.length > 0) {
                 ctx.beginPath(); ctx.strokeStyle=l.color; ctx.lineWidth=3; ctx.lineCap="round"; ctx.lineJoin="round";
-                if(l.points.length > 0) {
-                    ctx.moveTo(l.points[0].x, l.points[0].y);
-                    l.points.forEach(p => ctx.lineTo(p.x, p.y));
-                }
+                ctx.moveTo(l.points[0].x, l.points[0].y);
+                l.points.forEach(p => ctx.lineTo(p.x, p.y));
                 ctx.stroke();
             } else if(l.type === 'text') {
                 ctx.font = "bold 24px Inter"; ctx.fillStyle = l.color; ctx.fillText(l.content, l.x, l.y);
@@ -426,11 +404,12 @@
                 redrawBoard(); 
             }
             else if(mode === 'capture') { captureRect = { x: Math.min(p.x, captureStart.x), y: Math.min(p.y, captureStart.y), w: Math.abs(p.x-captureStart.x), h: Math.abs(p.y-captureStart.y) }; redrawBoard(); }
-            else if(resizingObject) { selectedObject.w = p.x - selectedObject.x; selectedObject.h = p.y - selectedObject.y; redrawBoard(); }
+            else if(resizingObject) { selectedObject.w = Math.max(10, p.x - selectedObject.x); selectedObject.h = Math.max(10, p.y - selectedObject.y); redrawBoard(); }
             else if(mode === 'pointer' && selectedObject) { selectedObject.x += (p.x - lastX); selectedObject.y += (p.y - lastY); redrawBoard(); }
             else if(mode === 'draw') {
                 const curPath = wbLayers[wbLayers.length-1];
                 curPath.points.push(p);
+                // Zero-lag local preview
                 ctx.save();
                 ctx.translate(offsetX, offsetY);
                 ctx.beginPath(); ctx.strokeStyle=wbColor; ctx.lineWidth=3; ctx.lineCap="round";
@@ -438,33 +417,37 @@
                 ctx.restore();
                 if(channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y, color: wbColor });
             } else if(mode === 'eraser') {
+                const r = 25;
+                const prev = wbLayers.length;
                 wbLayers = wbLayers.filter(l => {
-                    if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < 25);
+                    if(l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x-p.x, pt.y-p.y) < r);
                     return !(p.x > l.x && p.x < l.x+(l.w||100) && p.y > l.y && p.y < l.y+(l.h||24));
                 });
-                redrawBoard();
+                if(wbLayers.length !== prev) redrawBoard();
             }
             if(mode !== 'drag') [lastX, lastY] = [p.x, p.y];
         };
         
-        canvas.onmouseup = async () => {
-            if(mode === 'capture' && captureRect) {
-                const tmp = document.createElement('canvas'); tmp.width = captureRect.w; tmp.height = captureRect.h;
-                tmp.getContext('2d').drawImage(canvas, captureRect.x + offsetX, captureRect.y + offsetY, captureRect.w, captureRect.h, 0,0, captureRect.w, captureRect.h);
-                archive.push({ id: Date.now(), name: 'Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
-                await puter.kv.set('sm_archive_v16', JSON.stringify(archive));
-                showToast("Saved to Archive!"); captureRect = null;
-            }
+        canvas.onmouseup = () => {
+            if(mode === 'capture' && captureRect) finalizeCapture();
             isMousedown = resizingObject = false; 
             if(channel) channel.publish('draw', { type: 'end' });
             saveWb();
         };
     }
 
-    // --- Ably Collaboration & Room Logic ---
+    async function finalizeCapture() {
+        const tmp = document.createElement('canvas'); tmp.width = captureRect.w; tmp.height = captureRect.h;
+        tmp.getContext('2d').drawImage(canvas, captureRect.x + offsetX, captureRect.y + offsetY, captureRect.w, captureRect.h, 0,0, captureRect.w, captureRect.h);
+        archive.push({ id: Date.now(), name: 'Region Capture', data: tmp.toDataURL(), type: 'image', date: new Date().toLocaleDateString() });
+        await puter.kv.set('sm_archive_v17', JSON.stringify(archive));
+        showToast("Capture Saved!"); captureRect = null; redrawBoard();
+    }
+
+    // --- Ably Collaboration Logic ---
     function joinAbly() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
-        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Insert Ably Key and Room ID.");
+        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Room ID and Ably Key Required.");
         
         if(ably) ably.close();
         activeRoom = id;
@@ -476,9 +459,8 @@
             document.getElementById('room-display-text').innerText = `ROOM: ${id}`;
             document.getElementById('active-room-label').innerText = id;
             document.getElementById('participant-ui').style.display = 'block';
-            showToast("Syncing Room...");
+            showToast("Connected to " + id);
             
-            // Enter presence
             channel.presence.enter({ username: currentUser.username });
             updateParticipants();
         });
@@ -498,10 +480,13 @@
             applyRemote(msg.data.layers);
         });
 
-        // Request full sync on join
-        channel.publish('request_sync', {});
-        channel.subscribe('request_sync', () => {
-            channel.publish('sync', { layers: wbLayers.map(l => { const {img, ...rest} = l; return rest; }) });
+        // Request board state from existing host
+        channel.publish('request_sync', { id: ably.auth.clientId });
+        channel.subscribe('request_sync', (msg) => {
+            if(msg.data.id !== ably.auth.clientId) {
+                const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; });
+                channel.publish('sync', { layers: meta });
+            }
         });
     }
 
@@ -509,11 +494,7 @@
         if(!channel) return;
         channel.presence.get((err, members) => {
             const target = document.getElementById('users-target');
-            target.innerHTML = members.map(m => `
-                <div class="user-entry">
-                    ${m.data.username} ${m.clientId === ably.auth.clientId ? '(You)' : ''}
-                </div>
-            `).join('');
+            target.innerHTML = (members || []).map(m => `<div class="user-entry">${m.data.username} ${m.clientId === ably.auth.clientId ? '(You)' : ''}</div>`).join('');
         });
     }
 
@@ -533,11 +514,9 @@
         const id = Math.random().toString(36).substring(2,6).toUpperCase();
         document.getElementById('room-input').value = id; 
         joinAbly();
-        const url = window.location.origin + window.location.pathname + '?room=' + id;
-        navigator.clipboard.writeText(url).then(() => showToast("Host link copied!"));
     }
 
-    // --- Study Session & Flashcards ---
+    // --- Study / Flashcards Logic ---
     function flip() { if(!deck.length) return; flipped = !flipped; document.getElementById('card-inner').classList.toggle('flipped', flipped); document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; document.getElementById('ans-box').style.display = flipped ? 'none' : 'flex'; }
     function checkAnswer() {
         const input = document.getElementById('user-input-ans');
@@ -546,7 +525,7 @@
         const current = (selectedCat === "All" ? deck[0] : deck.filter(c => c.category === selectedCat)[0]);
         const correctVal = current.back.trim().toLowerCase();
         if(levenshtein(userVal, correctVal) < correctVal.length * 0.3) { showToast("Correct! ✨"); flip(); }
-        else { showToast("Almost! Flip to check."); flip(); }
+        else { showToast("Check the back!"); flip(); }
     }
     function rate(diff) {
         const card = deck.shift();
@@ -567,22 +546,21 @@
     // --- AI Assistant ---
     async function startLesson() {
         const topic = document.getElementById('assistant-topic').value;
-        if(!topic) return showToast("Topic required.");
+        if(!topic) return showToast("Enter a topic!");
         lessonActive = true;
         document.getElementById('lesson-container').style.display = 'block';
         document.getElementById('assistant-intro').style.display = 'none';
-        document.getElementById('lesson-steps-target').innerHTML = "<div style='padding:20px; font-weight:800;'>Drafting...</div>";
+        document.getElementById('lesson-steps-target').innerHTML = "<div style='text-align:center; padding:30px;'>Drafting Lesson...</div>";
         document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('lesson-main-card').style.display = 'block';
 
         try {
-            const prompt = `Explain "${topic}" in 4 segments. Use LaTeX $...$. Provide 3 MCQs. JSON: { "steps": [{ "text": "...", "highlight": "...", "visual": "..." }], "quiz": [{ "q": "...", "o": ["A","B","C","D"], "a": 0 }] }`;
+            const prompt = `Explain "${topic}" in 4 steps. Use LaTeX. 3 MCQs at end. JSON: { "steps": [{ "text": "...", "highlight": "...", "visual": "..." }], "quiz": [{ "q": "...", "o": ["A","B","C","D"], "a": 0 }] }`;
             const r = await puter.ai.chat(prompt);
             const cleanJson = r.message.content.replace(/```json|```/g, "").trim();
             currentLessonData = JSON.parse(cleanJson);
-            renderLesson();
-            jumpToStep(0);
-        } catch (e) { showToast("AI failure."); stopLesson(); }
+            renderLesson(); jumpToStep(0);
+        } catch (e) { showToast("AI Error."); stopLesson(); }
     }
     function renderLesson() {
         document.getElementById('lesson-steps-target').innerHTML = currentLessonData.steps.map((s, i) => `<div class="lesson-step" id="step-${i}" onclick="jumpToStep(${i})"><p>${s.text.replace(s.highlight, `<span class="highlight">${s.highlight}</span>`)}</p></div>`).join('');
@@ -598,6 +576,7 @@
         utter.onend = () => { if(idx < 3 && lessonActive) jumpToStep(idx+1); else if(lessonActive) showQuiz(); };
         window.speechSynthesis.speak(utter);
     }
+    function triggerQuizManual() { window.speechSynthesis.cancel(); if(currentLessonData) showQuiz(); else stopLesson(); }
     function showQuiz() {
         document.getElementById('lesson-main-card').style.display = 'none';
         const section = document.getElementById('quiz-section');
@@ -606,23 +585,65 @@
         document.getElementById('quiz-question').innerText = q.q;
         document.getElementById('quiz-options').innerHTML = q.o.map((opt, i) => `<div class="quiz-option" onclick="checkQuiz(${i}, ${q.a}, this)">${opt}</div>`).join('');
     }
+    function checkQuiz(s, c, el) { if(s === c) { el.classList.add('correct'); showToast("Mastery achieved!"); } else el.classList.add('wrong'); }
     function stopLesson() { lessonActive = false; window.speechSynthesis.cancel(); document.getElementById('lesson-container').style.display = 'none'; document.getElementById('assistant-intro').style.display = 'block'; }
 
-    // --- Utilities ---
-    function setView(v) {
-        document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-        document.getElementById(`view-${v}`).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active');
-        if(v === 'whiteboard') redrawBoard(); if(v === 'archive') renderArchive();
+    // --- Archive & Settings ---
+    async function uploadToArchive(input) {
+        if(!input.files[0]) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            archive.push({ id: Date.now(), name: file.name, data: e.target.result, type: file.type.startsWith('image/') ? 'image' : 'file', date: new Date().toLocaleDateString() });
+            await puter.kv.set('sm_archive_v17', JSON.stringify(archive));
+            renderArchive(); showToast("Uploaded!");
+        };
+        reader.readAsDataURL(file);
     }
+    function renderArchive() {
+        document.getElementById('archive-container').innerHTML = archive.map(item => `<div class="archive-item" onclick="openViewer(${item.id})"><div class="del-circle" onclick="event.stopPropagation(); deleteArchive(${item.id})">×</div><div class="archive-preview">${item.type === 'image' ? `<img src="${item.data}" style="width:100%;height:100%;object-fit:cover;">` : '📄'}</div><div style="font-weight:700; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</div></div>`).join('');
+    }
+    function openViewer(id) {
+        const item = archive.find(a => a.id == id);
+        const target = document.getElementById('viewer-target');
+        const exportBtn = document.getElementById('viewer-export');
+        if(item.type === 'image') target.innerHTML = `<img src="${item.data}">`;
+        else target.innerHTML = `<div style="color:white; padding:100px;">PREVIEW NOT AVAILABLE.</div>`;
+        exportBtn.onclick = () => { const link = document.createElement('a'); link.href = item.data; link.download = item.name; link.click(); };
+        document.getElementById('viewer-overlay').style.display = 'flex';
+    }
+    function closeViewer() { document.getElementById('viewer-overlay').style.display = 'none'; }
+    async function deleteArchive(id) { if(confirm("Delete?")) { archive = archive.filter(a => a.id !== id); await puter.kv.set('sm_archive_v17', JSON.stringify(archive)); renderArchive(); } }
+
+    function updateAccent(color) { document.documentElement.style.setProperty('--accent', color); document.getElementById('accent-picker').value = color; puter.kv.set('sm_accent_v17', color); }
+    async function exportAppData() { const blob = new Blob([JSON.stringify({ deck, archive })], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `StudyMate_Export.json`; link.click(); }
+    function importAppData(input) { if(!input.files[0]) return; const reader = new FileReader(); reader.onload = async (e) => { const data = JSON.parse(e.target.result); if(data.deck) deck = data.deck; if(data.archive) archive = data.archive; await puter.kv.set('sm_deck_v17', JSON.stringify(deck)); await puter.kv.set('sm_archive_v17', JSON.stringify(archive)); location.reload(); }; reader.readAsText(input.files[0]); }
+    async function clearAppData() { if(confirm("CLEAR ALL DATA?")) { await puter.kv.del('sm_deck_v17'); await puter.kv.del('sm_archive_v17'); await puter.kv.del('sm_wb_v17'); location.reload(); } }
+
+    // --- UI/Flashcard Utilities ---
+    function setView(v) { document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active'); if(v === 'whiteboard') redrawBoard(); if(v === 'archive') renderArchive(); }
     function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; t.style.animation = 'slideIn 0.3s ease-out'; setTimeout(() => t.style.display = 'none', 3000); }
-    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = (m==='drag'?'grab':'crosshair'); }
-    async function saveDeck() { await puter.kv.set('sm_deck_v16', JSON.stringify(deck)); updateCategories(); }
-    async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v16', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
+    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); canvas.style.cursor = m==='drag'?'grab':'crosshair'; }
+    function toggleCatDropdown() { document.getElementById('cat-options').classList.toggle('active'); }
+    function selectCat(c) { selectedCat = c; document.getElementById('cat-label').innerText = c; toggleCatDropdown(); refresh(); }
+    function updateCategories() { const cats = ["All", ...new Set(deck.map(c => c.category))]; document.getElementById('cat-options').innerHTML = cats.map(c => `<div class="option-item" onclick="selectCat('${c}')">${c}</div>`).join(''); }
+    function refresh() {
+        const filtered = selectedCat === "All" ? deck : deck.filter(c => c.category === selectedCat);
+        document.getElementById('deck-stats').innerText = `${filtered.length} CARDS REMAINING`;
+        if(filtered.length > 0) { document.getElementById('card-front-content').innerHTML = filtered[0].front; document.getElementById('card-back-content').innerHTML = filtered[0].back; }
+        else { document.getElementById('card-front-content').innerText = "Empty deck."; }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    async function saveDeck() { await puter.kv.set('sm_deck_v17', JSON.stringify(deck)); updateCategories(); }
+    async function saveWb() { const meta = wbLayers.map(l => { const {img, ...rest} = l; return rest; }); await puter.kv.set('sm_wb_v17', JSON.stringify(meta)); if(channel) channel.publish('sync', { layers: meta }); }
+    function setupKeyboard() { window.onkeydown = (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && selectedObject && document.activeElement.tagName !== 'INPUT') { wbLayers = wbLayers.filter(l => l !== selectedObject); selectedObject = null; redrawBoard(); saveWb(); } }; }
     function adjTimer(s) { if(!pomoActive) { pomoTime = Math.max(60, pomoTime + s); const m = Math.floor(pomoTime/60), s_rem = pomoTime % 60; document.getElementById('pomo-time').innerText = `${m}:${s_rem < 10 ? '0' : ''}${s_rem}`; } }
     function togglePomo() { if(pomoActive) { clearInterval(pomoInt); pomoActive = false; document.getElementById('pomo-start').innerText = "START"; } else { pomoActive = true; document.getElementById('pomo-start').innerText = "STOP"; pomoInt = setInterval(() => { pomoTime--; adjTimer(0); if(pomoTime <= 0) { clearInterval(pomoInt); pomoActive = false; showToast("Break time!"); } }, 1000); } }
+    let isRadioPlaying = false;
     function toggleRadio() { const a = document.getElementById('study-audio'); const b = document.getElementById('radio-toggle'); if(isRadioPlaying) { a.pause(); b.innerText = "▶"; } else { a.play(); b.innerText = "⏸"; } isRadioPlaying = !isRadioPlaying; }
+    async function handleGen() { const val = document.getElementById('ai-in').value; if(!val) return; if(val.includes('|')) { const p = val.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } else { showToast("AI is generating 5 cards..."); const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Category | Question | Answer. Use $ for math.`); r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); if(p.length >= 3) deck.push({category: p[0].trim(), front: p[1].trim(), back: p[2].trim()}); } }); saveDeck(); refresh(); document.getElementById('ai-in').value = ""; } }
+    function uploadImageToWb(input) { if(!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { let img = new Image(); img.onload = () => { wbLayers.push({ type: 'image', img, src: e.target.result, x: 400, y: 400, w: img.width/3, h: img.height/3 }); redrawBoard(); saveWb(); }; img.src = e.target.result; }; reader.readAsDataURL(input.files[0]); }
+    function addWbText() { const t = prompt("Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: 500, y: 500, color: wbColor }); redrawBoard(); saveWb(); } }
 </script>
 </body>
 </html>
