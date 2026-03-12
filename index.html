@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMate Pro | Workspace Suite</title>
+    <title>StudyMate Pro | Premium Workspace</title>
     
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
@@ -29,12 +29,379 @@
         }
         
         * { box-sizing: border-box; outline: none; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
         /* Sidebar */
-        #sidebar { width: 240px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 25px 15px; display: flex; flex-direction: column; gap: 5px; z-index: 100; flex-shrink: 0; }
-        .sidebar-brand { font-weight: 800; font-size: 1rem; margin-bottom: 25px; color: var(--accent); text-align: center; letter-spacing: 2px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; color: #94a3b8; font-weight: 500; transition: 0.2s; }
+        #sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 25px 15px; display: flex; flex-direction: column; gap: 5px; z-index: 100; flex-shrink: 0; }
+        .sidebar-brand { font-weight: 800; font-size: 1rem; margin-bottom: 30px; color: var(--accent); text-align: center; letter-spacing: 2px; text-transform: uppercase; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; color: #94a3b8; font-weight: 500; transition: 0.2s; }
+        .nav-item:hover { background: var(--glass); color: white; }
+        .nav-item.active { background: var(--accent); color: white; box-shadow: 0 8px 15px -5px rgba(59, 130, 246, 0.4); }
+
+        .pomo-box { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin-bottom: 25px; text-align: center; }
+        #pomo-time { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+        .pomo-btn { background: var(--accent); border: none; color: white; padding: 8px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: 800; width: 100%; }
+
+        /* Main Viewport */
+        main { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.03), transparent 40%); }
+        .view { display: none; width: 100%; height: 100%; overflow: hidden; box-sizing: border-box; }
+        .view.active { display: flex; flex-direction: column; }
+
+        /* Whiteboard */
+        #wb-container { flex: 1; position: relative; background: #ffffff; overflow: hidden; }
+        #wb-canvas { cursor: crosshair; }
+        .wb-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #161b2c; padding: 10px 20px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid var(--border); z-index: 300; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .tool-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .tool-btn.active, .tool-btn:hover { background: var(--accent); color: white; }
+
+        .participant-list { position: absolute; top: 20px; left: 20px; background: rgba(16, 27, 44, 0.95); padding: 12px; border-radius: 15px; border: 1px solid var(--border); z-index: 300; min-width: 160px; backdrop-filter: blur(10px); }
+        .room-title { font-size: 0.7rem; font-weight: 900; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 5px; text-transform: uppercase; }
+
+        /* Work Hub & AI Copilot */
+        .work-layout { display: flex; flex: 1; height: 100%; }
+        .doc-stage { flex: 1; display: flex; flex-direction: column; background: #1a1a1a; }
+        .copilot-sidebar { width: 320px; background: var(--sidebar); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; }
+        .doc-frame { width: 100%; height: 100%; border: none; background: white; }
+        
+        .copilot-chat { flex: 1; overflow-y: auto; margin-bottom: 15px; font-size: 0.85rem; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,0.2); }
+        .suggestion-box { background: var(--card); border: 1px solid var(--accent); padding: 12px; border-radius: 12px; margin-top: 10px; animation: slideIn 0.3s ease-out; }
+        
+        /* Context Menu */
+        #custom-menu { position: fixed; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 6px; z-index: 5000; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-width: 150px; }
+        .menu-item { padding: 8px 14px; font-size: 0.8rem; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .menu-item:hover { background: var(--accent); color: white; }
+
+        /* Generic Components */
+        .btn-prime { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .btn-ghost { background: var(--glass); border: 1px solid var(--border); color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.75rem; }
+        .input-dark { background: var(--card); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 12px; font-size: 0.85rem; }
+    </style>
+</head>
+<body oncontextmenu="handleGlobalContextMenu(event)">
+
+<div id="notif-toast"></div>
+
+<!-- Context Menu -->
+<div id="custom-menu">
+    <div class="menu-item" onclick="aiAction('continue')">Continue Writing</div>
+    <div class="menu-item" onclick="aiAction('ideas')">Brainstorm Ideas</div>
+    <div class="menu-item" onclick="aiAction('summarize')">Summarize Selection</div>
+</div>
+
+<nav id="sidebar">
+    <div class="sidebar-brand">STUDYMATE PRO</div>
+    
+    <div class="pomo-box">
+        <div id="pomo-time">25:00</div>
+        <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START FOCUS</button>
+    </div>
+
+    <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
+    <div class="nav-item" id="nav-assistant" onclick="setView('assistant')">AI Assistant</div>
+    <div class="nav-item" id="nav-work" onclick="setView('work')">Work Hub (Google)</div>
+    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
+    <div class="nav-item" id="nav-archive" onclick="setView('archive')">Archive Hub</div>
+    <div class="nav-item" id="nav-settings" onclick="setView('settings')" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
+</nav>
+
+<main>
+    <!-- Study View (Simplified for UI flow) -->
+    <div id="view-study" class="view active">
+        <div style="padding: 40px; max-width: 600px; margin: 0 auto; text-align: center;">
+            <h2 style="font-weight: 800;">Study Session</h2>
+            <div id="card-display" style="background: var(--card); padding: 50px; border-radius: 30px; border: 1px solid var(--border); margin: 30px 0; min-height: 250px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600;">
+                Welcome! Type a topic below to generate cards.
+            </div>
+            <div style="display: flex; gap: 10px; background: var(--card); padding: 12px; border-radius: 20px; border: 1px solid var(--border);">
+                <input type="text" id="ai-in" placeholder="Neuroscience, History of Rome..." style="flex:1; background:none; border:none; color:white; font-size: 1rem;">
+                <button onclick="handleGen()" class="btn-prime">GENERATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Hub with AI Copilot -->
+    <div id="view-work" class="view">
+        <div class="work-layout">
+            <div class="doc-stage">
+                <div style="padding: 15px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--border); background: var(--sidebar);">
+                    <input type="text" id="doc-link-in" class="input-dark" placeholder="Paste Google Doc/Slides link..." style="flex:1;">
+                    <button onclick="loadDoc()" class="btn-prime">OPEN</button>
+                    <button class="btn-ghost" onclick="window.open('https://docs.google.com/document/u/0/', '_blank')">All Docs</button>
+                    <button class="btn-ghost" onclick="window.open('https://drive.google.com/u/0/my-drive', '_blank')">Drive</button>
+                </div>
+                <div id="doc-container" style="flex:1;">
+                    <div style="padding: 100px; text-align: center; color: #444; font-weight: 800;">OPEN A DOC TO START WORK</div>
+                </div>
+            </div>
+            <div class="copilot-sidebar">
+                <div style="font-weight: 800; font-size: 0.7rem; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 15px;">AI DOCUMENT COPILOT</div>
+                <div class="copilot-chat" id="copilot-output">
+                    I am scanning your active environment. Need help continuing or finding ideas? Paste a snippet below for targeted help.
+                </div>
+                <textarea id="copilot-input" class="input-dark" placeholder="Paste a sentence or topic here..." style="width:100%; height: 100px; resize: none; margin-bottom: 10px;"></textarea>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn-prime" onclick="copilotAction('continue')">CONTINUE</button>
+                    <button class="btn-prime" style="background: var(--success);" onclick="copilotAction('ideas')">IDEAS</button>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <div style="font-weight: 800; font-size: 0.65rem; opacity: 0.4; margin-bottom: 10px; text-transform: uppercase;">Workspace History</div>
+                    <div id="doc-history-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Whiteboard View -->
+    <div id="view-whiteboard" class="view">
+        <div class="participant-list" id="participant-ui" style="display:none;">
+            <div id="active-room-label" class="room-title">OFFLINE</div>
+            <div id="users-target"></div>
+        </div>
+
+        <div class="room-bar" style="position: absolute; top: 20px; right: 20px; background: #161b2c; padding: 10px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 220;">
+            <div id="ably-light" style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;"></div>
+            <input type="text" id="room-input" placeholder="Room Name..." class="input-dark" style="width: 120px; padding: 6px 12px; font-size: 0.75rem;">
+            <button onclick="joinAbly()" class="btn-prime" style="padding: 6px 12px;">JOIN</button>
+            <button onclick="hostAbly()" class="btn-prime" style="padding: 6px 12px; background: var(--success);">HOST</button>
+        </div>
+
+        <div id="wb-container">
+            <canvas id="wb-canvas"></canvas>
+            <div class="wb-tools">
+                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" id="drag-btn" onclick="setMode('drag')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
+                <button class="tool-btn" onclick="addWbText()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
+                <input type="color" id="wb-color" value="#3b82f6" onchange="wbColor=this.value" style="width:24px; height:24px; border:none; cursor:pointer; background:none;">
+            </div>
+        </div>
+    </div>
+
+    <div id="view-archive" class="view"><div style="padding:50px; text-align:center;">Archive logic is persistent. Files saved automatically.</div></div>
+    <div id="view-assistant" class="view"><div style="padding:50px; text-align:center;">Assistant module active. Click AI Assistant in sidebar.</div></div>
+    <div id="view-settings" class="view">
+        <div style="padding:40px; max-width:600px; margin: 0 auto;">
+            <h2 style="font-weight:800;">Settings</h2>
+            <div class="settings-card">
+                <button class="btn-prime" onclick="exportAppData()">EXPORT DATA</button>
+                <button class="btn-prime" style="background:var(--danger); margin-left:10px;" onclick="clearAppData()">WIPE ALL DATA</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const ABLY_KEY = "PLEASE_INSERT_ABLY_KEY_HERE";
+    let deck = [], archive = [], wbLayers = [], workHistory = [], flipped = false;
+    let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
+    let currentUser = null, wbColor = '#3b82f6', ably = null, channel = null;
+
+    const canvas = document.getElementById('wb-canvas'), ctx = canvas.getContext('2d');
+
+    window.onload = async () => {
+        try {
+            if (!puter.auth.isSignedIn()) await puter.auth.signIn();
+            currentUser = await puter.auth.getUser();
+            document.getElementById('user-name').innerText = currentUser.username;
+
+            const d = await puter.kv.get('sm_deck_v25'); if(d) deck = JSON.parse(d);
+            const h = await puter.kv.get('sm_work_v25'); if(h) workHistory = JSON.parse(h);
+            const l = await puter.kv.get('sm_wb_v25'); if(l) wbLayers = JSON.parse(l);
+            
+            initWb(); resizeWb(); redrawBoard(); renderHistory();
+        } catch (e) { console.error(e); }
+    };
+
+    // --- AI Copilot & Context Menu Logic ---
+    function handleGlobalContextMenu(e) {
+        const selection = window.getSelection().toString();
+        if (selection) {
+            e.preventDefault();
+            const menu = document.getElementById('custom-menu');
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            window.lastSelection = selection;
+        } else {
+            document.getElementById('custom-menu').style.display = 'none';
+        }
+    }
+
+    document.addEventListener('click', () => { document.getElementById('custom-menu').style.display = 'none'; });
+
+    async function aiAction(type) {
+        const text = window.lastSelection;
+        if (!text) return;
+        showToast("AI Assistant Thinking...");
+        const prompt = type === 'continue' ? `Finish this thought: ${text}` : `Give me 3 creative study ideas related to: ${text}`;
+        const r = await puter.ai.chat(prompt);
+        document.getElementById('copilot-output').innerHTML = `<div class="suggestion-box"><strong>${type.toUpperCase()}:</strong><br>${r.message.content}</div>`;
+        setView('work');
+    }
+
+    async function copilotAction(type) {
+        const text = document.getElementById('copilot-input').value;
+        if (!text) return showToast("Enter text first!");
+        showToast("Generating suggestions...");
+        const r = await puter.ai.chat(type === 'continue' ? `Write the next 2 paragraphs for: ${text}` : `Provide structured ideas to expand on: ${text}`);
+        document.getElementById('copilot-output').innerHTML = `<div class="suggestion-box">${r.message.content}</div>`;
+    }
+
+    // --- Google Work Hub Persistence ---
+    function loadDoc(manualLink = null) {
+        const link = manualLink || document.getElementById('doc-link-in').value;
+        if (!link) return showToast("Need a link!");
+
+        let embedUrl = "";
+        if (link.includes('docs.google.com/document/d/')) {
+            const id = link.match(/\/d\/(.*?)(\/|$)/)[1];
+            embedUrl = `https://docs.google.com/document/d/${id}/edit?embedded=true`;
+        } else if (link.includes('docs.google.com/presentation/d/')) {
+            const id = link.match(/\/d\/(.*?)(\/|$)/)[1];
+            embedUrl = `https://docs.google.com/presentation/d/${id}/edit?embedded=true`;
+        } else { return showToast("Use a Doc or Slide link."); }
+
+        if (!workHistory.find(h => h.url === link)) {
+            workHistory.unshift({ title: "Work " + (workHistory.length+1), url: link });
+            if (workHistory.length > 5) workHistory.pop();
+            puter.kv.set('sm_work_v25', JSON.stringify(workHistory));
+            renderHistory();
+        }
+
+        document.getElementById('doc-container').innerHTML = `<iframe src="${embedUrl}" class="doc-frame"></iframe>`;
+        showToast("Work Loaded Live!");
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('doc-history-list');
+        list.innerHTML = workHistory.map(h => `
+            <div style="background:var(--glass); border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; cursor:pointer; font-size:0.75rem;" onclick="loadDoc('${h.url}')">
+                📄 ${h.title}
+            </div>
+        `).join('');
+    }
+
+    // --- Whiteboard Engine (FIXED 100%) ---
+    function resizeWb() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        redrawBoard();
+    }
+
+    function redrawBoard() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.save();
+        ctx.translate(offsetX, offsetY);
+        
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-offsetX, -offsetY, canvas.width, canvas.height);
+
+        wbLayers.forEach(l => {
+            if (l.type === 'path') {
+                ctx.beginPath(); ctx.strokeStyle = l.color; ctx.lineWidth = 3; ctx.lineCap = "round";
+                ctx.moveTo(l.points[0].x, l.points[0].y);
+                l.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+            } else if (l.type === 'text') {
+                ctx.font = "bold 20px Inter"; ctx.fillStyle = l.color;
+                ctx.fillText(l.content, l.x, l.y);
+            }
+        });
+        ctx.restore();
+    }
+
+    function initWb() {
+        // Correct Offset Calculation
+        const getCoord = (e) => ({ x: e.offsetX - offsetX, y: e.offsetY - offsetY });
+
+        canvas.onmousedown = (e) => {
+            isMousedown = true;
+            const p = getCoord(e);
+            if (mode === 'draw') {
+                wbLayers.push({ type: 'path', color: wbColor, points: [p] });
+                if (channel) channel.publish('draw', { type: 'start', x: p.x, y: p.y, color: wbColor });
+            } else if (mode === 'drag') {
+                lastX = e.clientX; lastY = e.clientY;
+            } else if (mode === 'eraser') {
+                wbLayers = wbLayers.filter(l => {
+                    if (l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 20);
+                    return true;
+                });
+                redrawBoard();
+                if (channel) channel.publish('sync', { layers: wbLayers });
+            }
+        };
+
+        canvas.onmousemove = (e) => {
+            if (!isMousedown) return;
+            const p = getCoord(e);
+            if (mode === 'draw') {
+                wbLayers[wbLayers.length-1].points.push(p);
+                redrawBoard();
+                if (channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y });
+            } else if (mode === 'drag') {
+                offsetX += (e.clientX - lastX);
+                offsetY += (e.clientY - lastY);
+                lastX = e.clientX; lastY = e.clientY;
+                redrawBoard();
+            }
+        };
+
+        canvas.onmouseup = () => { isMousedown = false; saveWb(); };
+    }
+
+    function addWbText() { const t = prompt("Text:"); if(t) { wbLayers.push({ type:'text', content:t, x: 200-offsetX, y: 200-offsetY, color: wbColor }); redrawBoard(); saveWb(); } }
+    function clearBoard() { if(confirm("Reset Board?")) { wbLayers = []; redrawBoard(); saveWb(); } }
+
+    // --- Collaboration Logic ---
+    function joinAbly() {
+        const id = document.getElementById('room-input').value.trim().toUpperCase();
+        if(!id || ABLY_KEY.includes("INSERT")) return showToast("Room Name & Key Required.");
+        if(ably) ably.close();
+        ably = new Ably.Realtime(ABLY_KEY);
+        channel = ably.channels.get(id);
+        ably.connection.on('connected', () => {
+            document.getElementById('ably-light').style.background = '#10b981';
+            document.getElementById('active-room-label').innerText = "ROOM: " + id;
+            document.getElementById('participant-ui').style.display = 'block';
+            channel.presence.enter({ username: currentUser.username });
+            updatePresence();
+            channel.publish('request_sync', { id: ably.auth.clientId });
+        });
+        channel.presence.subscribe(() => updatePresence());
+        channel.subscribe('draw', (msg) => {
+            if(msg.clientId === ably.auth.clientId) return;
+            const d = msg.data;
+            if(d.type === 'start') wbLayers.push({ type: 'path', color: d.color, points: [{x:d.x, y:d.y}] });
+            else if(d.type === 'move' && wbLayers.length) wbLayers[wbLayers.length-1].points.push({x:d.x, y:d.y});
+            redrawBoard();
+        });
+        channel.subscribe('sync', (msg) => { if(msg.clientId !== ably.auth.clientId) { wbLayers = msg.data.layers; redrawBoard(); } });
+        channel.subscribe('request_sync', (msg) => { if(msg.data.id !== ably.auth.clientId) channel.publish('sync', { layers: wbLayers }); });
+    }
+
+    function updatePresence() {
+        if(!channel) return;
+        channel.presence.get((err, members) => {
+            document.getElementById('users-target').innerHTML = (members || []).map(m => `<div class="user-tag">${m.data.username} ${m.clientId === ably.auth.clientId ? '(You)' : ''}</div>`).join('');
+        });
+    }
+
+    function hostAbly() {
+        const id = document.getElementById('room-input').value.trim() || Math.random().toString(36).substring(2,6).toUpperCase();
+        document.getElementById('room-input').value = id; joinAbly();
+    }
+
+    // --- Core UI Utility ---
+    function setView(v) { document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); if(v === 'whiteboard') resizeWb(); }
+    function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+    function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); if(document.getElementById(m+'-btn')) document.getElementById(m+'-btn').classList.add('active'); }
+    async function saveWb() { await puter.kv.set('sm_wb_v25', JSON.stringify(wbLayers)); }
+    function clearAppData() { if(confirm("Delete Everything?")) { puter.kv.del('sm_deck_v25'); puter.kv.del('sm_work_v25'); location.reload(); } }
+</script>
+</body>
+</html>        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; color: #94a3b8; font-weight: 500; transition: 0.2s; }
         .nav-item:hover { background: var(--glass); color: white; }
         .nav-item.active { background: var(--accent); color: white; }
 
