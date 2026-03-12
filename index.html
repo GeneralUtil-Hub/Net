@@ -60,10 +60,19 @@
 
         /* Google Work Hub */
         .work-header { padding: 30px; text-align: center; border-bottom: 1px solid var(--border); }
-        .doc-frame-container { flex: 1; position: relative; background: #1a1a1a; }
-        .doc-frame { width: 100%; height: 100%; border: none; }
+        .doc-frame-container { flex: 1; position: relative; background: #1a1a1a; display: flex; flex-direction: column; }
+        .doc-frame { width: 100%; height: 100%; border: none; flex: 1; }
         .doc-input-box { display: flex; gap: 10px; max-width: 600px; margin: 0 auto; background: var(--card); padding: 8px; border-radius: 12px; border: 1px solid var(--border); }
         .doc-input-box input { flex: 1; background: none; border: none; color: white; padding: 0 10px; font-size: 0.85rem; }
+        
+        .work-sidebar { width: 300px; background: var(--sidebar); border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+        .history-item { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .history-item:hover { border-color: var(--accent); }
+        .history-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        
+        .quick-launch { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .launch-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .launch-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         /* Flashcard Premium GUI */
         .study-grid { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px; max-width: 600px; margin: 0 auto; width: 100%; }
@@ -94,12 +103,12 @@
         <button class="pomo-btn" id="pomo-start" onclick="togglePomo()">START SESSION</button>
     </div>
 
-    <div class="nav-item active" onclick="setView('study')">Study Session</div>
-    <div class="nav-item" onclick="setView('assistant')">AI Assistant</div>
-    <div class="nav-item" onclick="setView('work')">Work Hub (Google)</div>
-    <div class="nav-item" onclick="setView('whiteboard')">Whiteboard</div>
-    <div class="nav-item" onclick="setView('archive')">Archive Hub</div>
-    <div class="nav-item" onclick="setView('settings')" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
+    <div class="nav-item active" id="nav-study" onclick="setView('study')">Study Session</div>
+    <div class="nav-item" id="nav-assistant" onclick="setView('assistant')">AI Assistant</div>
+    <div class="nav-item" id="nav-work" onclick="setView('work')">Work Hub (Google)</div>
+    <div class="nav-item" id="nav-whiteboard" onclick="setView('whiteboard')">Whiteboard</div>
+    <div class="nav-item" id="nav-archive" onclick="setView('archive')">Archive Hub</div>
+    <div class="nav-item" id="nav-settings" onclick="setView('settings')" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 15px;">Settings</div>
 </nav>
 
 <main>
@@ -143,16 +152,30 @@
 
     <!-- Work Hub View -->
     <div id="view-work" class="view">
-        <div class="work-header">
-            <h2 style="font-weight: 800; font-size: 1.8rem; margin: 0 0 15px 0;">Work Hub</h2>
-            <div class="doc-input-box">
-                <input type="text" id="doc-link-in" placeholder="Paste Google Doc or Slides Share Link...">
-                <button onclick="loadGoogleDoc()" class="btn-prime">OPEN WORK</button>
+        <div style="display: flex; flex: 1; height: 100%;">
+            <div class="doc-frame-container">
+                <div class="work-header">
+                    <h2 style="font-weight: 800; font-size: 1.5rem; margin: 0 0 10px 0;">Work Hub</h2>
+                    <div class="doc-input-box">
+                        <input type="text" id="doc-link-in" placeholder="Paste Google Doc or Slides Share Link...">
+                        <button onclick="loadGoogleDoc()" class="btn-prime">LOAD WORK</button>
+                    </div>
+                    <div class="quick-launch">
+                        <button class="launch-btn" onclick="window.open('https://docs.google.com/document/create', '_blank')"><span>📄</span> New Doc</button>
+                        <button class="launch-btn" onclick="window.open('https://docs.google.com/presentation/create', '_blank')"><span>📊</span> New Slides</button>
+                        <button class="launch-btn" onclick="window.open('https://drive.google.com/drive/u/0/my-drive', '_blank')"><span>📁</span> My Drive</button>
+                    </div>
+                </div>
+                <div id="doc-container" style="flex: 1;">
+                    <div style="padding: 100px; text-align: center; color: #444; font-weight: 800;">PASTE A LINK OR SELECT FROM HISTORY</div>
+                </div>
             </div>
-            <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">Ensure the document is set to 'Anyone with link can edit' or sign in to your Google Account in the frame.</p>
-        </div>
-        <div class="doc-frame-container" id="doc-container">
-            <div style="padding: 100px; text-align: center; color: #444; font-weight: 800;">PASTE A LINK TO START WORKING</div>
+            <div class="work-sidebar">
+                <div style="font-weight: 800; font-size: 0.75rem; color: var(--accent); margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase;">Recent Documents</div>
+                <div id="work-history-list">
+                    <!-- History injected here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -172,18 +195,18 @@
         <div id="wb-container">
             <canvas id="wb-canvas"></canvas>
             <div class="wb-tools">
-                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
-                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
-                <button class="tool-btn" id="drag-btn" onclick="setMode('drag')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
-                <button class="tool-btn" onclick="addWbText()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
+                <button class="tool-btn active" id="draw-btn" onclick="setMode('draw')" title="Pen Tool"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg></button>
+                <button class="tool-btn" id="eraser-btn" onclick="setMode('eraser')" title="Eraser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l4-4 4-4 5 5 4-4 4 4-4 4-5-5-4 4 4 4z"/></svg></button>
+                <button class="tool-btn" id="drag-btn" onclick="setMode('drag')" title="Move Canvas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
+                <button class="tool-btn" onclick="addWbText()" title="Add Text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></button>
                 <input type="color" id="wb-color" value="#3b82f6" onchange="wbColor=this.value" style="width:20px; height:20px; border:none; cursor:pointer;">
                 <button class="tool-btn" onclick="clearBoard()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
             </div>
         </div>
     </div>
 
-    <!-- Assistant, Archive, Settings Views Omitted for Brevity (Standard logic applied) -->
-    <div id="view-assistant" class="view"><div style="padding:50px; text-align:center;">AI Assistant is ready. Click LEARN to start.</div></div>
+    <!-- AI Assistant, Archive, Settings Views -->
+    <div id="view-assistant" class="view"><div style="padding:50px; text-align:center;">Assistant module is being recalibrated... Use LEARN button soon.</div></div>
     <div id="view-archive" class="view"><div class="study-grid"><h2 style="font-weight:800;">Archive</h2><div id="archive-container" class="archive-grid"></div></div></div>
     <div id="view-settings" class="view">
         <div style="padding:40px; max-width:600px; margin:0 auto;">
@@ -199,10 +222,10 @@
 
 <script>
     const ABLY_KEY = "PLEASE_INSERT_ABLY_KEY_HERE";
-    let deck = [], archive = [], wbLayers = [], flipped = false;
+    let deck = [], archive = [], wbLayers = [], workHistory = [], flipped = false;
     let mode = 'draw', offsetX = 0, offsetY = 0, isMousedown = false, lastX, lastY;
     let currentUser = null, wbColor = '#3b82f6', ably = null, channel = null;
-    let selectedCat = "All", currentLessonData = null;
+    let selectedCat = "All";
 
     const canvas = document.getElementById('wb-canvas'), ctx = canvas.getContext('2d');
 
@@ -212,45 +235,76 @@
             currentUser = await puter.auth.getUser();
             document.getElementById('user-name').innerText = currentUser.username;
 
-            const d = await puter.kv.get('sm_deck_v20');
+            const d = await puter.kv.get('sm_deck_v21');
             if(d) deck = JSON.parse(d);
 
-            const arc = await puter.kv.get('sm_archive_v20');
+            const h = await puter.kv.get('sm_work_history_v21');
+            if(h) workHistory = JSON.parse(h);
+
+            const arc = await puter.kv.get('sm_archive_v21');
             if(arc) archive = JSON.parse(arc);
 
-            const l = await puter.kv.get('sm_wb_v20');
+            const l = await puter.kv.get('sm_wb_v21');
             if(l) wbLayers = JSON.parse(l);
             
-            initWb(); resizeWb(); redrawBoard(); refresh();
+            initWb(); resizeWb(); redrawBoard(); refresh(); renderWorkHistory();
         } catch (e) { console.error(e); }
     };
 
     // --- Google Work Hub Logic ---
-    function loadGoogleDoc() {
-        const link = document.getElementById('doc-link-in').value;
+    function loadGoogleDoc(passedLink = null) {
+        const link = passedLink || document.getElementById('doc-link-in').value;
         const container = document.getElementById('doc-container');
         if (!link) return showToast("Paste a valid link!");
 
         let embedUrl = "";
-        // Basic parser for Google Docs and Slides
+        let docTitle = "Google Document";
+
         if (link.includes('docs.google.com/document/d/')) {
             const id = link.match(/\/d\/(.*?)(\/|$)/)[1];
             embedUrl = `https://docs.google.com/document/d/${id}/edit?embedded=true`;
+            docTitle = "Google Doc - " + id.substring(0, 8);
         } else if (link.includes('docs.google.com/presentation/d/')) {
             const id = link.match(/\/d\/(.*?)(\/|$)/)[1];
             embedUrl = `https://docs.google.com/presentation/d/${id}/edit?embedded=true`;
+            docTitle = "Google Slides - " + id.substring(0, 8);
         } else {
-            return showToast("Invalid Google Link. Use a Doc or Slide link.");
+            return showToast("Invalid Link. Use a Doc or Slide link.");
+        }
+
+        // Save to History if not already there
+        if (!workHistory.find(item => item.url === link)) {
+            workHistory.unshift({ title: docTitle, url: link, date: new Date().toLocaleDateString() });
+            if (workHistory.length > 10) workHistory.pop();
+            saveWorkHistory();
+            renderWorkHistory();
         }
 
         container.innerHTML = `<iframe src="${embedUrl}" class="doc-frame"></iframe>`;
-        showToast("Work Loaded Live!");
+        showToast("Work Loaded!");
     }
+
+    function renderWorkHistory() {
+        const list = document.getElementById('work-history-list');
+        list.innerHTML = workHistory.map((item, index) => `
+            <div class="history-item" onclick="loadGoogleDoc('${item.url}')">
+                <div>
+                    <div class="history-title">${item.title}</div>
+                    <div style="opacity:0.4; font-size:0.6rem;">${item.date}</div>
+                </div>
+                <div onclick="event.stopPropagation(); deleteWorkItem(${index})" style="color:var(--danger); font-weight:bold; cursor:pointer;">×</div>
+            </div>
+        `).join('');
+    }
+
+    async function saveWorkHistory() { await puter.kv.set('sm_work_history_v21', JSON.stringify(workHistory)); }
+    function deleteWorkItem(i) { workHistory.splice(i, 1); saveWorkHistory(); renderWorkHistory(); }
 
     // --- Whiteboard Engine (FIXED DRAWING) ---
     function resizeWb() {
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
+        const container = document.getElementById('wb-container');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
         redrawBoard();
     }
 
@@ -259,22 +313,25 @@
         ctx.save();
         ctx.translate(offsetX, offsetY);
         
-        // Background
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(-offsetX, -offsetY, canvas.width, canvas.height);
 
+        // Grid dots
+        ctx.fillStyle = "#eee";
+        for(let i=0; i<4000; i+=40) {
+            for(let j=0; j<4000; j+=40) {
+                ctx.beginPath(); ctx.arc(i, j, 1, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
         wbLayers.forEach(l => {
             if (l.type === 'path') {
-                ctx.beginPath();
-                ctx.strokeStyle = l.color;
-                ctx.lineWidth = 3;
-                ctx.lineCap = "round";
+                ctx.beginPath(); ctx.strokeStyle = l.color; ctx.lineWidth = 3; ctx.lineCap = "round";
                 ctx.moveTo(l.points[0].x, l.points[0].y);
                 l.points.forEach(p => ctx.lineTo(p.x, p.y));
                 ctx.stroke();
             } else if (l.type === 'text') {
-                ctx.font = "bold 20px Inter";
-                ctx.fillStyle = l.color;
+                ctx.font = "bold 20px Inter"; ctx.fillStyle = l.color;
                 ctx.fillText(l.content, l.x, l.y);
             }
         });
@@ -282,20 +339,22 @@
     }
 
     function initWb() {
-        // Drawing Fix: Use offsetX/Y from the event directly for pinpoint accuracy
+        const getCoord = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            return { x: (e.clientX - rect.left) - offsetX, y: (e.clientY - rect.top) - offsetY };
+        };
+
         canvas.onmousedown = (e) => {
             isMousedown = true;
-            const x = e.offsetX - offsetX;
-            const y = e.offsetY - offsetY;
-            
+            const p = getCoord(e);
             if (mode === 'draw') {
-                wbLayers.push({ type: 'path', color: wbColor, points: [{x, y}] });
-                if (channel) channel.publish('draw', { type: 'start', x, y, color: wbColor });
+                wbLayers.push({ type: 'path', color: wbColor, points: [p] });
+                if (channel) channel.publish('draw', { type: 'start', x: p.x, y: p.y, color: wbColor });
             } else if (mode === 'drag') {
                 lastX = e.clientX; lastY = e.clientY;
             } else if (mode === 'eraser') {
                 wbLayers = wbLayers.filter(l => {
-                    if (l.type === 'path') return !l.points.some(p => Math.hypot(p.x - x, p.y - y) < 20);
+                    if (l.type === 'path') return !l.points.some(pt => Math.hypot(pt.x - p.x, pt.y - p.y) < 20);
                     return true;
                 });
                 redrawBoard();
@@ -305,62 +364,48 @@
 
         canvas.onmousemove = (e) => {
             if (!isMousedown) return;
-            const x = e.offsetX - offsetX;
-            const y = e.offsetY - offsetY;
+            const p = getCoord(e);
 
             if (mode === 'draw') {
-                wbLayers[wbLayers.length-1].points.push({x, y});
+                wbLayers[wbLayers.length-1].points.push(p);
                 redrawBoard();
-                if (channel) channel.publish('draw', { type: 'move', x, y });
+                if (channel) channel.publish('draw', { type: 'move', x: p.x, y: p.y });
             } else if (mode === 'drag') {
-                offsetX += (e.clientX - lastX);
-                offsetY += (e.clientY - lastY);
+                offsetX += (e.clientX - lastX); offsetY += (e.clientY - lastY);
                 lastX = e.clientX; lastY = e.clientY;
                 redrawBoard();
             }
         };
 
-        canvas.onmouseup = () => {
-            isMousedown = false;
-            saveWb();
-            if (channel) channel.publish('draw', { type: 'end' });
-        };
+        canvas.onmouseup = () => { isMousedown = false; saveWb(); if (channel) channel.publish('draw', { type: 'end' }); };
     }
 
     function clearBoard() { if(confirm("Clear board?")) { wbLayers = []; redrawBoard(); saveWb(); if(channel) channel.publish('sync', { layers: [] }); } }
-    function addWbText() { const t = prompt("Enter Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: 100 - offsetX, y: 100 - offsetY, color: wbColor }); redrawBoard(); saveWb(); if(channel) channel.publish('sync', { layers: wbLayers }); } }
+    function addWbText() { const t = prompt("Enter Text:"); if(t) { wbLayers.push({ type: 'text', content: t, x: 200 - offsetX, y: 200 - offsetY, color: wbColor }); redrawBoard(); saveWb(); if(channel) channel.publish('sync', { layers: wbLayers }); } }
 
     // --- Ably Collaboration Logic ---
     function joinAbly() {
         const id = document.getElementById('room-input').value.trim().toUpperCase();
         if(!id || ABLY_KEY.includes("INSERT")) return showToast("Room Name required.");
-        
         if(ably) ably.close();
         ably = new Ably.Realtime(ABLY_KEY);
         channel = ably.channels.get(id);
-        
         ably.connection.on('connected', () => {
-            document.getElementById('ably-light').style.background = '#10b981';
-            document.getElementById('room-display-text').innerText = id;
+            document.getElementById('ably-status-light').style.background = '#10b981';
             document.getElementById('active-room-label').innerText = "ROOM: " + id;
             document.getElementById('participant-ui').style.display = 'block';
             channel.presence.enter({ username: currentUser.username });
             updateParticipants();
-            
-            // Request state
             channel.publish('request_sync', { id: ably.auth.clientId });
         });
-
         channel.presence.subscribe(() => updateParticipants());
-
         channel.subscribe('draw', (msg) => {
             if(msg.clientId === ably.auth.clientId) return;
-            const { type, x, y, color } = msg.data;
-            if(type === 'start') wbLayers.push({ type: 'path', color, points: [{x, y}] });
-            else if(type === 'move' && wbLayers.length) wbLayers[wbLayers.length-1].points.push({x, y});
+            const d = msg.data;
+            if(d.type === 'start') wbLayers.push({ type: 'path', color: d.color, points: [{x:d.x, y:d.y}] });
+            else if(d.type === 'move' && wbLayers.length) wbLayers[wbLayers.length-1].points.push({x:d.x, y:d.y});
             redrawBoard();
         });
-
         channel.subscribe('sync', (msg) => { if(msg.clientId !== ably.auth.clientId) { wbLayers = msg.data.layers; redrawBoard(); } });
         channel.subscribe('request_sync', (msg) => { if(msg.data.id !== ably.auth.clientId) channel.publish('sync', { layers: wbLayers }); });
     }
@@ -374,30 +419,24 @@
 
     function hostAbly() {
         const id = document.getElementById('room-input').value.trim() || Math.random().toString(36).substring(2,6).toUpperCase();
-        document.getElementById('room-input').value = id; 
-        joinAbly();
+        document.getElementById('room-input').value = id; joinAbly();
     }
 
-    // --- Core Logic ---
-    function setView(v) { document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); if(v === 'whiteboard') resizeWb(); }
+    // --- Core Logic Utilities ---
+    function setView(v) { document.querySelectorAll('.view').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); const nav = document.getElementById('nav-'+v); if(nav) nav.classList.add('active'); if(v === 'whiteboard') resizeWb(); }
     function showToast(m) { const t = document.getElementById('notif-toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
     function setMode(m) { mode = m; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById(m+'-btn').classList.add('active'); }
-    async function saveDeck() { await puter.kv.set('sm_deck_v20', JSON.stringify(deck)); }
-    async function saveWb() { await puter.kv.set('sm_wb_v20', JSON.stringify(wbLayers)); }
+    async function saveDeck() { await puter.kv.set('sm_deck_v21', JSON.stringify(deck)); }
+    async function saveWb() { await puter.kv.set('sm_wb_v21', JSON.stringify(wbLayers)); }
     function flip() { if(!deck.length) return; flipped = !flipped; document.getElementById('card-inner').classList.toggle('flipped', flipped); document.getElementById('srs-btns').style.display = flipped ? 'flex' : 'none'; document.getElementById('ans-box').style.display = flipped ? 'none' : 'flex'; }
     function checkAnswer() { flip(); }
     function rate(diff) { const card = deck.shift(); deck.push(card); flipped = false; flip(); saveDeck(); refresh(); }
     function refresh() { 
-        const stats = document.getElementById('deck-stats'); 
-        stats.innerText = `${deck.length} CARDS READY`;
-        if (deck.length > 0) {
-            document.getElementById('card-front-content').innerText = deck[0].front;
-            document.getElementById('card-back-content').innerText = deck[0].back;
-        }
+        document.getElementById('deck-stats').innerText = `${deck.length} CARDS READY`;
+        if (deck.length > 0) { document.getElementById('card-front-content').innerText = deck[0].front; document.getElementById('card-back-content').innerText = deck[0].back; }
     }
     async function handleGen() { 
-        const val = document.getElementById('ai-in').value; if(!val) return; 
-        showToast("AI is thinking...");
+        const val = document.getElementById('ai-in').value; if(!val) return; showToast("AI Thinking...");
         const r = await puter.ai.chat(`Extract 5 concepts from: ${val}. Format: Subject | Question | Answer.`);
         r.message.content.split('\n').forEach(l => { if(l.includes('|')) { const p = l.split('|'); deck.push({ category: p[0].trim(), front: p[1].trim(), back: p[2].trim() }); } });
         saveDeck(); refresh(); document.getElementById('ai-in').value = "";
