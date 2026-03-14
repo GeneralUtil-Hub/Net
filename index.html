@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desmos Collaborative</title>
+    <title>Desmos Collaborative Pro</title>
     <!-- Ably Realtime SDK -->
     <script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
-    <!-- Full Desmos API - Provides LaTeX, Keyboard, and Axis Controls -->
+    <!-- Full Desmos API -->
     <script src="https://www.desmos.com/api/v1.10/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -14,19 +14,16 @@
             width: 100%;
             height: calc(100vh - 64px);
         }
-        /* Style adjustments to make the Desmos UI feel integrated */
         .dcg-container {
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+            font-family: inherit !important;
         }
-        .loading-dots:after {
-            content: '.';
-            animation: dots 1.5s steps(5, end) infinite;
+        /* Custom Scrollbar for Desmos Sidebar */
+        .dcg-exppanel-container::-webkit-scrollbar {
+            width: 6px;
         }
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60% { content: '...'; }
-            80%, 100% { content: ''; }
+        .dcg-exppanel-container::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -34,92 +31,89 @@
 
     <div id="app" class="h-screen flex flex-col">
         
-        <!-- Premium Header -->
+        <!-- Header -->
         <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-sm z-50">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-br from-red-500 to-rose-600 p-2 rounded-xl shadow-md">
+                <div class="bg-indigo-600 p-2 rounded-lg shadow-indigo-200 shadow-lg">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7L3 12l6 5m6-10l6 5-6 5M12 9v6"></path>
                     </svg>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg text-slate-900 leading-none">Desmos<span class="text-rose-600">Collaborative</span></h1>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Real-time Engine</p>
+                    <h1 class="font-bold text-slate-900 leading-none">MathBoard<span class="text-indigo-600">Live</span></h1>
+                    <div id="connection-status" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                        Offline
+                    </div>
                 </div>
             </div>
 
-            <!-- Multiplayer Controls -->
-            <div id="room-controls" class="hidden flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-slate-100 pl-3 pr-1 py-1 rounded-full border border-slate-200">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Room Code</span>
-                    <span id="display-code" class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm">------</span>
-                    <button onclick="copyCode()" class="p-1.5 hover:bg-white hover:text-rose-600 rounded-full transition-all text-slate-500">
+            <!-- Room Info & Sync -->
+            <div id="room-controls" class="hidden flex items-center gap-3">
+                <button onclick="forceSync()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors group" title="Force Sync State">
+                    <svg class="w-5 h-5 group-active:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+
+                <div class="h-8 w-[1px] bg-slate-200 mx-1"></div>
+
+                <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                    <span class="text-[10px] font-black text-slate-400 uppercase">Code</span>
+                    <span id="display-code" class="font-mono font-bold text-indigo-600 uppercase">------</span>
+                    <button onclick="copyCode()" class="ml-1 text-slate-400 hover:text-indigo-600">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </button>
                 </div>
-                <div id="status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span id="user-count">1 Person</span>
+
+                <div id="user-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span id="user-count">1</span>
                 </div>
             </div>
         </header>
 
-        <!-- Main Viewport -->
         <main class="flex-grow relative">
-            <!-- Landing / Join UI -->
-            <div id="landing" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md transition-opacity duration-500">
-                <div class="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full mx-4 border border-white/20 transform scale-100">
-                    <div class="mb-8 text-center">
-                        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Math with Friends</h2>
-                        <p class="text-slate-500 mt-2">Create a workspace or join an existing session.</p>
-                    </div>
+            <!-- Overlay UI -->
+            <div id="landing" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+                <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full mx-4 border border-slate-100">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Collaborative Graphing</h2>
+                    <p class="text-slate-500 text-sm mb-8 leading-relaxed">Everything you do—equations, sliders, zooming—is synced instantly.</p>
                     
-                    <div class="space-y-4">
-                        <button onclick="initSession('create')" class="group w-full bg-slate-900 hover:bg-rose-600 text-white font-bold py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
-                            <span>Start New Workspace</span>
-                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <div class="space-y-3">
+                        <button onclick="setup('create')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">
+                            Create Private Room
                         </button>
                         
-                        <div class="relative py-4">
-                            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
-                            <div class="relative flex justify-center text-[10px] font-black uppercase tracking-widest text-slate-300"><span class="bg-white px-4">Secure Invite</span></div>
+                        <div class="flex items-center gap-3 py-2">
+                            <div class="flex-grow h-[1px] bg-slate-100"></div>
+                            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">or</span>
+                            <div class="flex-grow h-[1px] bg-slate-100"></div>
                         </div>
 
-                        <div class="flex gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-2xl">
-                            <input type="text" id="join-input" placeholder="CODE" maxlength="6" class="flex-grow bg-transparent px-4 py-3 focus:outline-none font-mono font-bold uppercase text-slate-800 placeholder:text-slate-300 tracking-[0.5em]">
-                            <button onclick="initSession('join')" class="bg-white border border-slate-200 hover:border-rose-300 hover:text-rose-600 text-slate-700 px-6 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95">Join</button>
+                        <div class="flex gap-2">
+                            <input type="text" id="join-input" placeholder="CODE" maxlength="6" class="flex-grow bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono font-bold uppercase">
+                            <button onclick="setup('join')" class="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-xl font-bold transition-all active:scale-[0.98]">Join</button>
                         </div>
                     </div>
-                    <p id="error-msg" class="mt-4 text-center text-rose-500 text-xs font-bold hidden"></p>
                 </div>
             </div>
 
-            <!-- Full Desmos Canvas -->
+            <!-- Desmos Interface -->
             <div id="calculator"></div>
         </main>
 
-        <!-- Dynamic Toast -->
-        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white rounded-2xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 translate-y-10 text-sm font-bold z-[200] border border-white/10">
-            Notification message
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 translate-y-4 text-xs font-bold z-[200]">
+            Notification
         </div>
     </div>
 
     <script>
         const ABLY_KEY = "LJhgHg.rF2whQ:Imz-F_d5gOcMGAiJNWIGjhaAXXba8Hpbefj3LtPaT0s";
-        
-        let calculator;
-        let ably;
-        let channel;
-        let isRemoteUpdate = false;
-        let currentRoomCode = '';
-        let updateTimeout;
-        let lastKnownState = null;
+        let calculator, ably, channel, currentRoomCode;
+        let isProcessingRemote = false;
+        let updateDebounce;
+        let myClientId = 'user-' + Math.random().toString(36).substr(2, 5);
 
-        // 1. Initialize the full Desmos Graphing Calculator
-        // This includes LaTeX sidebar, coordinate axes, and the math keyboard
+        // Initialize Full Desmos
         const elt = document.getElementById('calculator');
         calculator = Desmos.GraphingCalculator(elt, {
             keypad: true,
@@ -129,138 +123,113 @@
             expressionsTopbar: true,
             pointsOfInterest: true,
             trace: true,
-            border: false,
-            lockViewport: false
+            border: false
         });
 
-        async function initSession(mode) {
-            const input = document.getElementById('join-input');
-            const errorEl = document.getElementById('error-msg');
-            errorEl.classList.add('hidden');
-
-            let code = '';
-            if (mode === 'create') {
-                code = Math.random().toString(36).substring(2, 8).toUpperCase();
-            } else {
-                code = input.value.trim().toUpperCase();
-                if (code.length < 3) {
-                    errorEl.innerText = "Please enter a valid room code.";
-                    errorEl.classList.remove('hidden');
-                    return;
-                }
+        async function setup(mode) {
+            const codeInput = document.getElementById('join-input');
+            const code = mode === 'create' ? Math.random().toString(36).substr(2, 6).toUpperCase() : codeInput.value.trim().toUpperCase();
+            
+            if (mode === 'join' && code.length < 3) {
+                showToast("Please enter a valid room code.");
+                return;
             }
 
             try {
-                // Connect to Ably Realtime
-                ably = new Ably.Realtime({ 
-                    key: ABLY_KEY,
-                    clientId: 'user-' + Math.random().toString(36).substring(7)
+                ably = new Ably.Realtime({ key: ABLY_KEY, clientId: myClientId });
+                
+                ably.connection.on('connected', () => {
+                    const status = document.getElementById('connection-status');
+                    status.innerHTML = `<div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Connected`;
+                    status.classList.replace('text-slate-400', 'text-indigo-600');
                 });
 
-                await new Promise((resolve, reject) => {
-                    ably.connection.on('connected', resolve);
-                    setTimeout(() => reject(new Error("Timeout")), 8000);
-                });
+                channel = ably.channels.get(`room-${code}`);
 
-                currentRoomCode = code;
-                channel = ably.channels.get(`desmos-sync-${currentRoomCode}`);
-
-                // --- INCOMING SYNC ---
-                channel.subscribe('sync', (message) => {
-                    // Don't process our own broadcasts
-                    if (message.clientId === ably.auth.clientId) return;
-
-                    const remoteState = message.data;
-                    const currentState = calculator.getState();
-
-                    // Compare strings to avoid redundant setStates which kill performance
-                    if (JSON.stringify(remoteState) === JSON.stringify(currentState)) return;
-
-                    isRemoteUpdate = true;
-                    calculator.setState(remoteState);
-                    lastKnownState = JSON.stringify(remoteState);
+                // Sync Logic: Listen for updates
+                channel.subscribe('update', (msg) => {
+                    if (msg.clientId === myClientId) return;
                     
-                    // Allow UI to breathe before unlocking local changes
-                    setTimeout(() => { isRemoteUpdate = false; }, 100);
+                    const remoteState = msg.data;
+                    const localState = calculator.getState();
+
+                    // Deep compare to prevent oscillation
+                    if (JSON.stringify(remoteState) === JSON.stringify(localState)) return;
+
+                    isProcessingRemote = true;
+                    calculator.setState(remoteState);
+                    
+                    // Release lock after a tick to ensure Desmos has processed the state
+                    setTimeout(() => { isProcessingRemote = false; }, 50);
                 });
 
-                // --- PRESENCE & UI ---
-                channel.presence.subscribe('enter', updatePresence);
-                channel.presence.subscribe('leave', updatePresence);
-                channel.presence.subscribe('present', updatePresence);
-                await channel.presence.enter();
+                // Request initial state if joining
+                if (mode === 'join') {
+                    channel.publish('request-sync', { requester: myClientId });
+                }
+
+                // Answer sync requests (if we are the one already in the room)
+                channel.subscribe('request-sync', (msg) => {
+                    if (msg.clientId !== myClientId) {
+                        channel.publish('update', calculator.getState());
+                    }
+                });
+
+                // Presence tracking
+                channel.presence.subscribe('enter', updateMembers);
+                channel.presence.subscribe('leave', updateMembers);
+                channel.presence.subscribe('present', updateMembers);
+                channel.presence.enter();
 
                 // UI Transitions
+                currentRoomCode = code;
+                document.getElementById('display-code').innerText = code;
                 document.getElementById('landing').classList.add('opacity-0', 'pointer-events-none');
                 document.getElementById('room-controls').classList.remove('hidden');
-                document.getElementById('display-code').innerText = currentRoomCode;
 
-                // --- OUTGOING SYNC ---
-                // Observe any change in the Desmos calculator (expression, zoom, color, etc.)
+                // Observe Desmos Changes
                 calculator.observe('change', () => {
-                    if (isRemoteUpdate) return;
+                    if (isProcessingRemote) return;
 
-                    const currentState = calculator.getState();
-                    const stateString = JSON.stringify(currentState);
-
-                    // Don't broadcast if the state hasn't actually changed from what we last received
-                    if (stateString === lastKnownState) return;
-
-                    // Debounce broadcast to 150ms to keep it smooth without hitting API limits
-                    clearTimeout(updateTimeout);
-                    updateTimeout = setTimeout(() => {
-                        channel.publish('sync', currentState);
-                        lastKnownState = stateString;
-                    }, 150);
+                    clearTimeout(updateDebounce);
+                    updateDebounce = setTimeout(() => {
+                        const state = calculator.getState();
+                        channel.publish('update', state);
+                    }, 100);
                 });
 
             } catch (err) {
-                errorEl.innerText = "Connection failed. Check your network or API key.";
-                errorEl.classList.remove('hidden');
+                console.error(err);
+                showToast("Connection failed. Try refreshing.");
             }
         }
 
-        async function updatePresence() {
-            if (!channel) return;
-            try {
-                const members = await channel.presence.get();
-                const count = members.length;
-                document.getElementById('user-count').innerText = 
-                    count === 1 ? "Only you are here" : `${count} People Collaborating`;
-                
-                const badge = document.getElementById('status-badge');
-                if (count > 1) {
-                    badge.classList.replace('bg-emerald-50', 'bg-rose-50');
-                    badge.classList.replace('text-emerald-700', 'text-rose-700');
-                    badge.classList.replace('border-emerald-100', 'border-rose-100');
-                }
-            } catch (e) {}
+        async function updateMembers() {
+            const members = await channel.presence.get();
+            document.getElementById('user-count').innerText = members.length;
+        }
+
+        function forceSync() {
+            if (channel) {
+                channel.publish('update', calculator.getState());
+                showToast("State broadcasted to all users.");
+            }
         }
 
         function copyCode() {
             const code = document.getElementById('display-code').innerText;
-            const el = document.createElement('textarea');
-            el.value = code;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast(`Code ${code} copied! Share it with a friend.`);
+            navigator.clipboard.writeText(code);
+            showToast("Room code copied to clipboard!");
         }
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
-            toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
             }, 3000);
         }
-
-        // Handle enter key on join input
-        document.getElementById('join-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') initSession('join');
-        });
     </script>
 </body>
 </html>
