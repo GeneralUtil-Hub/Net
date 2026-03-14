@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Desmos</title>
+    <title>Multiplayer Desmos v1.1</title>
     <!-- Ably SDK -->
     <script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
     <!-- Desmos API (Demo Key) -->
@@ -38,7 +38,10 @@
                 <div class="bg-red-500 p-1.5 rounded-lg">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 </div>
-                <h1 class="font-bold text-xl text-slate-800 tracking-tight">Desmos<span class="text-red-500">Live</span></h1>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-800 tracking-tight leading-none">Desmos<span class="text-red-500">Live</span></h1>
+                    <span class="text-[10px] text-slate-400 font-mono uppercase tracking-widest">Update v1.1</span>
+                </div>
             </div>
 
             <div id="room-info" class="hidden flex items-center gap-4">
@@ -58,7 +61,6 @@
 
         <!-- Main Content -->
         <main class="flex-grow relative">
-            <!-- Landing Screen Overlay -->
             <div id="landing" class="absolute inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
                 <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-slate-200">
                     <h2 class="text-2xl font-bold text-slate-800 mb-2">Multiplayer Math</h2>
@@ -86,7 +88,6 @@
                 </div>
             </div>
 
-            <!-- Desmos Calculator -->
             <div id="calculator"></div>
         </main>
 
@@ -104,8 +105,8 @@
         let isRemoteUpdate = false;
         let currentRoomCode = '';
         let updateTimeout;
-        let lastSentState = null;
-        const myId = Math.random().toString(36).substring(7);
+        let lastReceivedStateString = null;
+        const myId = Math.random().toString(36).substring(2, 10);
 
         // Initialize Desmos
         const elt = document.getElementById('calculator');
@@ -125,16 +126,15 @@
             if (ably) ably.close();
 
             try {
-                ably = new Ably.Realtime({ 
-                    key: ABLY_KEY,
-                    clientId: myId
-                });
+                // Connect without a fixed clientId to avoid certain permission issues
+                ably = new Ably.Realtime({ key: ABLY_KEY });
                 
                 ably.connection.on('connected', () => {
                     setupRoom(roomCode);
                 });
 
-                ably.connection.on('failed', () => {
+                ably.connection.on('failed', (err) => {
+                    console.error("Ably Connection Failed:", err);
                     showToast("Ably Connection Failed.");
                     document.getElementById(btnTextId).classList.remove('hidden');
                     document.getElementById(btnLoaderId).classList.add('hidden');
@@ -149,28 +149,29 @@
             currentRoomCode = roomCode.toUpperCase();
             channel = ably.channels.get(`desmos-room-${currentRoomCode}`);
 
-            // 1. Better subscription logic
+            // 1. Subscription Logic
             channel.subscribe('state-update', (message) => {
-                // Ensure we ignore our own broadcasts
-                if (message.clientId === myId) return;
+                // Ensure we ignore our own broadcasts by checking the senderId in data
+                if (message.data.senderId === myId) return;
                 
-                const newState = message.data;
-                const currentState = calculator.getState();
-
-                // Stringify comparison to see if we actually need to update
-                if (JSON.stringify(newState) !== JSON.stringify(currentState)) {
+                const newState = message.data.state;
+                const newStateString = JSON.stringify(newState);
+                
+                // Compare with current local state
+                if (newStateString !== JSON.stringify(calculator.getState())) {
                     isRemoteUpdate = true;
+                    lastReceivedStateString = newStateString;
                     calculator.setState(newState);
-                    // Re-enable local updates after Desmos finishes its internal update
+                    // Lock local changes for 100ms while Desmos processes
                     setTimeout(() => { isRemoteUpdate = false; }, 100);
                 }
             });
 
-            // 2. Presence
+            // 2. Presence tracking
             channel.presence.subscribe(['enter', 'leave', 'present'], updatePresence);
             channel.presence.enter();
 
-            // 3. UI Update
+            // 3. UI Transition
             document.getElementById('landing').classList.add('hidden');
             document.getElementById('room-info').classList.remove('hidden');
             document.getElementById('display-code').innerText = currentRoomCode;
@@ -182,18 +183,16 @@
                 clearTimeout(updateTimeout);
                 updateTimeout = setTimeout(() => {
                     const currentState = calculator.getState();
-                    const stateString = JSON.stringify(currentState);
+                    const currentStateString = JSON.stringify(currentState);
 
-                    if (stateString === lastSentState) return;
+                    // Don't broadcast if this state matches the last one we received
+                    if (currentStateString === lastReceivedStateString) return;
 
-                    lastSentState = stateString;
-                    // Explicitly publish with clientId
-                    channel.publish({
-                        name: 'state-update',
-                        data: currentState,
-                        clientId: myId
+                    channel.publish('state-update', {
+                        senderId: myId,
+                        state: currentState
                     });
-                }, 250); // Slightly longer debounce for better stability
+                }, 100); // 100ms for more responsive synchronization
             });
         }
 
@@ -205,7 +204,7 @@
                 document.getElementById('presence-text').innerText = 
                     count === 1 ? "Only you here" : `${count} users online`;
             } catch (e) {
-                console.warn("Presence check failed", e);
+                console.warn("Presence update failed", e);
             }
         }
 
@@ -231,7 +230,7 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            showToast("Copied! Send this to your friend.");
+            showToast("Copied code to clipboard!");
         }
 
         function showToast(msg) {
