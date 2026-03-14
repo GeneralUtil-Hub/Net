@@ -17,7 +17,7 @@
         .loading-spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top: 3px solid #fff;
+            border-top: 3px solid #ef4444;
             width: 20px;
             height: 20px;
             animation: spin 1s linear infinite;
@@ -51,7 +51,7 @@
                 </div>
                 <div id="user-count" class="flex items-center gap-1 text-slate-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span class="text-sm font-medium">Connecting...</span>
+                    <span id="presence-text" class="text-sm font-medium">Syncing...</span>
                 </div>
             </div>
         </header>
@@ -96,6 +96,7 @@
     </div>
 
     <script>
+        // Note: Using a direct API Key in client-side code is for testing.
         const ABLY_KEY = "LJhgHg.rF2whQ:Imz-F_d5gOcMGAiJNWIGjhaAXXba8Hpbefj3LtPaT0s";
         
         let calculator;
@@ -104,7 +105,7 @@
         let isRemoteUpdate = false;
         let currentRoomCode = '';
         let updateTimeout;
-        let lastReceivedState = null;
+        let lastSentState = null;
 
         // Initialize Desmos
         const elt = document.getElementById('calculator');
@@ -116,86 +117,100 @@
         });
 
         async function connectRealtime(roomCode, isJoin = false) {
-            // UI Feedback
-            const btnText = isJoin ? 'join-text' : 'create-text';
-            const btnLoader = isJoin ? 'join-loader' : 'create-loader';
-            document.getElementById(btnText).classList.add('hidden');
-            document.getElementById(btnLoader).classList.remove('hidden');
+            // UI Cleanup for retry
+            const btnTextId = isJoin ? 'join-text' : 'create-text';
+            const btnLoaderId = isJoin ? 'join-loader' : 'create-loader';
+            document.getElementById(btnTextId).classList.add('hidden');
+            document.getElementById(btnLoaderId).classList.remove('hidden');
+
+            // Close existing connection if any
+            if (ably) ably.close();
 
             try {
-                ably = new Ably.Realtime({ key: ABLY_KEY });
+                ably = new Ably.Realtime({ 
+                    key: ABLY_KEY,
+                    clientId: Math.random().toString(36).substring(7) // Give every tab a unique ID
+                });
                 
-                await new Promise((resolve, reject) => {
-                    ably.connection.on('connected', resolve);
-                    const timeout = setTimeout(() => reject(new Error("Connection timeout")), 10000);
-                    ably.connection.on('failed', () => {
-                        clearTimeout(timeout);
-                        reject(new Error("Connection failed"));
-                    });
+                // Connection State Monitoring
+                ably.connection.on('connected', () => {
+                    setupRoom(roomCode);
                 });
 
-                currentRoomCode = roomCode.toUpperCase();
-                channel = ably.channels.get(`desmos-room-${currentRoomCode}`);
-
-                // Subscribe to state updates
-                channel.subscribe('state-update', (message) => {
-                    // Safety check for self-messages (Ably usually handles this via clientId, but this is extra safe)
-                    if (message.connectionId === ably.connection.id) return;
-                    
-                    const newState = message.data;
-                    
-                    // Simple deep comparison check to prevent unnecessary updates
-                    if (JSON.stringify(newState) === JSON.stringify(calculator.getState())) return;
-
-                    isRemoteUpdate = true;
-                    calculator.setState(newState);
-                    lastReceivedState = JSON.stringify(newState);
-                    
-                    // Release lock after a short delay to allow Desmos to settle
-                    setTimeout(() => { isRemoteUpdate = false; }, 50);
+                ably.connection.on('failed', () => {
+                    showToast("Ably Connection Failed. Retrying...");
+                    document.getElementById(btnTextId).classList.remove('hidden');
+                    document.getElementById(btnLoaderId).classList.add('hidden');
                 });
 
-                // Presence tracking
-                channel.presence.subscribe('enter', updatePresence);
-                channel.presence.subscribe('leave', updatePresence);
-                channel.presence.subscribe('present', updatePresence);
-                channel.presence.enter();
-
-                // Room setup
-                document.getElementById('landing').classList.add('hidden');
-                document.getElementById('room-info').classList.remove('hidden');
-                document.getElementById('display-code').innerText = currentRoomCode;
-
-                // Sync loop
-                calculator.observe('change', () => {
-                    if (isRemoteUpdate) return;
-
-                    const currentState = calculator.getState();
-                    const stateString = JSON.stringify(currentState);
-                    
-                    // Don't broadcast if this change just brought us back to what the remote person sent
-                    if (stateString === lastReceivedState) return;
-
-                    clearTimeout(updateTimeout);
-                    updateTimeout = setTimeout(() => {
-                        channel.publish('state-update', currentState);
-                    }, 150); // Fast enough for sliders, slow enough for rate limits
+                ably.connection.on('disconnected', () => {
+                    document.getElementById('presence-text').innerText = "Disconnected...";
                 });
 
             } catch (err) {
-                console.error(err);
-                showToast("Failed to connect. Check your API key.");
-                document.getElementById(btnText).classList.remove('hidden');
-                document.getElementById(btnLoader).classList.add('hidden');
+                console.error("Initialization Error:", err);
+                showToast("Error initializing connection.");
             }
+        }
+
+        function setupRoom(roomCode) {
+            currentRoomCode = roomCode.toUpperCase();
+            channel = ably.channels.get(`desmos-room-${currentRoomCode}`);
+
+            // 1. Subscribe to state updates
+            channel.subscribe('state-update', (message) => {
+                // If the message came from us, ignore it
+                if (message.clientId === ably.auth.clientId) return;
+                
+                const newState = message.data;
+                const currentState = calculator.getState();
+
+                // Only update if the new state is actually different to prevent loops
+                if (JSON.stringify(newState) !== JSON.stringify(currentState)) {
+                    isRemoteUpdate = true;
+                    calculator.setState(newState);
+                    // Short lock to allow Desmos internal state to update
+                    setTimeout(() => { isRemoteUpdate = false; }, 100);
+                }
+            });
+
+            // 2. Presence tracking
+            channel.presence.subscribe(['enter', 'leave', 'present'], updatePresence);
+            channel.presence.enter();
+
+            // 3. UI Update
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('room-info').classList.remove('hidden');
+            document.getElementById('display-code').innerText = currentRoomCode;
+
+            // 4. Observer for Local Changes
+            calculator.observe('change', () => {
+                if (isRemoteUpdate) return;
+
+                clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(() => {
+                    const currentState = calculator.getState();
+                    const stateString = JSON.stringify(currentState);
+
+                    // Don't resend if we already sent this state
+                    if (stateString === lastSentState) return;
+
+                    lastSentState = stateString;
+                    channel.publish('state-update', currentState);
+                }, 200); // Debounce for performance
+            });
         }
 
         async function updatePresence() {
             if (!channel) return;
-            const members = await channel.presence.get();
-            const count = members.length;
-            document.getElementById('user-count').querySelector('span').innerText = 
-                count === 1 ? "1 person here" : `${count} people here`;
+            try {
+                const members = await channel.presence.get();
+                const count = members.length;
+                document.getElementById('presence-text').innerText = 
+                    count === 1 ? "Only you here" : `${count} users online`;
+            } catch (e) {
+                console.warn("Presence check failed", e);
+            }
         }
 
         function createRoom() {
@@ -206,7 +221,7 @@
         function joinRoom() {
             const code = document.getElementById('join-input').value.trim();
             if (code.length < 3) {
-                showToast("Enter a valid room code.");
+                showToast("Invalid code.");
                 return;
             }
             connectRealtime(code, true);
@@ -214,13 +229,14 @@
 
         function copyCode() {
             const code = document.getElementById('display-code').innerText;
+            // Robust clipboard fallback
             const el = document.createElement('textarea');
             el.value = code;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            showToast("Code copied! Send it to a friend.");
+            showToast("Copied! Send this to your friend.");
         }
 
         function showToast(msg) {
